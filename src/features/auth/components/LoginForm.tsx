@@ -66,7 +66,7 @@ export default function LoginForm() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 p-fluid">
+        <form onSubmit={handleSubmit(onSubmit, (errors) => console.log("Errores de validación:", errors))} className="space-y-5 p-fluid">
           {/* User Field */}
           <div className="space-y-2">
             <label htmlFor="user" className="block text-sm font-medium text-slate-300">
@@ -79,7 +79,7 @@ export default function LoginForm() {
                 <InputText
                   id="user"
                   value={field.value}
-                  onChange={field.onChange}
+                  onChange={(e) => field.onChange(e.target.value)}
                   ref={field.ref}
                   placeholder="Ingresa tu usuario"
                   className={classNames('w-full', { 'p-invalid': fieldState.invalid })}
@@ -103,7 +103,7 @@ export default function LoginForm() {
                 <Password
                   id="password"
                   value={field.value}
-                  onChange={field.onChange}
+                  onChange={(e) => field.onChange(e.target.value)}
                   ref={field.ref}
                   placeholder="••••••••"
                   className={classNames('w-full', { 'p-invalid': fieldState.invalid })}
