@@ -13,7 +13,6 @@ export interface AuthResponse {
 }
 
 export const loginUserFn = async (data: LoginData): Promise<AuthResponse> => {
-    console.log(data);
-    const response = await api.post<AuthResponse>('/api/v1/auth/login', data);
+    const response = await api.post<AuthResponse>('/auth/login', data);
     return response.data;
 };

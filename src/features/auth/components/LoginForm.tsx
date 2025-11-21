@@ -1,8 +1,6 @@
 'use client';
 
 import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
@@ -10,21 +8,19 @@ import Image from 'next/image';
 import { useLogin } from '@/hooks/queries/useAuthMutation';
 import { classNames } from 'primereact/utils';
 
-const schema = z.object({
-  user: z.string().min(1, { message: 'El usuario es requerido' }),
-  password: z
-    .string()
-    .min(1, { message: 'La contraseña es requerida' })
-    .min(6, { message: 'Mínimo 6 caracteres' }),
-});
-
-type FormData = z.infer<typeof schema>;
+interface FormData {
+  user: string;
+  password: string;
+}
 
 export default function LoginForm() {
   const { mutate: login, isPending } = useLogin();
 
-  const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
-    resolver: zodResolver(schema),
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
     defaultValues: {
       user: '',
       password: '',
@@ -32,7 +28,6 @@ export default function LoginForm() {
   });
 
   const onSubmit = (data: FormData) => {
-    console.log(data);
     login(data);
   };
 
@@ -60,21 +55,26 @@ export default function LoginForm() {
           <h1 className="text-2xl font-semibold text-white mb-1">
             Ingresa a tu cuenta
           </h1>
-          <p className="text-slate-400 text-sm">
-            Bienvenido de vuelta
-          </p>
+          <p className="text-slate-400 text-sm">Bienvenido de vuelta</p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit, (errors) => console.log("Errores de validación:", errors))} className="space-y-5 p-fluid">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-5 p-fluid"
+        >
           {/* User Field */}
           <div className="space-y-2">
-            <label htmlFor="user" className="block text-sm font-medium text-slate-300">
+            <label
+              htmlFor="user"
+              className="block text-sm font-medium text-slate-300"
+            >
               Usuario / Correo
             </label>
             <Controller
               name="user"
               control={control}
+              rules={{ required: 'El usuario es requerido' }}
               render={({ field, fieldState }) => (
                 <InputText
                   id="user"
@@ -82,7 +82,9 @@ export default function LoginForm() {
                   onChange={(e) => field.onChange(e.target.value)}
                   ref={field.ref}
                   placeholder="Ingresa tu usuario"
-                  className={classNames('w-full', { 'p-invalid': fieldState.invalid })}
+                  className={classNames('w-full', {
+                    'p-invalid': fieldState.invalid,
+                  })}
                 />
               )}
             />
@@ -93,20 +95,31 @@ export default function LoginForm() {
 
           {/* Password Field */}
           <div className="space-y-2">
-            <label htmlFor="password" className="block text-sm font-medium text-slate-300">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-slate-300"
+            >
               Contraseña
             </label>
             <Controller
               name="password"
               control={control}
+              rules={{
+                required: 'La contraseña es requerida',
+                minLength: { value: 6, message: 'Mínimo 6 caracteres' },
+              }}
               render={({ field, fieldState }) => (
                 <Password
                   id="password"
                   value={field.value}
-                  onChange={(e) => field.onChange(e.target.value)}
-                  ref={field.ref}
+                  onChange={(e) => {
+                    field.onChange(e.target.value);
+                  }}
+                  inputRef={field.ref}
                   placeholder="••••••••"
-                  className={classNames('w-full', { 'p-invalid': fieldState.invalid })}
+                  className={classNames('w-full', {
+                    'p-invalid': fieldState.invalid,
+                  })}
                   inputClassName="w-full"
                   toggleMask
                   feedback={false}
@@ -114,7 +127,9 @@ export default function LoginForm() {
               )}
             />
             {errors.password && (
-              <p className="text-red-400 text-xs mt-1">{errors.password.message}</p>
+              <p className="text-red-400 text-xs mt-1">
+                {errors.password.message}
+              </p>
             )}
           </div>
 
