@@ -1,7 +1,19 @@
 @import "tailwindcss";
 
-@layer utilities {
+/* Map PrimeReact CSS variables to Tailwind theme */
+/* These variables come from the loaded PrimeReact theme (light or dark) */
+@theme {
+  --color-primary: var(--primary-color);
+  --color-primary-text: var(--primary-color-text);
+  --color-surface-ground: var(--surface-ground);
+  --color-surface-card: var(--surface-card);
+  --color-surface-overlay: var(--surface-overlay);
+  --color-surface-border: var(--surface-border);
+  --color-text-main: var(--text-color);
+  --color-text-secondary: var(--text-color-secondary);
+}
 
+@layer utilities {
   /* Custom gradient for radial backgrounds */
   .bg-gradient-radial {
     background: radial-gradient(circle, var(--tw-gradient-stops));
