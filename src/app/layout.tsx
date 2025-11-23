@@ -9,7 +9,7 @@ import { Inter } from 'next/font/google';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Scout Admin',
+  title: 'SAS - Sistema de Administración Scout',
   description: 'Sistema de administración para Grupo Scout',
 };
 

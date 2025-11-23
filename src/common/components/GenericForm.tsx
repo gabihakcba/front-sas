@@ -20,6 +20,7 @@ interface GenericFormProps {
   isLoading?: boolean;
   submitLabel: string;
   columns?: number;
+  actionType?: 'create' | 'update' | 'delete' | 'login';
 }
 
 export const GenericForm: React.FC<GenericFormProps> = ({
@@ -30,6 +31,7 @@ export const GenericForm: React.FC<GenericFormProps> = ({
   isLoading = false,
   submitLabel,
   columns = 1,
+  actionType = 'create',
 }) => {
   // Flatten fields from sections or use direct fields
   const allFields = sections
@@ -47,6 +49,7 @@ export const GenericForm: React.FC<GenericFormProps> = ({
           case 'checkbox':
             acc[field.name] = false;
             break;
+          case 'date':
           case 'number':
             acc[field.name] = null;
             break;
@@ -102,7 +105,7 @@ export const GenericForm: React.FC<GenericFormProps> = ({
         inputElement = (
           <InputText
             {...commonProps}
-            value={fieldProps.value}
+            value={fieldProps.value ?? ''}
             onChange={(e) => fieldProps.onChange(e.target.value)}
             ref={fieldProps.ref}
             type={field.type}
@@ -115,7 +118,7 @@ export const GenericForm: React.FC<GenericFormProps> = ({
         inputElement = (
           <Password
             {...commonProps}
-            value={fieldProps.value}
+            value={fieldProps.value ?? ''}
             onChange={(e) => fieldProps.onChange(e.target.value)}
             inputRef={fieldProps.ref}
             toggleMask
@@ -130,7 +133,7 @@ export const GenericForm: React.FC<GenericFormProps> = ({
         inputElement = (
           <InputText
             {...commonProps}
-            value={fieldProps.value}
+            value={fieldProps.value ?? ''}
             onChange={(e) => fieldProps.onChange(e.target.value)}
             ref={fieldProps.ref}
             type="number"
@@ -142,7 +145,7 @@ export const GenericForm: React.FC<GenericFormProps> = ({
         inputElement = (
           <InputTextarea
             {...commonProps}
-            value={fieldProps.value}
+            value={fieldProps.value ?? ''}
             onChange={(e) => fieldProps.onChange(e.target.value)}
             ref={fieldProps.ref}
             rows={5}
@@ -165,13 +168,30 @@ export const GenericForm: React.FC<GenericFormProps> = ({
         );
 
       case 'date':
+        // Asegurar que el valor sea un objeto Date válido o null
+        let dateValue: Date | null = null;
+
+        if (fieldProps.value instanceof Date) {
+          dateValue = fieldProps.value;
+        } else if (typeof fieldProps.value === 'string' && fieldProps.value) {
+          const parsed = new Date(fieldProps.value);
+          if (!isNaN(parsed.getTime())) {
+            dateValue = parsed;
+          }
+        }
+
         inputElement = (
           <Calendar
             {...commonProps}
-            value={fieldProps.value}
+            value={dateValue}
             onChange={(e) => fieldProps.onChange(e.value)}
             ref={fieldProps.ref}
+            dateFormat="dd/mm/yy"
             showIcon
+            iconPos="left"
+            mask="99/99/9999"
+            showButtonBar
+            readOnlyInput
           />
         );
         return inputElement;
@@ -284,6 +304,25 @@ export const GenericForm: React.FC<GenericFormProps> = ({
         type="submit"
         className="w-full mt-6"
         loading={isLoading}
+        icon={
+          actionType === 'login'
+            ? 'pi pi-sign-in'
+            : actionType === 'delete'
+              ? 'pi pi-trash'
+              : 'pi pi-save'
+        }
+        iconPos="right"
+        size="small"
+        outlined
+        severity={
+          actionType === 'create'
+            ? 'success'
+            : actionType === 'update'
+              ? 'warning'
+              : actionType === 'delete'
+                ? 'danger'
+                : 'info'
+        }
       />
     </form>
   );

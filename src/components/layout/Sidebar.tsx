@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useRBAC } from '@/hooks/useRBAC';
-import { getFilteredMenu, NavItem } from '@/config/navigation';
+import { getFilteredMenu, MenuItem } from '@/config/navigation';
 import { classNames } from 'primereact/utils';
 
 /**
@@ -81,7 +81,13 @@ export function Sidebar() {
 /**
  * Individual sidebar menu item
  */
-function SidebarItem({ item, isActive }: { item: NavItem; isActive: boolean }) {
+function SidebarItem({
+  item,
+  isActive,
+}: {
+  item: MenuItem;
+  isActive: boolean;
+}) {
   return (
     <Link
       href={item.href}

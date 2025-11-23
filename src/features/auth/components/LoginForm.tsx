@@ -63,6 +63,7 @@ export default function LoginForm() {
           onSubmit={login}
           isLoading={isPending}
           submitLabel="Iniciar Sesión"
+          actionType="login"
         />
       </div>
     </div>

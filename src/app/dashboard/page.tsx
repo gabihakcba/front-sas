@@ -21,6 +21,7 @@ export default function DashboardPage() {
             label="Cerrar Sesión"
             severity="danger"
             icon="pi pi-power-off"
+            iconPos="right"
             onClick={logout}
           />
         </div>

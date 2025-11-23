@@ -94,6 +94,58 @@ export function useRBAC() {
     return user?.roles || [];
   };
 
+  /**
+   * Check if user has permission to perform action on resource
+   * This is a simplified implementation that maps resource-action to roles
+   * @param resource - The resource type
+   * @param action - The action to perform
+   * @returns true if user has permission
+   */
+  const hasPermission = (resource: string, action: string): boolean => {
+    if (!user || !user.roles) return false;
+
+    // SUPER_ADMIN can do anything
+    if (isSuperAdmin()) return true;
+
+    // Check for MANAGE permission (includes all actions)
+    const hasManage = user.roles.some(
+      (role: UserRole) => role.name === 'MANAGE'
+    );
+    if (hasManage) return true;
+
+    // Resource-specific role mappings
+    // This is a simplified mapping - in production, this should come from backend
+    const roleMapping: Record<string, Record<string, string[]>> = {
+      ADULTO: {
+        READ: ['JEFE_GRUPO', 'SECRETARIA', 'JEFE_RAMA'],
+        CREATE: ['JEFE_GRUPO', 'SECRETARIA'],
+        UPDATE: ['JEFE_GRUPO', 'SECRETARIA'],
+        DELETE: ['JEFE_GRUPO'],
+      },
+      PROTAGONISTA: {
+        READ: [
+          'JEFE_GRUPO',
+          'JEFE_RAMA',
+          'SECRETARIA',
+          'FAMILIA',
+          'MIEMBRO_ACTIVO',
+        ],
+        CREATE: ['JEFE_GRUPO', 'JEFE_RAMA', 'SECRETARIA'],
+        UPDATE: ['JEFE_GRUPO', 'JEFE_RAMA', 'SECRETARIA'],
+        DELETE: ['JEFE_GRUPO', 'SECRETARIA'],
+      },
+      PAGO: {
+        READ: ['JEFE_GRUPO', 'TESORERIA', 'FAMILIA'],
+        CREATE: ['JEFE_GRUPO', 'TESORERIA'],
+        UPDATE: ['JEFE_GRUPO', 'TESORERIA'],
+        DELETE: ['JEFE_GRUPO', 'TESORERIA'],
+      },
+    };
+
+    const allowedRoles = roleMapping[resource]?.[action] || [];
+    return allowedRoles.some((roleName) => hasRole(roleName));
+  };
+
   return {
     user: user as User | null,
     isLoading,
@@ -101,5 +153,6 @@ export function useRBAC() {
     hasScopeAccess,
     isSuperAdmin,
     getUserRoles,
+    hasPermission,
   };
 }

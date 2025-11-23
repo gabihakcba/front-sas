@@ -122,6 +122,7 @@ export function Sidebar({
         <Button
           label="Cerrar Sesión"
           icon="pi pi-power-off"
+          iconPos="right"
           severity="danger"
           outlined
           className="w-full"

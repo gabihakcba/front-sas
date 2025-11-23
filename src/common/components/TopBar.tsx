@@ -21,6 +21,7 @@ export function TopBar({ onMenuToggle }: TopBarProps) {
       {/* Hamburger Menu Button */}
       <Button
         icon="pi pi-bars"
+        iconPos="right"
         text
         severity="secondary"
         onClick={onMenuToggle}
