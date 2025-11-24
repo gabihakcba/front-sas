@@ -24,6 +24,7 @@ interface GenericDataTableProps<T> {
   permissionResource: RESOURCE;
   mobileDetailTemplate?: (item: T) => ReactNode;
   dataKey?: string;
+  rowActions?: (item: T) => ReactNode;
 }
 
 export function GenericDataTable<T extends Record<string, any>>({
@@ -38,6 +39,7 @@ export function GenericDataTable<T extends Record<string, any>>({
   permissionResource,
   mobileDetailTemplate,
   dataKey = 'id',
+  rowActions,
 }: GenericDataTableProps<T>) {
   const [globalFilter, setGlobalFilter] = useState<string>('');
   const [expandedRows, setExpandedRows] = useState<
@@ -80,6 +82,7 @@ export function GenericDataTable<T extends Record<string, any>>({
   const actionsTemplate = (rowData: T) => {
     return (
       <div className="flex gap-2 justify-end">
+        {rowActions && rowActions(rowData)}
         {onEdit && (
           <Protect
             resource={permissionResource}
@@ -153,7 +156,7 @@ export function GenericDataTable<T extends Record<string, any>>({
     );
   }
 
-  const hasActions = onEdit || onDelete;
+  const hasActions = onEdit || onDelete || rowActions;
 
   return (
     <div className="w-full">
