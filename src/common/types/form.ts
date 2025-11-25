@@ -8,6 +8,7 @@ export type FieldType =
   | 'date'
   | 'dropdown'
   | 'checkbox'
+  | 'multiselect'
   | 'textarea';
 
 export interface SelectOption {

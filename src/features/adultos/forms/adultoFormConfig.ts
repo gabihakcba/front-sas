@@ -55,12 +55,12 @@ export const getEquipoFormSection = (
         placeholder: 'Seleccione una posición',
       },
       {
-        name: 'id_role',
-        label: 'Permiso de Sistema',
-        type: 'dropdown',
+        name: 'id_roles',
+        label: 'Permisos de Sistema',
+        type: 'multiselect',
         options: roles.map((r) => ({ label: r.nombre, value: r.id })),
-        rules: { required: 'El rol es obligatorio' },
-        placeholder: 'Seleccione un rol',
+        rules: { required: 'Al menos un rol es obligatorio' },
+        placeholder: 'Seleccione roles',
       },
     ],
   };

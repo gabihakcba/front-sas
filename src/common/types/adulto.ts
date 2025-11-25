@@ -30,8 +30,10 @@ export interface AdultoRow {
     Area: { id: number; nombre: string };
     PosicionArea: { id: number; nombre: string };
     Rama?: { id: number; nombre: string };
-    Role?: { id: number; nombre: string };
+
+    Roles?: Array<{ id: number; nombre: string }>;
   }>;
+  roles: Array<{ id: number; nombre: string }>;
   // Legacy or flattened fields (optional)
   equipo?: any;
   equipoActual?: any;
@@ -59,7 +61,7 @@ export interface AdultoFormData {
   id_area?: number;
   id_posicion?: number;
   id_rama?: number;
-  id_role?: number;
+  id_roles?: number[];
 }
 
 /**
@@ -89,7 +91,7 @@ export interface CreateAdultoDto {
     id_area: number;
     id_posicion: number;
     id_rama?: number;
-    id_role: number;
+    id_roles: number[];
   };
 }
 
@@ -101,7 +103,7 @@ export interface PaseAdultoDto {
     id_area: number;
     id_posicion: number;
     id_rama?: number;
-    id_role: number;
+    id_roles: number[];
   };
   fecha_pase?: string | Date;
 }

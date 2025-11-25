@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
+import { MultiSelect } from 'primereact/multiselect';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Checkbox } from 'primereact/checkbox';
 import { Button } from 'primereact/button';
@@ -66,9 +67,14 @@ export const GenericForm: React.FC<GenericFormProps> = ({
     control,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm({
     defaultValues: initialValues,
   });
+
+  useEffect(() => {
+    reset(initialValues);
+  }, [defaultValues, reset]);
 
   const renderField = (
     field: FieldConfig,
@@ -164,6 +170,21 @@ export const GenericForm: React.FC<GenericFormProps> = ({
             optionLabel="label"
             ref={fieldProps.ref}
             loading={field.isLoading}
+          />
+        );
+
+      case 'multiselect':
+        return (
+          <MultiSelect
+            {...commonProps}
+            value={fieldProps.value}
+            onChange={(e) => fieldProps.onChange(e.value)}
+            options={field.options}
+            optionLabel="label"
+            optionValue="value"
+            display="chip"
+            filter
+            ref={fieldProps.ref}
           />
         );
 

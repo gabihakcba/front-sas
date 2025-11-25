@@ -10,6 +10,7 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { confirmDialog } from 'primereact/confirmdialog';
 import { ConfirmDialog } from 'primereact/confirmdialog';
+import { Tag } from 'primereact/tag';
 import { Protect } from '@/components/auth/Protect';
 import { GenericDataTable } from '@/common/components/GenericDataTable';
 import { RESOURCE, ACTION } from '@/common/types/rbac';
@@ -108,6 +109,21 @@ export default function AdultosList() {
       hideOnMobile: true,
     },
     {
+      field: 'roles',
+      header: 'Roles',
+      body: (row) => (
+        <div className="flex gap-1 flex-wrap">
+          {row.roles?.map((r) => (
+            <Tag
+              key={r.id}
+              value={r.nombre}
+              severity="info"
+            />
+          ))}
+        </div>
+      ),
+    },
+    {
       field: 'activo',
       header: 'Estado',
       hideOnMobile: true,
@@ -149,7 +165,7 @@ export default function AdultosList() {
       id_area: activeTeam?.Area?.id ?? activeTeam?.id_area,
       id_posicion: activeTeam?.PosicionArea?.id ?? activeTeam?.id_posicion,
       id_rama: activeTeam?.Rama?.id ?? activeTeam?.id_rama,
-      id_role: activeTeam?.Role?.id ?? activeTeam?.id_role,
+      id_roles: activeTeam?.Roles?.map((r: { id: number }) => r.id) ?? [],
     };
 
     setSelectedAdulto(adultoEditable);
@@ -184,11 +200,10 @@ export default function AdultosList() {
   /**
    * Handler para el submit del formulario de Pase
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleSubmitPase = async (data: any) => {
-    const { id_area, id_posicion, id_rama, id_role } = data;
+  const handleSubmitPase = async (data: AdultoFormData) => {
+    const { id_area, id_posicion, id_rama, id_roles } = data;
 
-    if (!selectedAdultoPase) return;
+    if (!selectedAdultoPase || !id_area || !id_posicion || !id_roles) return;
 
     // Construir el DTO de Pase
     const pasePayload: PaseAdultoDto = {
@@ -202,7 +217,7 @@ export default function AdultosList() {
             ? id_rama
             : undefined;
         })(),
-        id_role,
+        id_roles,
       },
     };
 
@@ -214,11 +229,8 @@ export default function AdultosList() {
     setPaseDialogVisible(false);
   };
 
-  /**
-   * Handler para el submit del formulario de crear/editar
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleSubmit = async (data: any) => {
+  // Handler para el submit del formulario de crear/editar
+  const handleSubmit = async (data: AdultoFormData) => {
     const {
       nombre,
       apellidos,
@@ -235,7 +247,7 @@ export default function AdultosList() {
       id_area,
       id_posicion,
       id_rama,
-      id_role,
+      id_roles,
     } = data;
 
     // Prepare payload
@@ -246,26 +258,31 @@ export default function AdultosList() {
         nombre,
         apellidos,
         dni,
-        fecha_nacimiento: new Date(fecha_nacimiento).toISOString(),
+        fecha_nacimiento: fecha_nacimiento
+          ? new Date(fecha_nacimiento).toISOString()
+          : new Date().toISOString(), // Fallback or handle error
         direccion,
-        email,
-        telefono,
-        telefono_emergencia,
-        totem,
-        cualidad,
+        email: email || undefined,
+        telefono: telefono || undefined,
+        telefono_emergencia: telefono_emergencia || '',
+        totem: totem || undefined,
+        cualidad: cualidad || undefined,
       },
-      equipo: {
-        id_area,
-        id_posicion,
-        // Lógica data-driven: solo envía id_rama si el área seleccionada tiene ramas asociadas
-        id_rama: (() => {
-          const selectedArea = areas.find((a) => a.id === id_area);
-          return selectedArea?.Rama && selectedArea.Rama.length > 0
-            ? id_rama
-            : undefined;
-        })(),
-        id_role,
-      },
+      equipo:
+        id_area && id_posicion && id_roles && id_roles.length > 0
+          ? {
+              id_area,
+              id_posicion,
+              // Lógica data-driven: solo envía id_rama si el área seleccionada tiene ramas asociadas
+              id_rama: (() => {
+                const selectedArea = areas.find((a) => a.id === id_area);
+                return selectedArea?.Rama && selectedArea.Rama.length > 0
+                  ? id_rama
+                  : undefined;
+              })(),
+              id_roles,
+            }
+          : undefined,
     };
 
     if (selectedAdulto && selectedAdulto.id) {
