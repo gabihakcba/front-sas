@@ -1,5 +1,5 @@
 import React from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { Dropdown } from 'primereact/dropdown';
@@ -223,6 +223,8 @@ export const GenericForm: React.FC<GenericFormProps> = ({
 
   const renderFields = (fieldsToRender: FieldConfig[], gridCols?: number) => {
     const cols = gridCols || columns;
+    const values = useWatch({ control });
+
     return (
       <div
         className={`grid gap-4 ${
@@ -233,38 +235,44 @@ export const GenericForm: React.FC<GenericFormProps> = ({
               : `grid-cols-1 md:grid-cols-${cols}`
         }`}
       >
-        {fieldsToRender.map((field) => (
-          <div
-            key={field.name}
-            className={
-              field.colSpan ? `col-span-${field.colSpan} p-fluid` : 'p-fluid'
-            }
-          >
-            {field.type !== 'checkbox' && (
-              <label
-                htmlFor={field.name}
-                className="block text-sm font-medium text-slate-300 mb-1"
-              >
-                {field.label}
-              </label>
-            )}
-            <Controller
-              name={field.name}
-              control={control}
-              rules={field.rules}
-              render={({ field: fieldProps, fieldState }) => (
-                <>
-                  {renderField(field, fieldProps, fieldState)}
-                  {fieldState.error && (
-                    <small className="text-red-500 text-xs block mt-1">
-                      {fieldState.error.message}
-                    </small>
-                  )}
-                </>
+        {fieldsToRender.map((field) => {
+          if (field.showIf && !field.showIf(values)) {
+            return null;
+          }
+
+          return (
+            <div
+              key={field.name}
+              className={
+                field.colSpan ? `col-span-${field.colSpan} p-fluid` : 'p-fluid'
+              }
+            >
+              {field.type !== 'checkbox' && (
+                <label
+                  htmlFor={field.name}
+                  className="block text-sm font-medium text-slate-300 mb-1"
+                >
+                  {field.label}
+                </label>
               )}
-            />
-          </div>
-        ))}
+              <Controller
+                name={field.name}
+                control={control}
+                rules={field.rules}
+                render={({ field: fieldProps, fieldState }) => (
+                  <>
+                    {renderField(field, fieldProps, fieldState)}
+                    {fieldState.error && (
+                      <small className="text-red-500 text-xs block mt-1">
+                        {fieldState.error.message}
+                      </small>
+                    )}
+                  </>
+                )}
+              />
+            </div>
+          );
+        })}
       </div>
     );
   };

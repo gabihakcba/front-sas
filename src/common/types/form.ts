@@ -26,6 +26,7 @@ export interface FieldConfig {
   inputProps?: Record<string, any>;
   icon?: string;
   isLoading?: boolean;
+  showIf?: (values: any) => boolean;
 }
 
 export interface FormSection {

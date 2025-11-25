@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { confirmDialog } from 'primereact/confirmdialog';
@@ -19,183 +19,102 @@ import {
   useCreateAdultoMutation,
   useUpdateAdultoMutation,
   useDeleteAdultoMutation,
+  usePaseAdultoMutation,
 } from '@/hooks/queries/useAdultos';
-import type { AdultoRow, CreateAdultoDto } from '@/common/types/adulto';
+import type {
+  AdultoRow,
+  CreateAdultoDto,
+  PaseAdultoDto,
+} from '@/common/types/adulto';
 import { GenericForm } from '@/common/components/GenericForm';
-import { adultoFormSections } from '../forms/adultoFormConfig';
-import { toCalendarDate, toApiDate, formatDate } from '@/lib/date';
-import { Tag } from 'primereact/tag';
+import {
+  getAdultoFormSections,
+  getEquipoFormSection,
+} from '../forms/adultoFormConfig';
+import {
+  useAreasQuery,
+  usePosicionesQuery,
+  useRolesQuery,
+} from '@/hooks/queries/useCommon';
+import { useRamasQuery } from '@/hooks/queries/useRamas';
+import { toCalendarDate } from '@/lib/date';
 
 export default function AdultosList() {
   const { data: adultos = [], isLoading } = useAdultosQuery();
-  const createMutation = useCreateAdultoMutation();
-  const updateMutation = useUpdateAdultoMutation();
-  const deleteMutation = useDeleteAdultoMutation();
+  const { data: areas = [], isLoading: isLoadingAreas } = useAreasQuery();
+  const { data: posiciones = [], isLoading: isLoadingPosiciones } =
+    usePosicionesQuery();
+  const { data: ramas = [], isLoading: isLoadingRamas } = useRamasQuery();
+  const { data: roles = [], isLoading: isLoadingRoles } = useRolesQuery();
+
+  const createAdultoMutation = useCreateAdultoMutation();
+  const updateAdultoMutation = useUpdateAdultoMutation();
+  const deleteAdultoMutation = useDeleteAdultoMutation();
+  const paseAdultoMutation = usePaseAdultoMutation();
+
+  const sections = useMemo(
+    () => getAdultoFormSections(areas, posiciones, ramas, roles),
+    [areas, posiciones, ramas, roles]
+  );
+
+  // Sección de equipo para el formulario de Pase
+  const paseSection = useMemo(
+    () => [getEquipoFormSection(areas, posiciones, ramas, roles)],
+    [areas, posiciones, ramas, roles]
+  );
 
   const [dialogVisible, setDialogVisible] = useState(false);
   const [selectedAdulto, setSelectedAdulto] = useState<AdultoRow | null>(null);
+
+  // Estado para el diálogo de Pase
+  const [paseDialogVisible, setPaseDialogVisible] = useState(false);
+  const [selectedAdultoPase, setSelectedAdultoPase] =
+    useState<AdultoRow | null>(null);
 
   /**
    * Column configuration
    */
   const columns: TableColumn<AdultoRow>[] = [
     {
-      field: 'nombre',
+      field: 'nombre', // Keep field for sorting/key
       header: 'Nombre Completo',
       sortable: true,
-      body: (rowData) => (
-        <div className="flex flex-col">
-          <span className="font-semibold">{`${rowData.nombre || ''} ${rowData.apellidos || ''}`}</span>
-          {rowData.totem && (
-            <span className="text-sm text-gray-400 md:hidden italic">
-              {rowData.totem}
-            </span>
-          )}
-        </div>
-      ),
+      transform: (row) => `${row.nombre || ''} ${row.apellidos || ''}`,
+      className: 'font-semibold', // Keep styling
     },
     {
       field: 'rama',
       header: 'Rama',
-      body: (rowData) => rowData.rama || 'Sin rama',
     },
     {
       field: 'totem',
       header: 'Totem',
-      className: 'hidden md:table-cell',
-      body: (rowData) =>
-        rowData.totem ? (
-          <span className="italic text-primary">{rowData.totem}</span>
-        ) : (
-          <span className="text-gray-500">-</span>
-        ),
+      hideOnMobile: true,
+      textSeverity: 'primary',
+      className: 'italic', // Keep italic styling
     },
     {
       field: 'dni',
       header: 'DNI',
       sortable: true,
-      className: 'hidden md:table-cell',
+      hideOnMobile: true,
     },
     {
       field: 'telefono',
       header: 'Teléfono',
-      className: 'hidden md:table-cell',
+      hideOnMobile: true,
     },
     {
       field: 'activo',
       header: 'Estado',
-      className: 'hidden md:table-cell',
-      body: (rowData) => (
-        <Tag
-          value={rowData.activo ? 'Activo' : 'Inactivo'}
-          severity={rowData.activo ? 'success' : 'danger'}
-        />
-      ),
+      hideOnMobile: true,
+      type: 'tag',
+      tagConfig: {
+        getLabel: (v) => (v ? 'Activo' : 'Inactivo'),
+        getSeverity: (v) => (v ? 'success' : 'danger'),
+      },
     },
   ];
-
-  /**
-   * Mobile detail template - shows all hidden columns
-   */
-  const mobileDetailTemplate = (rowData: AdultoRow) => {
-    return (
-      <div className="p-4 bg-surface-50 rounded-lg">
-        <div className="grid grid-cols-1 gap-4 text-sm">
-          {/* Totem */}
-          {rowData.totem && (
-            <div>
-              <strong className="text-text-secondary block mb-1">Totem:</strong>
-              <p className="text-text-main italic">{rowData.totem}</p>
-            </div>
-          )}
-
-          {/* Cualidad */}
-          {rowData.cualidad && (
-            <div>
-              <strong className="text-text-secondary block mb-1">
-                Cualidad:
-              </strong>
-              <p className="text-text-main">{rowData.cualidad}</p>
-            </div>
-          )}
-
-          {/* DNI */}
-          <div>
-            <strong className="text-text-secondary block mb-1">DNI:</strong>
-            <p className="text-text-main">{rowData.dni || '-'}</p>
-          </div>
-
-          {/* Email */}
-          <div>
-            <strong className="text-text-secondary block mb-1">Email:</strong>
-            <p className="text-text-main">{rowData.email || '-'}</p>
-          </div>
-
-          {/* Teléfono */}
-          <div>
-            <strong className="text-text-secondary block mb-1">
-              Teléfono:
-            </strong>
-            <p className="text-text-main">{rowData.telefono || '-'}</p>
-          </div>
-
-          {/* Teléfono Emergencia */}
-          <div>
-            <strong className="text-text-secondary block mb-1">
-              Tel. Emergencia:
-            </strong>
-            <p className="text-text-main">
-              {rowData.telefono_emergencia || '-'}
-            </p>
-          </div>
-
-          {/* Dirección */}
-          <div>
-            <strong className="text-text-secondary block mb-1">
-              Dirección:
-            </strong>
-            <p className="text-text-main">{rowData.direccion || '-'}</p>
-          </div>
-
-          {/* Fecha de Nacimiento */}
-          <div>
-            <strong className="text-text-secondary block mb-1">
-              Fecha de Nacimiento:
-            </strong>
-            <p className="text-text-main">
-              {rowData.fecha_nacimiento
-                ? formatDate(rowData.fecha_nacimiento)
-                : '-'}
-            </p>
-          </div>
-
-          {/* Becado */}
-          <div>
-            <strong className="text-text-secondary block mb-1">Becado:</strong>
-            <div className="flex items-center gap-2">
-              {rowData.es_becado ? (
-                <i className="pi pi-check text-green-500" />
-              ) : (
-                <i className="pi pi-times text-red-500" />
-              )}
-              <span className="text-text-main">
-                {rowData.es_becado ? 'Sí' : 'No'}
-              </span>
-            </div>
-          </div>
-
-          {/* Estado */}
-          <div>
-            <strong className="text-text-secondary block mb-1">Estado:</strong>
-            <Tag
-              value={rowData.activo ? 'Activo' : 'Inactivo'}
-              severity={rowData.activo ? 'success' : 'danger'}
-            />
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   /**
    * Handler para abrir el diálogo de creación
@@ -209,10 +128,30 @@ export default function AdultosList() {
    * Handler para editar un adulto
    */
   const handleEdit = (adulto: AdultoRow) => {
+    // Extract IDs from nested equipo object if present (backend might return it nested)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const rawAdulto = adulto as any;
+    console.log(rawAdulto);
+    // Buscar el equipo activo en la relación EquipoArea (si existe)
+    let activeTeam = null;
+    if (Array.isArray(rawAdulto.EquipoArea)) {
+      activeTeam = rawAdulto.EquipoArea.find((eq: any) => eq.activo);
+    } else if (rawAdulto.equipo) {
+      activeTeam = rawAdulto.equipo;
+    } else if (rawAdulto.equipoActual) {
+      activeTeam = rawAdulto.equipoActual;
+    }
+    console.log(activeTeam);
+
     const adultoEditable = {
       ...adulto,
       fecha_nacimiento: toCalendarDate(adulto.fecha_nacimiento),
+      id_area: adulto.id_area ?? activeTeam?.id_area,
+      id_posicion: adulto.id_posicion ?? activeTeam?.id_posicion,
+      id_rama: adulto.id_rama ?? activeTeam?.id_rama,
+      id_role: adulto.id_role ?? activeTeam?.id_role,
     };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setSelectedAdulto(adultoEditable as any);
     setDialogVisible(true);
   };
@@ -229,39 +168,113 @@ export default function AdultosList() {
       rejectLabel: 'Cancelar',
       acceptClassName: 'p-button-danger',
       accept: async () => {
-        await deleteMutation.mutateAsync(adulto.id);
+        await deleteAdultoMutation.mutateAsync(adulto.id);
       },
     });
   };
 
   /**
-   * Handler para el submit del formulario
+   * Handler para abrir el diálogo de Pase
    */
-  const handleSubmit = async (formData: any) => {
+  const handlePase = (adulto: AdultoRow) => {
+    setSelectedAdultoPase(adulto);
+    setPaseDialogVisible(true);
+  };
+
+  /**
+   * Handler para el submit del formulario de Pase
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleSubmitPase = async (data: any) => {
+    const { id_area, id_posicion, id_rama, id_role } = data;
+
+    if (!selectedAdultoPase) return;
+
+    // Construir el DTO de Pase
+    const pasePayload: PaseAdultoDto = {
+      equipo: {
+        id_area,
+        id_posicion,
+        // Lógica data-driven: solo envía id_rama si el área tiene ramas
+        id_rama: (() => {
+          const selectedArea = areas.find((a) => a.id === id_area);
+          return selectedArea?.Rama && selectedArea.Rama.length > 0
+            ? id_rama
+            : undefined;
+        })(),
+        id_role,
+      },
+    };
+
+    await paseAdultoMutation.mutateAsync({
+      id: selectedAdultoPase.id,
+      data: pasePayload,
+    });
+
+    setPaseDialogVisible(false);
+  };
+
+  /**
+   * Handler para el submit del formulario de crear/editar
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleSubmit = async (data: any) => {
+    const {
+      nombre,
+      apellidos,
+      dni,
+      fecha_nacimiento,
+      direccion,
+      email,
+      telefono,
+      telefono_emergencia,
+      totem,
+      cualidad,
+      es_becado,
+      activo,
+      id_area,
+      id_posicion,
+      id_rama,
+      id_role,
+    } = data;
+
+    // Prepare payload
     const payload: CreateAdultoDto = {
-      es_becado: Boolean(formData.es_becado),
-      activo: Boolean(formData.activo),
+      es_becado: !!es_becado,
+      activo: !!activo,
       miembro: {
-        nombre: formData.nombre,
-        apellidos: formData.apellidos,
-        dni: formData.dni,
-        fecha_nacimiento: toApiDate(formData.fecha_nacimiento) as any,
-        direccion: formData.direccion,
-        email: formData.email || undefined,
-        telefono: formData.telefono || undefined,
-        telefono_emergencia: formData.telefono_emergencia,
-        totem: formData.totem || undefined,
-        cualidad: formData.cualidad || undefined,
+        nombre,
+        apellidos,
+        dni,
+        fecha_nacimiento: new Date(fecha_nacimiento).toISOString(),
+        direccion,
+        email,
+        telefono,
+        telefono_emergencia,
+        totem,
+        cualidad,
+      },
+      equipo: {
+        id_area,
+        id_posicion,
+        // Lógica data-driven: solo envía id_rama si el área seleccionada tiene ramas asociadas
+        id_rama: (() => {
+          const selectedArea = areas.find((a) => a.id === id_area);
+          return selectedArea?.Rama && selectedArea.Rama.length > 0
+            ? id_rama
+            : undefined;
+        })(),
+        id_role,
       },
     };
 
     if (selectedAdulto) {
-      await updateMutation.mutateAsync({
+      await updateAdultoMutation.mutateAsync({
         id: selectedAdulto.id,
         data: payload,
       });
     } else {
-      await createMutation.mutateAsync(payload);
+      await createAdultoMutation.mutateAsync(payload);
     }
 
     setDialogVisible(false);
@@ -287,6 +300,25 @@ export default function AdultosList() {
     </Protect>
   );
 
+  /**
+   * Custom row actions (Pase button)
+   */
+  const rowActions = (adulto: AdultoRow) => (
+    <Protect
+      resource={RESOURCE.ADULTO}
+      action={ACTION.UPDATE}
+    >
+      <Button
+        className="p-button-sm p-button-outlined gap-2"
+        severity="warning"
+        onClick={() => handlePase(adulto)}
+      >
+        <span className="hidden md:inline">Pase</span>
+        <i className="pi pi-arrow-right" />
+      </Button>
+    </Protect>
+  );
+
   return (
     <>
       <ConfirmDialog />
@@ -300,7 +332,8 @@ export default function AdultosList() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         permissionResource={RESOURCE.ADULTO}
-        mobileDetailTemplate={mobileDetailTemplate}
+        mobileDetailTemplate={undefined}
+        rowActions={rowActions}
       />
 
       {/* Dialog de Creación/Edición */}
@@ -312,12 +345,43 @@ export default function AdultosList() {
         modal
       >
         <GenericForm
-          sections={adultoFormSections}
+          sections={sections}
           onSubmit={handleSubmit}
           defaultValues={selectedAdulto || { activo: true, es_becado: false }}
           submitLabel={selectedAdulto ? 'Guardar Cambios' : 'Crear Adulto'}
-          isLoading={createMutation.isPending || updateMutation.isPending}
+          isLoading={
+            createAdultoMutation.isPending ||
+            updateAdultoMutation.isPending ||
+            isLoadingAreas ||
+            isLoadingPosiciones ||
+            isLoadingRamas ||
+            isLoadingRoles
+          }
           actionType={selectedAdulto ? 'update' : 'create'}
+        />
+      </Dialog>
+
+      {/* Dialog de Pase de Cargo */}
+      <Dialog
+        visible={paseDialogVisible}
+        onHide={() => setPaseDialogVisible(false)}
+        header={`Realizar Pase - ${selectedAdultoPase?.nombre || ''} ${selectedAdultoPase?.apellidos || ''}`}
+        className="w-full md:w-[600px]"
+        modal
+      >
+        <GenericForm
+          sections={paseSection}
+          onSubmit={handleSubmitPase}
+          defaultValues={{}}
+          submitLabel="Confirmar Pase"
+          isLoading={
+            paseAdultoMutation.isPending ||
+            isLoadingAreas ||
+            isLoadingPosiciones ||
+            isLoadingRamas ||
+            isLoadingRoles
+          }
+          actionType="create"
         />
       </Dialog>
     </>

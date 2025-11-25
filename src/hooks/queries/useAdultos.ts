@@ -10,8 +10,13 @@ import {
   updateAdultoFn,
   createAdultoFn,
   deleteAdultoFn,
+  paseAdultoFn,
 } from '@/queries/adultos';
-import type { UpdateAdultoDto, CreateAdultoDto } from '@/common/types/adulto';
+import type {
+  UpdateAdultoDto,
+  CreateAdultoDto,
+  PaseAdultoDto,
+} from '@/common/types/adulto';
 
 /**
  * Query Key para cache de adultos
@@ -95,6 +100,29 @@ export const useDeleteAdultoMutation = () => {
       showErrorToast(
         'Error',
         error?.response?.data?.message || 'No se pudo eliminar el adulto'
+      );
+    },
+  });
+};
+
+/**
+ * Hook para realizar un Pase de Adulto (Cambio de Cargo/Área)
+ */
+export const usePaseAdultoMutation = () => {
+  const queryClient = useQueryClient();
+  const { showSuccessToast, showErrorToast } = useToast();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: PaseAdultoDto }) =>
+      paseAdultoFn(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ADULTOS_QUERY_KEY });
+      showSuccessToast('Éxito', 'Pase realizado correctamente');
+    },
+    onError: (error: any) => {
+      showErrorToast(
+        'Error',
+        error?.response?.data?.message || 'No se pudo realizar el pase'
       );
     },
   });

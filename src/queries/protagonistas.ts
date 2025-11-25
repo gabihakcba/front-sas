@@ -43,7 +43,6 @@ export const updateProtagonistaFn = async (
   id: number,
   data: UpdateProtagonistaDto
 ): Promise<ProtagonistaRow> => {
-  console.log('Updating protagonista:', id, data);
   const response = await api.patch<ProtagonistaRow>(
     `/protagonistas/${id}`,
     data
@@ -80,12 +79,12 @@ export const deleteProtagonistaFn = async (id: number): Promise<void> => {
  */
 export const paseRamaFn = async (
   id: number,
-  id_rama: number
+  id_nueva_rama: number
 ): Promise<ProtagonistaRow> => {
   const response = await api.post<ProtagonistaRow>(
     `/protagonistas/${id}/pase`,
     {
-      id_rama,
+      id_nueva_rama,
     }
   );
   return response.data;

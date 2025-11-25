@@ -8,6 +8,7 @@ import type {
   AdultoRow,
   UpdateAdultoDto,
   CreateAdultoDto,
+  PaseAdultoDto,
 } from '@/common/types/adulto';
 
 /**
@@ -69,4 +70,18 @@ export const createAdultoFn = async (
  */
 export const deleteAdultoFn = async (id: number): Promise<void> => {
   await api.delete(`/adultos/${id}`);
+};
+
+/**
+ * Realiza un Pase de Adulto (Cambio de Cargo/Área con historial)
+ * @param id - ID del adulto
+ * @param data - Datos del nuevo cargo/área
+ * @returns Promise con el adulto actualizado
+ */
+export const paseAdultoFn = async (
+  id: number,
+  data: PaseAdultoDto
+): Promise<AdultoRow> => {
+  const response = await api.post<AdultoRow>(`/adultos/${id}/pase`, data);
+  return response.data;
 };

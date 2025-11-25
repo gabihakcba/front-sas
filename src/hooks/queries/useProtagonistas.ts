@@ -109,8 +109,13 @@ export const usePaseRamaMutation = () => {
   const { showSuccessToast, showErrorToast } = useToast();
 
   return useMutation({
-    mutationFn: ({ id, id_rama }: { id: number; id_rama: number }) =>
-      paseRamaFn(id, id_rama),
+    mutationFn: ({
+      id,
+      id_nueva_rama,
+    }: {
+      id: number;
+      id_nueva_rama: number;
+    }) => paseRamaFn(id, id_nueva_rama),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PROTAGONISTAS_QUERY_KEY });
       showSuccessToast('Éxito', 'Pase de rama realizado correctamente');

@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { confirmDialog } from 'primereact/confirmdialog';
@@ -22,6 +22,7 @@ import {
   useDeleteProtagonistaMutation,
   usePaseRamaMutation,
 } from '@/hooks/queries/useProtagonistas';
+import { useRamasQuery } from '@/hooks/queries/useRamas';
 import type {
   ProtagonistaRow,
   CreateProtagonistaDto,
@@ -30,28 +31,7 @@ import { GenericForm } from '@/common/components/GenericForm';
 import { protagonistaFormSections } from '../forms/protagonistaFormConfig';
 import { toCalendarDate, toApiDate, formatDate } from '@/lib/date';
 
-/**
- * Mapeo de rama a id_rama
- * TODO: Este mapeo debería venir del backend o de un endpoint /ramas
- */
-const RAMA_ID_MAP: Record<string, number> = {
-  CASTORES: 1,
-  MANADA: 2,
-  UNIDAD: 3,
-  CAMINANTES: 4,
-  ROVERS: 5,
-};
-
-/**
- * Opciones para el dropdown de Rama
- */
-const ramaOptions = [
-  { label: 'Castores', value: 'CASTORES' },
-  { label: 'Manada', value: 'MANADA' },
-  { label: 'Unidad', value: 'UNIDAD' },
-  { label: 'Caminantes', value: 'CAMINANTES' },
-  { label: 'Rovers', value: 'ROVERS' },
-];
+import { useToast } from '@/providers/ToastProvider';
 
 /**
  * Calcula la edad basándose en la fecha de nacimiento
@@ -73,6 +53,13 @@ export default function ProtagonistasList() {
   const updateMutation = useUpdateProtagonistaMutation();
   const deleteMutation = useDeleteProtagonistaMutation();
   const paseRamaMutation = usePaseRamaMutation();
+  const { data: ramas = [], isLoading: isLoadingRamas } = useRamasQuery();
+  const { showErrorToast } = useToast();
+
+  const ramaOptions = ramas?.map((rama) => ({
+    label: rama.nombre,
+    value: rama.id,
+  }));
 
   const [dialogVisible, setDialogVisible] = useState(false);
   const [paseDialogVisible, setPaseDialogVisible] = useState(false);
@@ -82,49 +69,58 @@ export default function ProtagonistasList() {
     useState<ProtagonistaRow | null>(null);
 
   /**
+   * Memoized form sections with dynamic options
+   */
+  const formSections = useMemo(() => {
+    return protagonistaFormSections.map((section) => ({
+      ...section,
+      fields: section.fields.map((field) => {
+        if (field.name === 'rama') {
+          return {
+            ...field,
+            options: ramaOptions,
+            isLoading: isLoadingRamas,
+          };
+        }
+        return field;
+      }),
+    }));
+  }, [ramaOptions, isLoadingRamas]);
+
+  /**
    * Column configuration
    */
   const columns: TableColumn<ProtagonistaRow>[] = [
     {
-      field: 'nombre',
       header: 'Nombre Completo',
+      // field es opcional si usas transform, pero sirve para sortear si el back lo soporta
+      field: 'nombre',
+      transform: (row) => `${row.nombre} ${row.apellidos}`, // ✨ Magia 1
       sortable: true,
-      body: (rowData) => (
-        <div className="flex flex-col">
-          <span className="font-semibold">{`${rowData.nombre || ''} ${rowData.apellidos || ''}`}</span>
-          {rowData.totem && (
-            <span className="text-sm text-gray-400 md:hidden italic">
-              {rowData.totem}
-            </span>
-          )}
-        </div>
-      ),
     },
     {
       field: 'rama',
       header: 'Rama',
-      body: (rowData) => (
-        <Tag
-          value={rowData.rama}
-          severity="info"
-        />
-      ),
+      type: 'tag',
+      tagConfig: {
+        getSeverity: () => 'info',
+      },
     },
     {
       field: 'dni',
       header: 'DNI',
       sortable: true,
-      className: 'hidden md:table-cell',
+      hideOnMobile: true,
     },
     {
       field: 'telefono',
       header: 'Teléfono',
-      className: 'hidden md:table-cell',
+      hideOnMobile: true,
     },
     {
       field: 'fecha_nacimiento',
       header: 'Edad',
-      className: 'hidden md:table-cell',
+      hideOnMobile: true,
       body: (rowData) => {
         if (!rowData.fecha_nacimiento) return '-';
         const edad = calcularEdad(rowData.fecha_nacimiento);
@@ -134,118 +130,14 @@ export default function ProtagonistasList() {
     {
       field: 'activo',
       header: 'Estado',
-      className: 'hidden md:table-cell',
-      body: (rowData) => (
-        <Tag
-          value={rowData.activo ? 'Activo' : 'Inactivo'}
-          severity={rowData.activo ? 'success' : 'danger'}
-        />
-      ),
+      hideOnMobile: true,
+      type: 'tag',
+      tagConfig: {
+        getLabel: (v) => (v ? 'Activo' : 'Inactivo'),
+        getSeverity: (v) => (v ? 'success' : 'danger'),
+      },
     },
   ];
-
-  /**
-   * Mobile detail template - shows all hidden columns
-   */
-  const mobileDetailTemplate = (rowData: ProtagonistaRow) => {
-    return (
-      <div className="p-4 bg-surface-50 rounded-lg">
-        <div className="grid grid-cols-1 gap-4 text-sm">
-          {/* Totem */}
-          {rowData.totem && (
-            <div>
-              <strong className="text-text-secondary block mb-1">Totem:</strong>
-              <p className="text-text-main italic">{rowData.totem}</p>
-            </div>
-          )}
-
-          {/* Cualidad */}
-          {rowData.cualidad && (
-            <div>
-              <strong className="text-text-secondary block mb-1">
-                Cualidad:
-              </strong>
-              <p className="text-text-main">{rowData.cualidad}</p>
-            </div>
-          )}
-
-          {/* DNI */}
-          <div>
-            <strong className="text-text-secondary block mb-1">DNI:</strong>
-            <p className="text-text-main">{rowData.dni || '-'}</p>
-          </div>
-
-          {/* Email */}
-          <div>
-            <strong className="text-text-secondary block mb-1">Email:</strong>
-            <p className="text-text-main">{rowData.email || '-'}</p>
-          </div>
-
-          {/* Teléfono */}
-          <div>
-            <strong className="text-text-secondary block mb-1">
-              Teléfono:
-            </strong>
-            <p className="text-text-main">{rowData.telefono || '-'}</p>
-          </div>
-
-          {/* Teléfono Emergencia */}
-          <div>
-            <strong className="text-text-secondary block mb-1">
-              Tel. Emergencia:
-            </strong>
-            <p className="text-text-main">
-              {rowData.telefono_emergencia || '-'}
-            </p>
-          </div>
-
-          {/* Dirección */}
-          <div>
-            <strong className="text-text-secondary block mb-1">
-              Dirección:
-            </strong>
-            <p className="text-text-main">{rowData.direccion || '-'}</p>
-          </div>
-
-          {/* Fecha de Nacimiento y Edad */}
-          <div>
-            <strong className="text-text-secondary block mb-1">
-              Nacimiento / Edad:
-            </strong>
-            <p className="text-text-main">
-              {rowData.fecha_nacimiento
-                ? `${formatDate(rowData.fecha_nacimiento)} (${calcularEdad(rowData.fecha_nacimiento)} años)`
-                : '-'}
-            </p>
-          </div>
-
-          {/* Becado */}
-          <div>
-            <strong className="text-text-secondary block mb-1">Becado:</strong>
-            <div className="flex items-center gap-2">
-              {rowData.es_becado ? (
-                <i className="pi pi-check text-green-500" />
-              ) : (
-                <i className="pi pi-times text-red-500" />
-              )}
-              <span className="text-text-main">
-                {rowData.es_becado ? 'Sí' : 'No'}
-              </span>
-            </div>
-          </div>
-
-          {/* Estado */}
-          <div>
-            <strong className="text-text-secondary block mb-1">Estado:</strong>
-            <Tag
-              value={rowData.activo ? 'Activo' : 'Inactivo'}
-              severity={rowData.activo ? 'success' : 'danger'}
-            />
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   /**
    * Handler para abrir el diálogo de creación
@@ -259,8 +151,14 @@ export default function ProtagonistasList() {
    * Handler para editar un protagonista
    */
   const handleEdit = (protagonista: ProtagonistaRow) => {
+    // Buscar el ID de la rama basado en el nombre (label) - Case insensitive
+    const ramaId = ramaOptions.find(
+      (opt) => opt.label.toUpperCase() === protagonista.rama?.toUpperCase()
+    )?.value;
+
     const protagonistaEditable = {
       ...protagonista,
+      rama: ramaId, // Pasamos el ID para que el Dropdown lo reconozca
       fecha_nacimiento: toCalendarDate(protagonista.fecha_nacimiento),
     };
     setSelectedProtagonista(protagonistaEditable as any);
@@ -298,12 +196,16 @@ export default function ProtagonistasList() {
   const submitPaseRama = async (formData: any) => {
     if (!selectedPaseProtagonista) return;
 
-    const idRama = RAMA_ID_MAP[formData.rama];
-    if (!idRama) return;
+    const idRama = Number(formData.rama);
+    if (!idRama) {
+      console.error('Rama no válida:', formData.rama);
+      showErrorToast('Error', 'La rama seleccionada no es válida');
+      return;
+    }
 
     await paseRamaMutation.mutateAsync({
       id: selectedPaseProtagonista.id,
-      id_rama: idRama,
+      id_nueva_rama: idRama,
     });
 
     setPaseDialogVisible(false);
@@ -315,8 +217,13 @@ export default function ProtagonistasList() {
    * Transforma datos planos del formulario a estructura anidada del backend
    */
   const handleSubmit = async (formData: any) => {
-    // Obtener id_rama desde el valor de rama
-    const idRama = RAMA_ID_MAP[formData.rama] || 1;
+    const idRama = Number(formData.rama);
+
+    if (!idRama) {
+      console.error('Rama no válida:', formData.rama);
+      showErrorToast('Error', 'La rama seleccionada no es válida');
+      return;
+    }
 
     const payload: CreateProtagonistaDto = {
       id_rama: idRama,
@@ -400,7 +307,7 @@ export default function ProtagonistasList() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         permissionResource={RESOURCE.PROTAGONISTA}
-        mobileDetailTemplate={mobileDetailTemplate}
+        mobileDetailTemplate={undefined} // Let GenericDataTable handle it automatically
         rowActions={rowActions}
       />
 
@@ -415,7 +322,7 @@ export default function ProtagonistasList() {
         modal
       >
         <GenericForm
-          sections={protagonistaFormSections}
+          sections={formSections}
           onSubmit={handleSubmit}
           defaultValues={
             selectedProtagonista || { activo: true, es_becado: false }
@@ -423,7 +330,11 @@ export default function ProtagonistasList() {
           submitLabel={
             selectedProtagonista ? 'Guardar Cambios' : 'Crear Protagonista'
           }
-          isLoading={createMutation.isPending || updateMutation.isPending}
+          isLoading={
+            createMutation.isPending ||
+            updateMutation.isPending ||
+            isLoadingRamas
+          }
           actionType={selectedProtagonista ? 'update' : 'create'}
         />
       </Dialog>
@@ -448,15 +359,16 @@ export default function ProtagonistasList() {
                   type: 'dropdown',
                   rules: { required: 'La rama es requerida' },
                   options: ramaOptions,
+                  isLoading: isLoadingRamas,
                   placeholder: 'Seleccione la nueva rama',
                 },
               ],
             },
           ]}
           onSubmit={submitPaseRama}
-          defaultValues={{ rama: selectedPaseProtagonista?.rama }}
+          defaultValues={{ rama: undefined }}
           submitLabel="Confirmar Pase"
-          isLoading={paseRamaMutation.isPending}
+          isLoading={paseRamaMutation.isPending || isLoadingRamas}
           actionType="update"
         />
       </Dialog>

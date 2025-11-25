@@ -22,6 +22,11 @@ export interface AdultoRow {
   rama: string | null;
   es_becado: boolean;
   activo: boolean;
+  // Campos de equipo para el formulario de edición
+  id_area?: number;
+  id_posicion?: number;
+  id_rama?: number;
+  id_role?: number;
 }
 
 /**
@@ -47,6 +52,25 @@ export interface CreateAdultoDto {
     totem?: string;
     cualidad?: string;
   };
+  equipo?: {
+    id_area: number;
+    id_posicion: number;
+    id_rama?: number;
+    id_role: number;
+  };
+}
+
+/**
+ * DTO para realizar un Pase de Adulto (Cambio de Cargo/Área)
+ */
+export interface PaseAdultoDto {
+  equipo: {
+    id_area: number;
+    id_posicion: number;
+    id_rama?: number;
+    id_role: number;
+  };
+  fecha_pase?: string | Date;
 }
 
 /**

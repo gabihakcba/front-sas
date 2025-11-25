@@ -43,16 +43,6 @@ export default function AdultosPage() {
       }
     >
       <div className="p-4 md:p-6 lg:p-8">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-100 mb-2">
-            Gestión de Adultos
-          </h1>
-          <p className="text-gray-400">
-            Administra los educadores y colaboradores del grupo scout
-          </p>
-        </div>
-
         {/* Lista de Adultos */}
         <AdultosList />
       </div>

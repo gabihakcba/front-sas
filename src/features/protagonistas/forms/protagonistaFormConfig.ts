@@ -1,19 +1,11 @@
 import { FormSection } from '@/common/types/form';
 
 /**
- * Opciones para el dropdown de Rama
- */
-const ramaOptions = [
-  { label: 'Castores', value: 'CASTORES' },
-  { label: 'Manada', value: 'MANADA' },
-  { label: 'Unidad', value: 'UNIDAD' },
-  { label: 'Caminantes', value: 'CAMINANTES' },
-  { label: 'Rovers', value: 'ROVERS' },
-];
-
-/**
  * Configuración del formulario de Protagonistas
  * Organizado en 4 secciones
+ *
+ * NOTA: Las opciones del dropdown de 'rama' se inyectan dinámicamente
+ * desde el componente usando useRamasQuery para obtener los IDs correctos.
  */
 export const protagonistaFormSections: FormSection[] = [
   {
@@ -64,7 +56,7 @@ export const protagonistaFormSections: FormSection[] = [
         label: 'Rama',
         type: 'dropdown',
         rules: { required: 'La rama es requerida' },
-        options: ramaOptions,
+        options: [], // Las opciones se inyectan dinámicamente desde el componente
         placeholder: 'Seleccione una rama',
       },
       {

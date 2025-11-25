@@ -7,6 +7,7 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
+import { Tag } from 'primereact/tag';
 import { Protect } from '@/components/auth/Protect';
 import { RESOURCE, ACTION } from '@/common/types/rbac';
 import { TableColumn } from '@/common/types/table';
@@ -22,7 +23,7 @@ interface GenericDataTableProps<T> {
   onEdit?: (item: T) => void;
   onDelete?: (item: T) => void;
   permissionResource: RESOURCE;
-  mobileDetailTemplate?: (item: T) => ReactNode;
+  mobileDetailTemplate?: (item: T) => ReactNode; // Deprecated but kept for backward compatibility
   dataKey?: string;
   rowActions?: (item: T) => ReactNode;
 }
@@ -47,33 +48,116 @@ export function GenericDataTable<T extends Record<string, any>>({
   >(undefined);
 
   /**
+   * Helper to render cell content based on column type
+   */
+  const renderCell = (column: TableColumn<T>, rowData: T) => {
+    // Custom body template takes priority
+    if (column.body) {
+      return column.body(rowData);
+    }
+
+    // 1. Get value (direct or transformed)
+    let value: any;
+    if (column.transform) {
+      value = column.transform(rowData);
+    } else {
+      value = rowData[column.field as keyof T];
+    }
+
+    // 2. Handle specific types that have their own null/false logic
+    if (column.type === 'boolean') {
+      return value ? (
+        <i className="pi pi-check text-green-500" />
+      ) : (
+        <i className="pi pi-times text-red-500" />
+      );
+    }
+
+    if (column.type === 'tag') {
+      const label = column.tagConfig?.getLabel
+        ? column.tagConfig.getLabel(value)
+        : String(value || '');
+
+      if (!value && !column.tagConfig?.getLabel) return null;
+
+      const severity = column.tagConfig?.getSeverity
+        ? column.tagConfig.getSeverity(value)
+        : 'info';
+      return (
+        <Tag
+          value={label}
+          severity={severity}
+        />
+      );
+    }
+
+    // 3. Global Null Safety for other types (text, date, etc.)
+    if (value === null || value === undefined || value === '') {
+      return <span className="text-text-secondary/50">-</span>;
+    }
+
+    // 4. Handle Date
+    if (column.type === 'date') {
+      return formatDate(value as string);
+    }
+
+    // 5. Handle Text with Severity
+    if (column.textSeverity) {
+      const severity =
+        typeof column.textSeverity === 'function'
+          ? column.textSeverity(rowData)
+          : column.textSeverity;
+
+      const severityClasses = {
+        success: 'text-green-500',
+        warning: 'text-orange-500',
+        danger: 'text-red-500',
+        info: 'text-blue-500',
+        primary: 'text-primary',
+        secondary: 'text-text-secondary',
+      };
+
+      return (
+        <span className={severityClasses[severity] || ''}>{String(value)}</span>
+      );
+    }
+
+    // Default text
+    return String(value);
+  };
+
+  /**
    * Render body content for a column
    */
   const renderColumnBody = (column: TableColumn<T>) => {
-    return (rowData: T) => {
-      // Custom body template takes priority
-      if (column.body) {
-        return column.body(rowData);
-      }
+    return (rowData: T) => renderCell(column, rowData);
+  };
 
-      const value = rowData[column.field as keyof T];
+  /**
+   * Default mobile detail template
+   * Automatically generates a grid view for columns hidden on mobile
+   */
+  const defaultMobileDetailTemplate = (rowData: T) => {
+    const hiddenColumns = columns.filter((col) => col.hideOnMobile);
 
-      // Handle boolean values with icons
-      if (column.isBoolean) {
-        return value ? (
-          <i className="pi pi-check text-green-500" />
-        ) : (
-          <i className="pi pi-times text-red-500" />
-        );
-      }
+    if (hiddenColumns.length === 0) {
+      return null;
+    }
 
-      // Handle date values
-      if (column.isDate && value) {
-        return formatDate(value as string);
-      }
-
-      return value ?? '-';
-    };
+    return (
+      <div className="p-4 bg-surface-50 rounded-lg">
+        <div className="grid grid-cols-1 gap-4 text-sm">
+          {hiddenColumns.map((col, idx) => (
+            <div key={idx}>
+              <strong className="text-text-secondary block mb-1">
+                {col.header}:
+              </strong>
+              <div className="text-text-main">{renderCell(col, rowData)}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   /**
@@ -157,6 +241,11 @@ export function GenericDataTable<T extends Record<string, any>>({
   }
 
   const hasActions = onEdit || onDelete || rowActions;
+  const expansionTemplate =
+    mobileDetailTemplate ||
+    (columns.some((col) => col.hideOnMobile)
+      ? defaultMobileDetailTemplate
+      : undefined);
 
   return (
     <div className="w-full">
@@ -166,7 +255,7 @@ export function GenericDataTable<T extends Record<string, any>>({
         globalFilter={globalFilter}
         expandedRows={expandedRows}
         onRowToggle={(e) => setExpandedRows(e.data as DataTableExpandedRows)}
-        rowExpansionTemplate={mobileDetailTemplate}
+        rowExpansionTemplate={expansionTemplate}
         dataKey={dataKey}
         paginator
         rows={10}
@@ -178,7 +267,7 @@ export function GenericDataTable<T extends Record<string, any>>({
         currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
       >
         {/* Expansion column for mobile */}
-        {mobileDetailTemplate && (
+        {expansionTemplate && (
           <Column
             expander
             className="md:hidden w-12"
@@ -187,17 +276,26 @@ export function GenericDataTable<T extends Record<string, any>>({
         )}
 
         {/* Data columns */}
-        {columns.map((column, idx) => (
-          <Column
-            key={idx}
-            field={column.field as string}
-            header={column.header}
-            sortable={column.sortable}
-            body={renderColumnBody(column)}
-            className={column.className}
-            headerClassName={column.className}
-          />
-        ))}
+        {columns.map((column, idx) => {
+          const className = [
+            column.className || '',
+            column.hideOnMobile ? 'hidden md:table-cell' : '',
+          ]
+            .join(' ')
+            .trim();
+
+          return (
+            <Column
+              key={idx}
+              field={column.field as string}
+              header={column.header}
+              sortable={column.sortable}
+              body={renderColumnBody(column)}
+              className={className}
+              headerClassName={className}
+            />
+          );
+        })}
 
         {/* Actions column */}
         {hasActions && (
