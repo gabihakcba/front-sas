@@ -177,7 +177,7 @@ export const GenericForm: React.FC<GenericFormProps> = ({
         return (
           <MultiSelect
             {...commonProps}
-            value={fieldProps.value}
+            value={fieldProps.value || []}
             onChange={(e) => fieldProps.onChange(e.value)}
             options={field.options}
             optionLabel="label"

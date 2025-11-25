@@ -61,7 +61,7 @@ export interface AdultoFormData {
   id_area?: number;
   id_posicion?: number;
   id_rama?: number;
-  id_roles?: number[];
+  roles?: number[];
 }
 
 /**
@@ -91,8 +91,8 @@ export interface CreateAdultoDto {
     id_area: number;
     id_posicion: number;
     id_rama?: number;
-    id_roles: number[];
   };
+  roles: number[];
 }
 
 /**

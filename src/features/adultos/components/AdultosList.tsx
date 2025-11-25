@@ -165,7 +165,7 @@ export default function AdultosList() {
       id_area: activeTeam?.Area?.id ?? activeTeam?.id_area,
       id_posicion: activeTeam?.PosicionArea?.id ?? activeTeam?.id_posicion,
       id_rama: activeTeam?.Rama?.id ?? activeTeam?.id_rama,
-      id_roles: activeTeam?.Roles?.map((r: { id: number }) => r.id) ?? [],
+      roles: activeTeam?.Roles?.map((r: { id: number }) => r.id) ?? [],
     };
 
     setSelectedAdulto(adultoEditable);
@@ -201,9 +201,9 @@ export default function AdultosList() {
    * Handler para el submit del formulario de Pase
    */
   const handleSubmitPase = async (data: AdultoFormData) => {
-    const { id_area, id_posicion, id_rama, id_roles } = data;
+    const { id_area, id_posicion, id_rama, roles } = data;
 
-    if (!selectedAdultoPase || !id_area || !id_posicion || !id_roles) return;
+    if (!selectedAdultoPase || !id_area || !id_posicion || !roles) return;
 
     // Construir el DTO de Pase
     const pasePayload: PaseAdultoDto = {
@@ -217,7 +217,7 @@ export default function AdultosList() {
             ? id_rama
             : undefined;
         })(),
-        id_roles,
+        id_roles: roles,
       },
     };
 
@@ -247,7 +247,7 @@ export default function AdultosList() {
       id_area,
       id_posicion,
       id_rama,
-      id_roles,
+      roles,
     } = data;
 
     // Prepare payload
@@ -269,7 +269,7 @@ export default function AdultosList() {
         cualidad: cualidad || undefined,
       },
       equipo:
-        id_area && id_posicion && id_roles && id_roles.length > 0
+        id_area && id_posicion && roles && roles.length > 0
           ? {
               id_area,
               id_posicion,
@@ -280,9 +280,9 @@ export default function AdultosList() {
                   ? id_rama
                   : undefined;
               })(),
-              id_roles,
             }
           : undefined,
+      roles: roles || [],
     };
 
     if (selectedAdulto && selectedAdulto.id) {
