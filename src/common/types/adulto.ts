@@ -22,7 +22,40 @@ export interface AdultoRow {
   rama: string | null;
   es_becado: boolean;
   activo: boolean;
-  // Campos de equipo para el formulario de edición
+  // Relación con EquipoArea (Backend)
+  EquipoArea?: Array<{
+    id: number;
+    activo: boolean;
+    fecha_inicio: string;
+    Area: { id: number; nombre: string };
+    PosicionArea: { id: number; nombre: string };
+    Rama?: { id: number; nombre: string };
+    Role?: { id: number; nombre: string };
+  }>;
+  // Legacy or flattened fields (optional)
+  equipo?: any;
+  equipoActual?: any;
+}
+
+/**
+ * Interface para el formulario de Adultos (Campos planos)
+ */
+export interface AdultoFormData {
+  id?: number;
+  nombre: string;
+  apellidos: string;
+  dni: string;
+  fecha_nacimiento: string | Date | null;
+  direccion: string;
+  email: string | null;
+  telefono: string | null;
+  telefono_emergencia: string | null;
+  totem: string | null;
+  cualidad: string | null;
+  es_becado: boolean;
+  activo: boolean;
+
+  // Campos planos para los dropdowns
   id_area?: number;
   id_posicion?: number;
   id_rama?: number;

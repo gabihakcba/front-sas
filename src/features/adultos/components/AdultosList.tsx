@@ -25,6 +25,7 @@ import type {
   AdultoRow,
   CreateAdultoDto,
   PaseAdultoDto,
+  AdultoFormData,
 } from '@/common/types/adulto';
 import { GenericForm } from '@/common/components/GenericForm';
 import {
@@ -64,7 +65,9 @@ export default function AdultosList() {
   );
 
   const [dialogVisible, setDialogVisible] = useState(false);
-  const [selectedAdulto, setSelectedAdulto] = useState<AdultoRow | null>(null);
+  const [selectedAdulto, setSelectedAdulto] = useState<AdultoFormData | null>(
+    null
+  );
 
   // Estado para el diálogo de Pase
   const [paseDialogVisible, setPaseDialogVisible] = useState(false);
@@ -128,31 +131,28 @@ export default function AdultosList() {
    * Handler para editar un adulto
    */
   const handleEdit = (adulto: AdultoRow) => {
-    // Extract IDs from nested equipo object if present (backend might return it nested)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rawAdulto = adulto as any;
-    console.log(rawAdulto);
     // Buscar el equipo activo en la relación EquipoArea (si existe)
+    // Prioridad: 1. EquipoArea array (activo), 2. equipo (legacy), 3. equipoActual (legacy)
     let activeTeam = null;
-    if (Array.isArray(rawAdulto.EquipoArea)) {
-      activeTeam = rawAdulto.EquipoArea.find((eq: any) => eq.activo);
-    } else if (rawAdulto.equipo) {
-      activeTeam = rawAdulto.equipo;
-    } else if (rawAdulto.equipoActual) {
-      activeTeam = rawAdulto.equipoActual;
-    }
-    console.log(activeTeam);
 
-    const adultoEditable = {
+    if (adulto.EquipoArea && Array.isArray(adulto.EquipoArea)) {
+      activeTeam = adulto.EquipoArea.find((eq) => eq.activo);
+    } else if (adulto.equipo) {
+      activeTeam = adulto.equipo;
+    } else if (adulto.equipoActual) {
+      activeTeam = adulto.equipoActual;
+    }
+
+    const adultoEditable: AdultoFormData = {
       ...adulto,
       fecha_nacimiento: toCalendarDate(adulto.fecha_nacimiento),
-      id_area: adulto.id_area ?? activeTeam?.id_area,
-      id_posicion: adulto.id_posicion ?? activeTeam?.id_posicion,
-      id_rama: adulto.id_rama ?? activeTeam?.id_rama,
-      id_role: adulto.id_role ?? activeTeam?.id_role,
+      id_area: activeTeam?.Area?.id ?? activeTeam?.id_area,
+      id_posicion: activeTeam?.PosicionArea?.id ?? activeTeam?.id_posicion,
+      id_rama: activeTeam?.Rama?.id ?? activeTeam?.id_rama,
+      id_role: activeTeam?.Role?.id ?? activeTeam?.id_role,
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setSelectedAdulto(adultoEditable as any);
+
+    setSelectedAdulto(adultoEditable);
     setDialogVisible(true);
   };
 
@@ -268,7 +268,7 @@ export default function AdultosList() {
       },
     };
 
-    if (selectedAdulto) {
+    if (selectedAdulto && selectedAdulto.id) {
       await updateAdultoMutation.mutateAsync({
         id: selectedAdulto.id,
         data: payload,
