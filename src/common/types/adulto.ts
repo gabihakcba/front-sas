@@ -100,7 +100,6 @@ export interface PaseAdultoDto {
     id_area: number;
     id_posicion: number;
     id_rama?: number;
-    id_roles: number[];
   };
   fecha_pase?: string | Date;
 }

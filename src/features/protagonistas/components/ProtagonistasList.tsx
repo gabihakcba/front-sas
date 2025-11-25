@@ -206,6 +206,7 @@ export default function ProtagonistasList() {
     await paseRamaMutation.mutateAsync({
       id: selectedPaseProtagonista.id,
       id_nueva_rama: idRama,
+      fecha_pase: toApiDate(formData.fecha_pase) ?? undefined,
     });
 
     setPaseDialogVisible(false);
@@ -362,11 +363,17 @@ export default function ProtagonistasList() {
                   isLoading: isLoadingRamas,
                   placeholder: 'Seleccione la nueva rama',
                 },
+                {
+                  name: 'fecha_pase',
+                  label: 'Fecha de Pase',
+                  type: 'date',
+                  rules: { required: 'La fecha es requerida' },
+                },
               ],
             },
           ]}
           onSubmit={submitPaseRama}
-          defaultValues={{ rama: undefined }}
+          defaultValues={{ rama: undefined, fecha_pase: new Date() }}
           submitLabel="Confirmar Pase"
           isLoading={paseRamaMutation.isPending || isLoadingRamas}
           actionType="update"

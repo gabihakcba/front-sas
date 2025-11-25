@@ -112,10 +112,12 @@ export const usePaseRamaMutation = () => {
     mutationFn: ({
       id,
       id_nueva_rama,
+      fecha_pase,
     }: {
       id: number;
       id_nueva_rama: number;
-    }) => paseRamaFn(id, id_nueva_rama),
+      fecha_pase?: string;
+    }) => paseRamaFn(id, id_nueva_rama, fecha_pase),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PROTAGONISTAS_QUERY_KEY });
       showSuccessToast('Éxito', 'Pase de rama realizado correctamente');

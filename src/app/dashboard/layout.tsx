@@ -31,12 +31,12 @@ export default function DashboardLayout({
           <TopBar onMenuToggle={() => setMobileMenuVisible(true)} />
 
           {/* Desktop Header */}
-          <header className="hidden md:flex h-16 border-b border-surface-border items-center px-8 bg-surface-card">
+          <header className="hidden md:flex h-16 border-b border-surface-border items-center px-3 bg-surface-card">
             <h1 className="text-xl font-bold text-text-main">Dashboard</h1>
           </header>
 
           {/* Main Content */}
-          <main className="flex-1 overflow-y-auto p-4 md:p-8">{children}</main>
+          <main className="flex-1 overflow-y-auto p-2 md:p-3">{children}</main>
         </div>
       </div>
     </AuthGuard>

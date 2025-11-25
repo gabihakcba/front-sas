@@ -205,7 +205,7 @@ export function GenericDataTable<T extends Record<string, any>>({
    * Header with title, subtitle, search, and actions
    */
   const header = (
-    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 py-2">
+    <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 py-1">
       <div className="flex-1">
         <h2 className="text-xl font-bold m-0 text-text-main">{title}</h2>
         {subtitle && (

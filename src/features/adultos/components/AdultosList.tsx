@@ -40,6 +40,7 @@ import {
 } from '@/hooks/queries/useCommon';
 import { useRamasQuery } from '@/hooks/queries/useRamas';
 import { toCalendarDate } from '@/lib/date';
+import { FieldConfig } from '@/common/types/form';
 
 export default function AdultosList() {
   const { data: adultos = [], isLoading } = useAdultosQuery();
@@ -60,10 +61,28 @@ export default function AdultosList() {
   );
 
   // Sección de equipo para el formulario de Pase
-  const paseSection = useMemo(
-    () => [getEquipoFormSection(areas, posiciones, ramas, roles)],
-    [areas, posiciones, ramas, roles]
-  );
+  const paseSection = useMemo(() => {
+    const { fields, ...rest } = getEquipoFormSection(
+      areas,
+      posiciones,
+      ramas,
+      roles
+    );
+    return [
+      {
+        ...rest,
+        fields: [
+          ...fields,
+          {
+            name: 'fecha_pase',
+            label: 'Fecha de Inicio en Cargo',
+            type: 'date',
+            rules: { required: 'Requerido' },
+          },
+        ] as FieldConfig[],
+      },
+    ];
+  }, [areas, posiciones, ramas, roles]);
 
   const [dialogVisible, setDialogVisible] = useState(false);
   const [selectedAdulto, setSelectedAdulto] = useState<AdultoFormData | null>(
@@ -194,8 +213,10 @@ export default function AdultosList() {
   /**
    * Handler para el submit del formulario de Pase
    */
-  const handleSubmitPase = async (data: AdultoFormData) => {
-    const { id_area, id_posicion, id_rama, roles } = data;
+  const handleSubmitPase = async (
+    data: AdultoFormData & { fecha_pase: Date }
+  ) => {
+    const { id_area, id_posicion, id_rama, roles, fecha_pase } = data;
 
     if (!selectedAdultoPase || !id_area || !id_posicion || !roles) return;
 
@@ -211,8 +232,8 @@ export default function AdultosList() {
             ? id_rama
             : undefined;
         })(),
-        id_roles: roles,
       },
+      fecha_pase: fecha_pase,
     };
 
     await paseAdultoMutation.mutateAsync({
@@ -383,7 +404,7 @@ export default function AdultosList() {
         <GenericForm
           sections={paseSection}
           onSubmit={handleSubmitPase}
-          defaultValues={{}}
+          defaultValues={{ fecha_pase: new Date() }}
           submitLabel="Confirmar Pase"
           isLoading={
             paseAdultoMutation.isPending ||

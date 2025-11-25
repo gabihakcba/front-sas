@@ -19,3 +19,12 @@
     background: radial-gradient(circle, var(--tw-gradient-stops));
   }
 }
+
+/* Compact DataTable cells for better space utilization */
+.p-datatable .p-datatable-tbody > tr > td {
+  padding: 0.5rem 0.75rem !important;
+}
+
+.p-datatable .p-datatable-thead > tr > th {
+  padding: 0.5rem 0.75rem !important;
+}
