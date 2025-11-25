@@ -17,7 +17,6 @@ import type {
  */
 export const getAdultosFn = async (): Promise<AdultoRow[]> => {
   const response = await api.get<any>('/adultos');
-
   // Manejo robusto de respuesta:
   // 1. Si es un array directo
   if (Array.isArray(response.data)) {

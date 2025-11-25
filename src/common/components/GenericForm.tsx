@@ -72,10 +72,6 @@ export const GenericForm: React.FC<GenericFormProps> = ({
     defaultValues: initialValues,
   });
 
-  useEffect(() => {
-    reset(initialValues);
-  }, [defaultValues, reset]);
-
   const renderField = (
     field: FieldConfig,
     fieldProps: any,

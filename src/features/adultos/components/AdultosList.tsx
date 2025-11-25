@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { confirmDialog } from 'primereact/confirmdialog';
@@ -147,25 +147,19 @@ export default function AdultosList() {
    * Handler para editar un adulto
    */
   const handleEdit = (adulto: AdultoRow) => {
-    // Buscar el equipo activo en la relación EquipoArea (si existe)
-    // Prioridad: 1. EquipoArea array (activo), 2. equipo (legacy), 3. equipoActual (legacy)
-    let activeTeam = null;
+    // 1. Aplanar Equipo (Extraer IDs del objeto)
+    const equipo = adulto.equipoActual;
 
-    if (adulto.EquipoArea && Array.isArray(adulto.EquipoArea)) {
-      activeTeam = adulto.EquipoArea.find((eq) => eq.activo);
-    } else if (adulto.equipo) {
-      activeTeam = adulto.equipo;
-    } else if (adulto.equipoActual) {
-      activeTeam = adulto.equipoActual;
-    }
+    // 2. Aplanar Roles (Extraer IDs del array)
+    const rolesIds = adulto.roles?.map((r) => r.id) || [];
 
     const adultoEditable: AdultoFormData = {
       ...adulto,
       fecha_nacimiento: toCalendarDate(adulto.fecha_nacimiento),
-      id_area: activeTeam?.Area?.id ?? activeTeam?.id_area,
-      id_posicion: activeTeam?.PosicionArea?.id ?? activeTeam?.id_posicion,
-      id_rama: activeTeam?.Rama?.id ?? activeTeam?.id_rama,
-      roles: activeTeam?.Roles?.map((r: { id: number }) => r.id) ?? [],
+      id_area: equipo?.Area?.id,
+      id_posicion: equipo?.PosicionArea?.id,
+      id_rama: equipo?.Rama?.id,
+      roles: rolesIds,
     };
 
     setSelectedAdulto(adultoEditable);

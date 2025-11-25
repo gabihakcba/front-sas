@@ -16,11 +16,9 @@ import api, {
   REFRESH_TOKEN_KEY,
   registerSessionExpiredCallback,
 } from '@/lib/axios';
-import { parseJwt } from '@/lib/utils';
+import { parseJwt, UserSession } from '@/lib/utils';
 
-interface User {
-  [key: string]: any;
-}
+interface User extends UserSession {}
 
 interface AuthContextType {
   user: User | null;
@@ -28,6 +26,8 @@ interface AuthContextType {
   isLoading: boolean;
   setUser: (user: User | null) => void;
   logout: () => void;
+  hasRole: (roleName: string) => boolean;
+  isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -101,12 +101,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push('/login');
   };
 
+  const hasRole = (roleName: string) => {
+    return user?.roles?.some((r) => r.name === roleName) ?? false;
+  };
+
+  const isAdmin = hasRole('SUPER_ADMIN');
+
   const value = {
     user,
     isAuth: !!user,
     isLoading,
     setUser,
     logout,
+    hasRole,
+    isAdmin,
   };
 
   return (

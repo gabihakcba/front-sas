@@ -1,16 +1,7 @@
 import { useAuth } from '@/context/AuthContext';
+import { UserRole, UserSession } from '@/lib/utils';
 
-interface UserRole {
-  name: string;
-  scope: 'GLOBAL' | 'RAMA' | 'OWN';
-  scopeId?: number;
-}
-
-interface User {
-  username: string;
-  roles: UserRole[];
-  [key: string]: any;
-}
+interface User extends UserSession {}
 
 export function useRBAC() {
   const { user, isLoading } = useAuth();

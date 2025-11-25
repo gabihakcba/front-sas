@@ -23,20 +23,17 @@ export interface AdultoRow {
   es_becado: boolean;
   activo: boolean;
   // Relación con EquipoArea (Backend)
-  EquipoArea?: Array<{
+  equipoActual?: {
     id: number;
     activo: boolean;
     fecha_inicio: string;
     Area: { id: number; nombre: string };
     PosicionArea: { id: number; nombre: string };
     Rama?: { id: number; nombre: string };
-
-    Roles?: Array<{ id: number; nombre: string }>;
-  }>;
+  };
   roles: Array<{ id: number; nombre: string }>;
   // Legacy or flattened fields (optional)
   equipo?: any;
-  equipoActual?: any;
 }
 
 /**

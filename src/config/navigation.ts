@@ -1,14 +1,6 @@
-interface UserRole {
-  name: string;
-  scope: 'GLOBAL' | 'RAMA' | 'OWN';
-  scopeId?: number;
-}
+import { UserSession } from '@/lib/utils';
 
-interface User {
-  username?: string;
-  roles?: UserRole[];
-  [key: string]: any;
-}
+interface User extends UserSession {}
 
 export interface MenuItem {
   label: string;
