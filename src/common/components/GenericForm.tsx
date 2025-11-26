@@ -209,6 +209,9 @@ export const GenericForm: React.FC<GenericFormProps> = ({
             mask="99/99/9999"
             showButtonBar
             readOnlyInput
+            appendTo={
+              typeof document !== 'undefined' ? document.body : undefined
+            }
           />
         );
         return inputElement;

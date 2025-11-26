@@ -36,7 +36,7 @@ export default function DashboardLayout({
           </header>
 
           {/* Main Content */}
-          <main className="flex-1 overflow-y-auto p-2 md:p-3">{children}</main>
+          <main className="flex-1 overflow-y-auto p-1 md:p-2">{children}</main>
         </div>
       </div>
     </AuthGuard>
