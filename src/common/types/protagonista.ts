@@ -11,15 +11,15 @@ export interface ProtagonistaRow {
   totem?: string;
   cualidad?: string;
   rama: string;
+  id_rama: number; // Ahora es obligatorio
   activo: boolean;
   es_becado: boolean;
-  id_rama?: number;
 }
 
 export interface CreateProtagonistaDto {
-  id_rama: number;
   es_becado: boolean;
   activo: boolean;
+  id_rama: number;
   miembro: {
     nombre: string;
     apellidos: string;

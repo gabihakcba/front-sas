@@ -79,13 +79,13 @@ export const deleteProtagonistaFn = async (id: number): Promise<void> => {
  */
 export const paseRamaFn = async (
   id: number,
-  id_nueva_rama: number,
+  id_rama: number,
   fecha_pase?: string
 ): Promise<ProtagonistaRow> => {
   const response = await api.post<ProtagonistaRow>(
     `/protagonistas/${id}/pase`,
     {
-      id_nueva_rama,
+      id_rama,
       fecha_pase,
     }
   );

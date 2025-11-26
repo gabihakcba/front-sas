@@ -178,7 +178,7 @@ export default function AdultosList() {
       id_area: equipo?.Area?.id,
       id_posicion: equipo?.PosicionArea?.id,
       id_rama: equipo?.Rama?.id,
-      roles: rolesIds,
+      id_roles: rolesIds,
     };
 
     setSelectedAdulto(adultoEditable);
@@ -216,9 +216,9 @@ export default function AdultosList() {
   const handleSubmitPase = async (
     data: AdultoFormData & { fecha_pase: Date }
   ) => {
-    const { id_area, id_posicion, id_rama, roles, fecha_pase } = data;
+    const { id_area, id_posicion, id_rama, id_roles, fecha_pase } = data;
 
-    if (!selectedAdultoPase || !id_area || !id_posicion || !roles) return;
+    if (!selectedAdultoPase || !id_area || !id_posicion || !id_roles) return;
 
     // Construir el DTO de Pase
     const pasePayload: PaseAdultoDto = {
@@ -262,7 +262,7 @@ export default function AdultosList() {
       id_area,
       id_posicion,
       id_rama,
-      roles,
+      id_roles,
     } = data;
 
     // Prepare payload
@@ -284,7 +284,7 @@ export default function AdultosList() {
         cualidad: cualidad || undefined,
       },
       equipo:
-        id_area && id_posicion && roles && roles.length > 0
+        id_area && id_posicion && id_roles && id_roles.length > 0
           ? {
               id_area,
               id_posicion,
@@ -297,7 +297,7 @@ export default function AdultosList() {
               })(),
             }
           : undefined,
-      roles: roles || [],
+      roles: id_roles || [],
     };
 
     if (selectedAdulto && selectedAdulto.id) {

@@ -10,7 +10,6 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { confirmDialog } from 'primereact/confirmdialog';
 import { ConfirmDialog } from 'primereact/confirmdialog';
-import { Tag } from 'primereact/tag';
 import { Protect } from '@/components/auth/Protect';
 import { GenericDataTable } from '@/common/components/GenericDataTable';
 import { RESOURCE, ACTION } from '@/common/types/rbac';
@@ -28,8 +27,8 @@ import type {
   CreateProtagonistaDto,
 } from '@/common/types/protagonista';
 import { GenericForm } from '@/common/components/GenericForm';
-import { protagonistaFormSections } from '../forms/protagonistaFormConfig';
-import { toCalendarDate, toApiDate, formatDate } from '@/lib/date';
+import { getProtagonistaFormSections } from '../forms/protagonistaFormConfig';
+import { toCalendarDate, toApiDate } from '@/lib/date';
 
 import { useToast } from '@/providers/ToastProvider';
 
@@ -71,21 +70,10 @@ export default function ProtagonistasList() {
   /**
    * Memoized form sections with dynamic options
    */
-  const formSections = useMemo(() => {
-    return protagonistaFormSections.map((section) => ({
-      ...section,
-      fields: section.fields.map((field) => {
-        if (field.name === 'rama') {
-          return {
-            ...field,
-            options: ramaOptions,
-            isLoading: isLoadingRamas,
-          };
-        }
-        return field;
-      }),
-    }));
-  }, [ramaOptions, isLoadingRamas]);
+  const formSections = useMemo(
+    () => getProtagonistaFormSections(ramas),
+    [ramas]
+  );
 
   /**
    * Column configuration
@@ -93,9 +81,8 @@ export default function ProtagonistasList() {
   const columns: TableColumn<ProtagonistaRow>[] = [
     {
       header: 'Nombre Completo',
-      // field es opcional si usas transform, pero sirve para sortear si el back lo soporta
       field: 'nombre',
-      transform: (row) => `${row.nombre} ${row.apellidos}`, // ✨ Magia 1
+      transform: (row) => `${row.nombre} ${row.apellidos}`,
       sortable: true,
     },
     {
@@ -151,14 +138,8 @@ export default function ProtagonistasList() {
    * Handler para editar un protagonista
    */
   const handleEdit = (protagonista: ProtagonistaRow) => {
-    // Buscar el ID de la rama basado en el nombre (label) - Case insensitive
-    const ramaId = ramaOptions.find(
-      (opt) => opt.label.toUpperCase() === protagonista.rama?.toUpperCase()
-    )?.value;
-
     const protagonistaEditable = {
       ...protagonista,
-      rama: ramaId, // Pasamos el ID para que el Dropdown lo reconozca
       fecha_nacimiento: toCalendarDate(protagonista.fecha_nacimiento),
     };
     setSelectedProtagonista(protagonistaEditable as any);
@@ -205,7 +186,7 @@ export default function ProtagonistasList() {
 
     await paseRamaMutation.mutateAsync({
       id: selectedPaseProtagonista.id,
-      id_nueva_rama: idRama,
+      id_rama: idRama,
       fecha_pase: toApiDate(formData.fecha_pase) ?? undefined,
     });
 
@@ -218,16 +199,8 @@ export default function ProtagonistasList() {
    * Transforma datos planos del formulario a estructura anidada del backend
    */
   const handleSubmit = async (formData: any) => {
-    const idRama = Number(formData.rama);
-
-    if (!idRama) {
-      console.error('Rama no válida:', formData.rama);
-      showErrorToast('Error', 'La rama seleccionada no es válida');
-      return;
-    }
-
     const payload: CreateProtagonistaDto = {
-      id_rama: idRama,
+      id_rama: formData.id_rama,
       es_becado: Boolean(formData.es_becado),
       activo: Boolean(formData.activo),
       miembro: {

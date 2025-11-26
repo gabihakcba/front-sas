@@ -111,13 +111,13 @@ export const usePaseRamaMutation = () => {
   return useMutation({
     mutationFn: ({
       id,
-      id_nueva_rama,
+      id_rama,
       fecha_pase,
     }: {
       id: number;
-      id_nueva_rama: number;
+      id_rama: number;
       fecha_pase?: string;
-    }) => paseRamaFn(id, id_nueva_rama, fecha_pase),
+    }) => paseRamaFn(id, id_rama, fecha_pase),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PROTAGONISTAS_QUERY_KEY });
       showSuccessToast('Éxito', 'Pase de rama realizado correctamente');

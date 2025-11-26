@@ -32,8 +32,6 @@ export interface AdultoRow {
     Rama?: { id: number; nombre: string };
   };
   roles: Array<{ id: number; nombre: string }>;
-  // Legacy or flattened fields (optional)
-  equipo?: any;
 }
 
 /**
@@ -58,7 +56,7 @@ export interface AdultoFormData {
   id_area?: number;
   id_posicion?: number;
   id_rama?: number;
-  roles?: number[];
+  id_roles?: number[];
 }
 
 /**

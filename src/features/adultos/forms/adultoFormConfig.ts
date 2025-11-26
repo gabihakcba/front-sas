@@ -55,7 +55,7 @@ export const getEquipoFormSection = (
         placeholder: 'Seleccione una posición',
       },
       {
-        name: 'roles',
+        name: 'id_roles',
         label: 'Permisos de Sistema',
         type: 'multiselect',
         options: roles.map((r) => ({ label: r.nombre, value: r.id })),

@@ -17,6 +17,7 @@ interface GenericFormProps {
   fields?: FieldConfig[];
   sections?: FormSection[];
   onSubmit: (data: any) => void;
+  onCancel?: () => void;
   defaultValues?: any;
   isLoading?: boolean;
   submitLabel: string;
@@ -28,6 +29,7 @@ export const GenericForm: React.FC<GenericFormProps> = ({
   fields,
   sections,
   onSubmit,
+  onCancel,
   defaultValues = {},
   isLoading = false,
   submitLabel,
@@ -71,6 +73,10 @@ export const GenericForm: React.FC<GenericFormProps> = ({
   } = useForm({
     defaultValues: initialValues,
   });
+
+  useEffect(() => {
+    reset(initialValues);
+  }, [reset, JSON.stringify(defaultValues)]);
 
   const renderField = (
     field: FieldConfig,
@@ -327,31 +333,47 @@ export const GenericForm: React.FC<GenericFormProps> = ({
         renderFields(fields || [])
       )}
 
-      <Button
-        label={submitLabel}
-        type="submit"
-        className="w-full mt-6"
-        loading={isLoading}
-        icon={
-          actionType === 'login'
-            ? 'pi pi-sign-in'
-            : actionType === 'delete'
-              ? 'pi pi-trash'
-              : 'pi pi-save'
-        }
-        iconPos="right"
-        size="small"
-        outlined
-        severity={
-          actionType === 'create'
-            ? 'success'
-            : actionType === 'update'
-              ? 'warning'
+      <div className="flex gap-2 mt-6">
+        {onCancel && (
+          <Button
+            label="Cancelar"
+            type="button"
+            onClick={onCancel}
+            className="w-full"
+            icon="pi pi-times"
+            iconPos="right"
+            size="small"
+            outlined
+            severity="secondary"
+            disabled={isLoading}
+          />
+        )}
+        <Button
+          label={submitLabel}
+          type="submit"
+          className="w-full"
+          loading={isLoading}
+          icon={
+            actionType === 'login'
+              ? 'pi pi-sign-in'
               : actionType === 'delete'
-                ? 'danger'
-                : 'info'
-        }
-      />
+                ? 'pi pi-trash'
+                : 'pi pi-save'
+          }
+          iconPos="right"
+          size="small"
+          outlined
+          severity={
+            actionType === 'create'
+              ? 'success'
+              : actionType === 'update'
+                ? 'warning'
+                : actionType === 'delete'
+                  ? 'danger'
+                  : 'info'
+          }
+        />
+      </div>
     </form>
   );
 };
