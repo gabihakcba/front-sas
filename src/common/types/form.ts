@@ -32,6 +32,7 @@ export interface FieldConfig {
   isLoading?: boolean;
   showIf?: (values: any) => boolean;
   filter?: boolean;
+  defaultValue?: any;
 }
 
 export interface FormSection {

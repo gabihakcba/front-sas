@@ -1,5 +1,6 @@
 import api from '@/lib/axios';
 import { LoginCredentials, LoginResponse } from '@/common/types/auth';
+export type { LoginCredentials, LoginResponse };
 
 export const loginFn = async (
   credentials: LoginCredentials
@@ -18,12 +19,13 @@ export const getMeFn = async (): Promise<any> => {
 };
 
 export const getMyPermissionsFn = async (): Promise<string[]> => {
-  const { data } = await api.get<any>('/auth/permissions');
-  if (Array.isArray(data)) {
-    return data;
+  const response = await api.get<any>('/auth/permissions');
+
+  if (Array.isArray(response.data)) {
+    return response.data;
   }
-  if (data && Array.isArray(data.data)) {
-    return data.data;
+  if (response.data && Array.isArray(response.data.data)) {
+    return response.data.data;
   }
   return [];
 };

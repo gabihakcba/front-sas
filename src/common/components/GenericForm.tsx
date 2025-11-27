@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
@@ -46,6 +46,8 @@ export const GenericForm: React.FC<GenericFormProps> = ({
     (acc, field) => {
       if (defaultValues[field.name] !== undefined) {
         acc[field.name] = defaultValues[field.name];
+      } else if (field.defaultValue !== undefined) {
+        acc[field.name] = field.defaultValue;
       } else {
         // Default values based on type
         switch (field.type) {
@@ -74,9 +76,9 @@ export const GenericForm: React.FC<GenericFormProps> = ({
     defaultValues: initialValues,
   });
 
-  useEffect(() => {
-    reset(initialValues);
-  }, [reset, JSON.stringify(defaultValues)]);
+  // useEffect(() => {
+  //   reset(initialValues);
+  // }, [reset, JSON.stringify(defaultValues)]);
 
   const renderField = (
     field: FieldConfig,

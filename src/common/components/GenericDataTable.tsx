@@ -26,6 +26,8 @@ interface GenericDataTableProps<T> {
   mobileDetailTemplate?: (item: T) => ReactNode; // Deprecated but kept for backward compatibility
   dataKey?: string;
   rowActions?: (item: T) => ReactNode;
+  customActions?: (item: T) => ReactNode;
+  emptyMessage?: string;
 }
 
 export function GenericDataTable<T extends Record<string, any>>({
@@ -41,6 +43,8 @@ export function GenericDataTable<T extends Record<string, any>>({
   mobileDetailTemplate,
   dataKey = 'id',
   rowActions,
+  customActions,
+  emptyMessage = 'No se encontraron registros',
 }: GenericDataTableProps<T>) {
   const [globalFilter, setGlobalFilter] = useState<string>('');
   const [expandedRows, setExpandedRows] = useState<
@@ -166,6 +170,7 @@ export function GenericDataTable<T extends Record<string, any>>({
   const actionsTemplate = (rowData: T) => {
     return (
       <div className="flex gap-2 justify-end">
+        {customActions && customActions(rowData)}
         {rowActions && rowActions(rowData)}
         {onEdit && (
           <Protect
@@ -242,7 +247,7 @@ export function GenericDataTable<T extends Record<string, any>>({
     );
   }
 
-  const hasActions = onEdit || onDelete || rowActions;
+  const hasActions = onEdit || onDelete || rowActions || customActions;
   const expansionTemplate =
     mobileDetailTemplate ||
     (columns.some((col) => col.hideOnMobile)
@@ -264,7 +269,7 @@ export function GenericDataTable<T extends Record<string, any>>({
         rowsPerPageOptions={[5, 10, 25, 50]}
         stripedRows
         className="p-datatable-sm"
-        emptyMessage="No se encontraron registros"
+        emptyMessage={emptyMessage}
         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
         currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
       >

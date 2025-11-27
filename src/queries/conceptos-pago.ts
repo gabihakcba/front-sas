@@ -7,7 +7,7 @@ import {
 
 export const getConceptosPagoFn = async (): Promise<ConceptoPago[]> => {
   const response = await api.get<any>('/concepto-pago');
-  console.log('Conceptos Pago Response:', response.data);
+
   if (Array.isArray(response.data)) {
     return response.data;
   }

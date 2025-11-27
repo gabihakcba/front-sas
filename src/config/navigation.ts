@@ -69,7 +69,18 @@ export const MENU_ITEMS: MenuItem[] = [
     label: 'Eventos',
     icon: 'pi pi-calendar',
     href: '/dashboard/eventos',
-    // Accessible to all authenticated users
+    allowedRoles: [
+      'SUPER_ADMIN',
+      'JEFE_GRUPO',
+      'SECRETARIA',
+      'TESORERIA',
+      'JEFE_RAMA',
+      'COLABORADOR_RAMA',
+      'JEFE_AREA',
+      'COLABORADOR_AREA',
+      'MIEMBRO_ACTIVO',
+      'FAMILIA',
+    ],
   },
   {
     label: 'Logs',
