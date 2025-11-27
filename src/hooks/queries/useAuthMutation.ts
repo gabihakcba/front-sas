@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/providers/ToastProvider';
-import { loginUserFn, LoginData } from '@/queries/auth';
+import { loginFn, LoginCredentials } from '@/queries/auth';
 import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '@/lib/axios';
 import { parseJwt } from '@/lib/utils';
 
@@ -12,7 +12,7 @@ export const useLogin = () => {
   const { showSuccessToast, showErrorToast } = useToast();
 
   return useMutation({
-    mutationFn: (data: LoginData) => loginUserFn(data),
+    mutationFn: (data: LoginCredentials) => loginFn(data),
     onSuccess: (response) => {
       const { access_token, refresh_token } = response.data;
 

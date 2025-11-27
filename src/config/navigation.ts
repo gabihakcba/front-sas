@@ -77,6 +77,19 @@ export const MENU_ITEMS: MenuItem[] = [
     href: '/dashboard/logs',
     allowedRoles: ['SUPER_ADMIN'],
   },
+  {
+    label: 'Más Opciones',
+    icon: 'pi pi-box',
+    href: '/dashboard/mas-opciones',
+    allowedRoles: [
+      'SUPER_ADMIN',
+      'JEFE_GRUPO',
+      'TESORERIA',
+      'JEFE_RAMA',
+      'SECRETARIA',
+      'COLABORADOR_RAMA',
+    ],
+  },
 ];
 
 /**

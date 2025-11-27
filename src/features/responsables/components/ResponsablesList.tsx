@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
+import { confirmDialog, ConfirmDialog } from 'primereact/confirmdialog';
 import { GenericDataTable } from '@/common/components/GenericDataTable';
 import { TableColumn } from '@/common/types/table';
 import { RESOURCE, ACTION } from '@/common/types/rbac';
@@ -130,10 +131,18 @@ export const ResponsablesList = () => {
     );
   };
 
-  const handleDelete = (item: ResponsableRow) => {
-    if (confirm('¿Está seguro de eliminar este responsable?')) {
-      deleteMutation.mutate(item.id);
-    }
+  const handleDelete = (responsable: ResponsableRow) => {
+    confirmDialog({
+      message: `¿Estás seguro de eliminar a ${responsable.nombre} ${responsable.apellidos}?`,
+      header: 'Confirmar Eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, eliminar',
+      rejectLabel: 'Cancelar',
+      acceptClassName: 'p-button-danger',
+      accept: async () => {
+        await deleteMutation.mutateAsync(responsable.id);
+      },
+    });
   };
 
   const handleVincular = (data: any) => {
@@ -175,6 +184,7 @@ export const ResponsablesList = () => {
 
   return (
     <div className="p-4">
+      <ConfirmDialog />
       <GenericDataTable
         title="Gestión de Responsables"
         subtitle="Administración de padres, tutores y responsables"

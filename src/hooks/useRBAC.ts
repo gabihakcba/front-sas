@@ -1,10 +1,15 @@
 import { useAuth } from '@/context/AuthContext';
 import { UserRole, UserSession } from '@/lib/utils';
+import { useMyPermissionsQuery } from '@/hooks/queries/useAuth';
 
 interface User extends UserSession {}
 
 export function useRBAC() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading: isLoadingAuth } = useAuth();
+  const { data: permissions = [], isLoading: isLoadingPermissions } =
+    useMyPermissionsQuery();
+
+  const isLoading = isLoadingAuth || isLoadingPermissions;
 
   /**
    * Check if the user has any of the specified roles
@@ -87,61 +92,23 @@ export function useRBAC() {
 
   /**
    * Check if user has permission to perform action on resource
-   * This is a simplified implementation that maps resource-action to roles
+   * Uses real permissions from backend
    * @param resource - The resource type
    * @param action - The action to perform
    * @returns true if user has permission
    */
   const hasPermission = (resource: string, action: string): boolean => {
-    if (!user || !user.roles) return false;
+    if (!user) return false;
 
     // SUPER_ADMIN can do anything
     if (isSuperAdmin()) return true;
 
-    // Check for MANAGE permission (includes all actions)
-    const hasManage = user.roles.some(
-      (role: UserRole) => role.name === 'MANAGE'
+    const permissionKey = `${resource}:${action}`;
+    const manageKey = `${resource}:MANAGE`;
+
+    return (
+      permissions?.includes(permissionKey) || permissions.includes(manageKey)
     );
-    if (hasManage) return true;
-
-    // Resource-specific role mappings
-    // This is a simplified mapping - in production, this should come from backend
-    const roleMapping: Record<string, Record<string, string[]>> = {
-      ADULTO: {
-        READ: ['JEFE_GRUPO', 'SECRETARIA', 'JEFE_RAMA', 'COLABORADOR_RAMA'],
-        CREATE: ['JEFE_GRUPO', 'SECRETARIA'],
-        UPDATE: ['JEFE_GRUPO', 'SECRETARIA'],
-        DELETE: ['JEFE_GRUPO'],
-      },
-      PROTAGONISTA: {
-        READ: [
-          'JEFE_GRUPO',
-          'JEFE_RAMA',
-          'COLABORADOR_RAMA',
-          'SECRETARIA',
-          'FAMILIA',
-          'MIEMBRO_ACTIVO',
-        ],
-        CREATE: ['JEFE_GRUPO', 'JEFE_RAMA', 'SECRETARIA'],
-        UPDATE: ['JEFE_GRUPO', 'JEFE_RAMA', 'COLABORADOR_RAMA', 'SECRETARIA'],
-        DELETE: ['JEFE_GRUPO', 'SECRETARIA'],
-      },
-      RESPONSABLE: {
-        READ: ['JEFE_GRUPO', 'SECRETARIA', 'JEFE_RAMA', 'COLABORADOR_RAMA'],
-        CREATE: ['JEFE_GRUPO', 'SECRETARIA'],
-        UPDATE: ['JEFE_GRUPO', 'SECRETARIA'],
-        DELETE: ['JEFE_GRUPO'],
-      },
-      PAGO: {
-        READ: ['JEFE_GRUPO', 'TESORERIA', 'FAMILIA'],
-        CREATE: ['JEFE_GRUPO', 'TESORERIA'],
-        UPDATE: ['JEFE_GRUPO', 'TESORERIA'],
-        DELETE: ['JEFE_GRUPO', 'TESORERIA'],
-      },
-    };
-
-    const allowedRoles = roleMapping[resource]?.[action] || [];
-    return allowedRoles.some((roleName) => hasRole(roleName));
   };
 
   return {
