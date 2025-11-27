@@ -98,3 +98,49 @@ export const getProtagonistaFormSections = (ramas: Rama[]): FormSection[] => {
     },
   ];
 };
+
+export const getVinculoResponsableFormConfig = (
+  responsables: any[],
+  relaciones: any[]
+): FormSection[] => {
+  return [
+    {
+      title: '',
+      layout: { cols: 1 },
+      fields: [
+        {
+          name: 'id_responsable',
+          label: 'Responsable',
+          type: 'dropdown',
+          options: responsables,
+          optionLabel: (r) => `${r.nombre} ${r.apellidos}`,
+          optionValue: 'id',
+          filterBy: 'nombre,apellidos,dni',
+          filter: true,
+          rules: { required: 'El responsable es obligatorio' },
+          placeholder: 'Seleccione un responsable',
+          inputProps: {
+            appendTo:
+              typeof document !== 'undefined' ? document.body : undefined,
+          },
+        },
+        {
+          name: 'id_relacion',
+          label: 'Tipo de Relación',
+          type: 'dropdown',
+          options: relaciones,
+          optionLabel: 'tipo',
+          optionValue: 'id',
+          filterBy: 'tipo',
+          filter: true,
+          rules: { required: 'El tipo de relación es obligatorio' },
+          placeholder: 'Seleccione el tipo de relación',
+          inputProps: {
+            appendTo:
+              typeof document !== 'undefined' ? document.body : undefined,
+          },
+        },
+      ],
+    },
+  ];
+};

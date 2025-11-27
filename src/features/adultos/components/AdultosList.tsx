@@ -1,11 +1,11 @@
 /**
  * AdultosList Component
- * Refactored to use GenericDataTable
+ * Refactored to use GenericDataTable and Container Components
  */
 
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { confirmDialog } from 'primereact/confirmdialog';
@@ -28,61 +28,17 @@ import type {
   PaseAdultoDto,
   AdultoFormData,
 } from '@/common/types/adulto';
-import { GenericForm } from '@/common/components/GenericForm';
-import {
-  getAdultoFormSections,
-  getEquipoFormSection,
-} from '../forms/adultoFormConfig';
-import {
-  useAreasQuery,
-  usePosicionesQuery,
-  useRolesQuery,
-} from '@/hooks/queries/useCommon';
-import { useRamasQuery } from '@/hooks/queries/useRamas';
 import { toCalendarDate } from '@/lib/date';
-import { FieldConfig } from '@/common/types/form';
+import { AdultoFormContainer } from './AdultoFormContainer';
+import { AdultoPaseFormContainer } from './AdultoPaseFormContainer';
 
 export default function AdultosList() {
   const { data: adultos = [], isLoading } = useAdultosQuery();
-  const { data: areas = [], isLoading: isLoadingAreas } = useAreasQuery();
-  const { data: posiciones = [], isLoading: isLoadingPosiciones } =
-    usePosicionesQuery();
-  const { data: ramas = [], isLoading: isLoadingRamas } = useRamasQuery();
-  const { data: roles = [], isLoading: isLoadingRoles } = useRolesQuery();
 
   const createAdultoMutation = useCreateAdultoMutation();
   const updateAdultoMutation = useUpdateAdultoMutation();
   const deleteAdultoMutation = useDeleteAdultoMutation();
   const paseAdultoMutation = usePaseAdultoMutation();
-
-  const sections = useMemo(
-    () => getAdultoFormSections(areas, posiciones, ramas, roles),
-    [areas, posiciones, ramas, roles]
-  );
-
-  // Sección de equipo para el formulario de Pase
-  const paseSection = useMemo(() => {
-    const { fields, ...rest } = getEquipoFormSection(
-      areas,
-      posiciones,
-      ramas,
-      roles
-    );
-    return [
-      {
-        ...rest,
-        fields: [
-          ...fields,
-          {
-            name: 'fecha_pase',
-            label: 'Fecha de Inicio en Cargo',
-            type: 'date',
-            rules: { required: 'Requerido' },
-          },
-        ] as FieldConfig[],
-      },
-    ];
-  }, [areas, posiciones, ramas, roles]);
 
   const [dialogVisible, setDialogVisible] = useState(false);
   const [selectedAdulto, setSelectedAdulto] = useState<AdultoFormData | null>(
@@ -225,13 +181,9 @@ export default function AdultosList() {
       equipo: {
         id_area,
         id_posicion,
-        // Lógica data-driven: solo envía id_rama si el área tiene ramas
-        id_rama: (() => {
-          const selectedArea = areas.find((a) => a.id === id_area);
-          return selectedArea?.Rama && selectedArea.Rama.length > 0
-            ? id_rama
-            : undefined;
-        })(),
+        // Nota: La lógica data-driven para id_rama se maneja en el backend o debe ser parte del formulario si es necesario
+        // Aquí asumimos que si viene id_rama es válido
+        id_rama: id_rama,
       },
       fecha_pase: fecha_pase,
     };
@@ -288,13 +240,7 @@ export default function AdultosList() {
           ? {
               id_area,
               id_posicion,
-              // Lógica data-driven: solo envía id_rama si el área seleccionada tiene ramas asociadas
-              id_rama: (() => {
-                const selectedArea = areas.find((a) => a.id === id_area);
-                return selectedArea?.Rama && selectedArea.Rama.length > 0
-                  ? id_rama
-                  : undefined;
-              })(),
+              id_rama: id_rama,
             }
           : undefined,
       roles: id_roles || [],
@@ -344,8 +290,9 @@ export default function AdultosList() {
         className="p-button-sm p-button-outlined gap-2"
         severity="warning"
         onClick={() => handlePase(adulto)}
+        tooltip="Pase"
+        tooltipOptions={{ position: 'top', appendTo: document.body }}
       >
-        <span className="hidden md:inline">Pase</span>
         <i className="pi pi-arrow-right" />
       </Button>
     </Protect>
@@ -376,21 +323,17 @@ export default function AdultosList() {
         className="w-full md:w-[800px]"
         modal
       >
-        <GenericForm
-          sections={sections}
-          onSubmit={handleSubmit}
-          defaultValues={selectedAdulto || { activo: true, es_becado: false }}
-          submitLabel={selectedAdulto ? 'Guardar Cambios' : 'Crear Adulto'}
-          isLoading={
-            createAdultoMutation.isPending ||
-            updateAdultoMutation.isPending ||
-            isLoadingAreas ||
-            isLoadingPosiciones ||
-            isLoadingRamas ||
-            isLoadingRoles
-          }
-          actionType={selectedAdulto ? 'update' : 'create'}
-        />
+        {dialogVisible && (
+          <AdultoFormContainer
+            defaultValues={selectedAdulto}
+            onSubmit={handleSubmit}
+            isLoading={
+              createAdultoMutation.isPending || updateAdultoMutation.isPending
+            }
+            actionType={selectedAdulto ? 'update' : 'create'}
+            submitLabel={selectedAdulto ? 'Guardar Cambios' : 'Crear Adulto'}
+          />
+        )}
       </Dialog>
 
       {/* Dialog de Pase de Cargo */}
@@ -401,20 +344,12 @@ export default function AdultosList() {
         className="w-full md:w-[600px]"
         modal
       >
-        <GenericForm
-          sections={paseSection}
-          onSubmit={handleSubmitPase}
-          defaultValues={{ fecha_pase: new Date() }}
-          submitLabel="Confirmar Pase"
-          isLoading={
-            paseAdultoMutation.isPending ||
-            isLoadingAreas ||
-            isLoadingPosiciones ||
-            isLoadingRamas ||
-            isLoadingRoles
-          }
-          actionType="create"
-        />
+        {paseDialogVisible && (
+          <AdultoPaseFormContainer
+            onSubmit={handleSubmitPase}
+            isLoading={paseAdultoMutation.isPending}
+          />
+        )}
       </Dialog>
     </>
   );

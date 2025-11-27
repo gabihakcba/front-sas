@@ -75,23 +75,33 @@ export const getVinculoFormConfig = (
           name: 'id_protagonista',
           label: 'Protagonista',
           type: 'dropdown',
-          options: protagonistas.map((p) => ({
-            label: `${p.nombre} ${p.apellidos}`,
-            value: p.id,
-          })),
+          options: protagonistas,
+          optionLabel: (r) => `${r.nombre} ${r.apellidos}`,
+          optionValue: 'id',
+          filterBy: 'nombre,apellidos,dni',
+          filter: true,
           rules: { required: 'Debe seleccionar un protagonista' },
           placeholder: 'Seleccione un protagonista',
+          inputProps: {
+            appendTo:
+              typeof document !== 'undefined' ? document.body : undefined,
+          },
         },
         {
           name: 'id_relacion',
           label: 'Tipo de Relación',
           type: 'dropdown',
-          options: (Array.isArray(relaciones) ? relaciones : []).map((r) => ({
-            label: r.tipo,
-            value: r.id,
-          })),
+          options: relaciones,
+          optionLabel: 'tipo',
+          optionValue: 'id',
+          filterBy: 'tipo',
+          filter: true,
           rules: { required: 'Debe seleccionar el tipo de relación' },
           placeholder: 'Seleccione el tipo de relación',
+          inputProps: {
+            appendTo:
+              typeof document !== 'undefined' ? document.body : undefined,
+          },
         },
       ],
     },

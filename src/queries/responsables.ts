@@ -49,3 +49,13 @@ export const updateResponsableFn = async (
 export const deleteResponsableFn = async (id: number): Promise<void> => {
   await api.delete(`/responsables/${id}`);
 };
+
+export const createResponsableFromAdultoFn = async (data: {
+  id_adulto: number;
+}): Promise<ResponsableRow> => {
+  const response = await api.post<ResponsableRow>(
+    '/responsables/from-adulto',
+    data
+  );
+  return response.data;
+};

@@ -108,7 +108,7 @@ export function useRBAC() {
     // This is a simplified mapping - in production, this should come from backend
     const roleMapping: Record<string, Record<string, string[]>> = {
       ADULTO: {
-        READ: ['JEFE_GRUPO', 'SECRETARIA', 'JEFE_RAMA'],
+        READ: ['JEFE_GRUPO', 'SECRETARIA', 'JEFE_RAMA', 'COLABORADOR_RAMA'],
         CREATE: ['JEFE_GRUPO', 'SECRETARIA'],
         UPDATE: ['JEFE_GRUPO', 'SECRETARIA'],
         DELETE: ['JEFE_GRUPO'],
@@ -117,13 +117,20 @@ export function useRBAC() {
         READ: [
           'JEFE_GRUPO',
           'JEFE_RAMA',
+          'COLABORADOR_RAMA',
           'SECRETARIA',
           'FAMILIA',
           'MIEMBRO_ACTIVO',
         ],
         CREATE: ['JEFE_GRUPO', 'JEFE_RAMA', 'SECRETARIA'],
-        UPDATE: ['JEFE_GRUPO', 'JEFE_RAMA', 'SECRETARIA'],
+        UPDATE: ['JEFE_GRUPO', 'JEFE_RAMA', 'COLABORADOR_RAMA', 'SECRETARIA'],
         DELETE: ['JEFE_GRUPO', 'SECRETARIA'],
+      },
+      RESPONSABLE: {
+        READ: ['JEFE_GRUPO', 'SECRETARIA', 'JEFE_RAMA', 'COLABORADOR_RAMA'],
+        CREATE: ['JEFE_GRUPO', 'SECRETARIA'],
+        UPDATE: ['JEFE_GRUPO', 'SECRETARIA'],
+        DELETE: ['JEFE_GRUPO'],
       },
       PAGO: {
         READ: ['JEFE_GRUPO', 'TESORERIA', 'FAMILIA'],

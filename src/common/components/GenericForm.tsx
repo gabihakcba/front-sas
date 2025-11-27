@@ -162,33 +162,70 @@ export const GenericForm: React.FC<GenericFormProps> = ({
         );
         return renderInputWithIcon(inputElement);
 
-      case 'dropdown':
+      case 'dropdown': {
+        // Pre-procesamiento de opciones para labels dinámicos
+        const processedOptions =
+          typeof field.optionLabel === 'function'
+            ? field.options?.map((opt) => ({
+                ...opt,
+                __label: (field.optionLabel as (item: any) => string)(opt),
+              }))
+            : field.options;
+
+        const labelField =
+          typeof field.optionLabel === 'function'
+            ? '__label'
+            : field.optionLabel || 'label';
+
         return (
           <Dropdown
             {...commonProps}
             value={fieldProps.value}
             onChange={(e) => fieldProps.onChange(e.value)}
-            options={field.options}
-            optionLabel="label"
+            options={processedOptions}
+            optionLabel={labelField}
+            optionValue={field.optionValue || 'value'}
             ref={fieldProps.ref}
             loading={field.isLoading}
+            filter={field.filter || !!field.filterBy}
+            filterBy={field.filterBy}
+            resetFilterOnHide
+            virtualScrollerOptions={{ itemSize: 38 }}
           />
         );
+      }
 
-      case 'multiselect':
+      case 'multiselect': {
+        // Pre-procesamiento de opciones para labels dinámicos
+        const processedOptions =
+          typeof field.optionLabel === 'function'
+            ? field.options?.map((opt) => ({
+                ...opt,
+                __label: (field.optionLabel as (item: any) => string)(opt),
+              }))
+            : field.options;
+
+        const labelField =
+          typeof field.optionLabel === 'function'
+            ? '__label'
+            : field.optionLabel || 'label';
+
         return (
           <MultiSelect
             {...commonProps}
             value={fieldProps.value || []}
             onChange={(e) => fieldProps.onChange(e.value)}
-            options={field.options}
-            optionLabel="label"
-            optionValue="value"
+            options={processedOptions}
+            optionLabel={labelField}
+            optionValue={field.optionValue || 'value'}
             display="chip"
-            filter
+            filter={field.filter || !!field.filterBy}
+            filterBy={field.filterBy}
             ref={fieldProps.ref}
+            virtualScrollerOptions={{ itemSize: 38 }}
           />
         );
+      }
 
       case 'date':
         // Asegurar que el valor sea un objeto Date válido o null

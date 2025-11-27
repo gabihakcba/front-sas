@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { GenericDataTable } from '@/common/components/GenericDataTable';
-import { GenericForm } from '@/common/components/GenericForm';
 import { TableColumn } from '@/common/types/table';
 import { RESOURCE, ACTION } from '@/common/types/rbac';
 import { Protect } from '@/components/auth/Protect';
@@ -14,28 +13,21 @@ import {
   useUpdateResponsableMutation,
   useDeleteResponsableMutation,
 } from '@/hooks/queries/useResponsables';
-import {
-  useRelacionesQuery,
-  useCrearRelacionMutation,
-} from '@/hooks/queries/useRelaciones';
-import { useProtagonistasQuery } from '@/hooks/queries/useProtagonistas';
-import {
-  getResponsableFormSections,
-  getVinculoFormConfig,
-} from '../forms/responsableFormConfig';
+import { useCrearRelacionMutation } from '@/hooks/queries/useRelaciones';
 import { toCalendarDate } from '@/lib/date';
 import {
   ResponsableRow,
   CreateResponsableDto,
   UpdateResponsableDto,
-  VincularResponsableDto,
 } from '@/common/types/responsable';
+import { ResponsableFormContainer } from './ResponsableFormContainer';
+import { VinculoFormContainer } from './VinculoFormContainer';
+import { ImportarAdultoContainer } from './ImportarAdultoContainer';
+import { Dropdown } from 'primereact/dropdown';
 
 export const ResponsablesList = () => {
   // Queries
   const { data: responsables = [], isLoading } = useResponsablesQuery();
-  const { data: relaciones = [] } = useRelacionesQuery();
-  const { data: protagonistas = [] } = useProtagonistasQuery();
 
   // Mutations
   const createMutation = useCreateResponsableMutation();
@@ -45,6 +37,7 @@ export const ResponsablesList = () => {
 
   // State
   const [isCreateDialogVisible, setIsCreateDialogVisible] = useState(false);
+  const [isImportarDialogVisible, setIsImportarDialogVisible] = useState(false);
   const [isEditDialogVisible, setIsEditDialogVisible] = useState(false);
   const [isVincularDialogVisible, setIsVincularDialogVisible] = useState(false);
   const [selectedResponsable, setSelectedResponsable] =
@@ -60,18 +53,28 @@ export const ResponsablesList = () => {
       field: 'hijos',
       header: 'Hijos / Tutoriados',
       body: (rowData) => {
-        if (!rowData.hijos || rowData.hijos.length === 0) return '-';
+        const hijos = rowData.hijos || [];
+
+        if (hijos.length === 0) return <span className="text-gray-400">-</span>;
+
+        const opcionesHijos = hijos.map((h: any) => ({
+          label: `${h.nombre} ${h.apellidos}`,
+          value: h.id,
+        }));
+
         return (
-          <div className="flex flex-wrap gap-1">
-            {rowData.hijos.map((hijo: any) => (
-              <span
-                key={hijo.id}
-                className="bg-primary-100 text-primary-700 px-2 py-1 rounded text-xs"
-              >
-                {hijo.nombre} {hijo.apellido}
-              </span>
-            ))}
-          </div>
+          <Dropdown
+            value={null}
+            options={opcionesHijos}
+            optionLabel="label"
+            placeholder={`${hijos.length} asignados`}
+            className="w-full md:w-14rem"
+            appendTo={typeof document !== 'undefined' ? document.body : 'self'}
+            pt={{
+              root: { className: 'border-0 bg-transparent' },
+              input: { className: 'font-medium' },
+            }}
+          />
         );
       },
     },
@@ -153,7 +156,13 @@ export const ResponsablesList = () => {
   const openEditDialog = (item: ResponsableRow) => {
     const responsableEditable = {
       ...item,
-      fecha_nacimiento: toCalendarDate(item.fecha_nacimiento),
+      ...item.Miembro,
+      fecha_nacimiento: toCalendarDate(
+        item.Miembro?.fecha_nacimiento ||
+          (item.fecha_nacimiento instanceof Date
+            ? item.fecha_nacimiento.toISOString()
+            : item.fecha_nacimiento)
+      ),
     };
     setSelectedResponsable(responsableEditable as ResponsableRow);
     setIsEditDialogVisible(true);
@@ -181,7 +190,21 @@ export const ResponsablesList = () => {
             <Button
               label="Nuevo Responsable"
               icon="pi pi-plus"
+              iconPos="right"
+              size="small"
+              outlined
+              severity="success"
               onClick={() => setIsCreateDialogVisible(true)}
+            />
+            <Button
+              label="Importar Adulto"
+              icon="pi pi-user-plus"
+              iconPos="right"
+              size="small"
+              outlined
+              severity="secondary"
+              className="ml-2"
+              onClick={() => setIsImportarDialogVisible(true)}
             />
           </Protect>
         }
@@ -196,6 +219,7 @@ export const ResponsablesList = () => {
               icon="pi pi-link"
               className="p-button-sm p-button-outlined p-button-help"
               tooltip="Vincular Protagonista"
+              tooltipOptions={{ position: 'top', appendTo: document.body }}
               onClick={() => openVincularDialog(item)}
             />
           </Protect>
@@ -209,14 +233,16 @@ export const ResponsablesList = () => {
         onHide={() => setIsCreateDialogVisible(false)}
         className="w-full md:w-1/2"
       >
-        <GenericForm
-          sections={getResponsableFormSections()}
-          onSubmit={handleCreate}
-          onCancel={() => setIsCreateDialogVisible(false)}
-          isLoading={createMutation.isPending}
-          submitLabel="Crear"
-          defaultValues={{ fecha_nacimiento: new Date() }}
-        />
+        {isCreateDialogVisible && (
+          <ResponsableFormContainer
+            onSubmit={handleCreate}
+            onCancel={() => setIsCreateDialogVisible(false)}
+            isLoading={createMutation.isPending}
+            submitLabel="Crear"
+            defaultValues={{ fecha_nacimiento: new Date() }}
+            actionType="create"
+          />
+        )}
       </Dialog>
 
       {/* Edit Dialog */}
@@ -229,17 +255,19 @@ export const ResponsablesList = () => {
         }}
         className="w-full md:w-1/2"
       >
-        <GenericForm
-          sections={getResponsableFormSections()}
-          defaultValues={selectedResponsable || {}}
-          onSubmit={handleEdit}
-          onCancel={() => {
-            setIsEditDialogVisible(false);
-            setSelectedResponsable(null);
-          }}
-          isLoading={updateMutation.isPending}
-          submitLabel="Guardar"
-        />
+        {isEditDialogVisible && (
+          <ResponsableFormContainer
+            defaultValues={selectedResponsable}
+            onSubmit={handleEdit}
+            onCancel={() => {
+              setIsEditDialogVisible(false);
+              setSelectedResponsable(null);
+            }}
+            isLoading={updateMutation.isPending}
+            submitLabel="Guardar"
+            actionType="update"
+          />
+        )}
       </Dialog>
 
       {/* Vincular Dialog */}
@@ -252,16 +280,31 @@ export const ResponsablesList = () => {
         }}
         className="w-full md:w-1/3"
       >
-        <GenericForm
-          sections={getVinculoFormConfig(protagonistas, relaciones)}
-          onSubmit={handleVincular}
-          onCancel={() => {
-            setIsVincularDialogVisible(false);
-            setSelectedResponsable(null);
-          }}
-          isLoading={vincularMutation.isPending}
-          submitLabel="Vincular"
-        />
+        {isVincularDialogVisible && (
+          <VinculoFormContainer
+            onSubmit={handleVincular}
+            onCancel={() => {
+              setIsVincularDialogVisible(false);
+              setSelectedResponsable(null);
+            }}
+            isLoading={vincularMutation.isPending}
+            submitLabel="Vincular"
+          />
+        )}
+      </Dialog>
+
+      {/* Importar Dialog */}
+      <Dialog
+        header="Importar Adulto como Responsable"
+        visible={isImportarDialogVisible}
+        onHide={() => setIsImportarDialogVisible(false)}
+        className="w-full md:w-1/3"
+      >
+        {isImportarDialogVisible && (
+          <ImportarAdultoContainer
+            onClose={() => setIsImportarDialogVisible(false)}
+          />
+        )}
       </Dialog>
     </div>
   );

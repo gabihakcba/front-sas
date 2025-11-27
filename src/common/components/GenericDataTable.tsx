@@ -30,7 +30,7 @@ interface GenericDataTableProps<T> {
 
 export function GenericDataTable<T extends Record<string, any>>({
   data,
-  columns,
+  columns = [],
   isLoading = false,
   title,
   subtitle,
@@ -176,8 +176,9 @@ export function GenericDataTable<T extends Record<string, any>>({
               className="p-button-sm p-button-outlined gap-2"
               severity="warning"
               onClick={() => onEdit(rowData)}
+              tooltip="Editar"
+              tooltipOptions={{ position: 'top', appendTo: document.body }}
             >
-              <span className="hidden md:inline">Editar</span>
               <i className="pi pi-pencil" />
             </Button>
           </Protect>
@@ -191,8 +192,9 @@ export function GenericDataTable<T extends Record<string, any>>({
               className="p-button-sm p-button-outlined gap-2"
               severity="danger"
               onClick={() => onDelete(rowData)}
+              tooltip="Eliminar"
+              tooltipOptions={{ position: 'top', appendTo: document.body }}
             >
-              <span className="hidden md:inline">Eliminar</span>
               <i className="pi pi-trash" />
             </Button>
           </Protect>

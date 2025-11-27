@@ -69,3 +69,15 @@ export const toApiDate = (date: Date | null | undefined): string | null => {
   // 2. Creamos una fecha UTC a partir de ese string (forzando las 00:00 UTC)
   return dayjs.utc(dateString).format();
 };
+
+/**
+ * Calcula la edad en años a partir de una fecha de nacimiento.
+ * @param fechaNacimiento Fecha de nacimiento (string ISO o Date)
+ * @returns Edad en años o 0 si no es válida
+ */
+export const calcularEdad = (
+  fechaNacimiento: string | Date | null | undefined
+): number => {
+  if (!fechaNacimiento) return 0;
+  return dayjs().diff(dayjs(fechaNacimiento), 'year');
+};

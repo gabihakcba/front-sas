@@ -6,6 +6,7 @@ import {
   createResponsableFn,
   updateResponsableFn,
   deleteResponsableFn,
+  createResponsableFromAdultoFn,
 } from '@/queries/responsables';
 import type {
   CreateResponsableDto,
@@ -83,6 +84,26 @@ export const useDeleteResponsableMutation = () => {
       showErrorToast(
         'Error',
         error?.response?.data?.message || 'No se pudo eliminar el responsable'
+      );
+    },
+  });
+};
+
+export const useCreateResponsableFromAdultoMutation = () => {
+  const queryClient = useQueryClient();
+  const { showSuccessToast, showErrorToast } = useToast();
+
+  return useMutation({
+    mutationFn: (data: { id_adulto: number }) =>
+      createResponsableFromAdultoFn(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: RESPONSABLES_QUERY_KEY });
+      showSuccessToast('Éxito', 'Responsable importado correctamente');
+    },
+    onError: (error: any) => {
+      showErrorToast(
+        'Error',
+        error?.response?.data?.message || 'No se pudo importar el responsable'
       );
     },
   });

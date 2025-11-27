@@ -10,6 +10,16 @@ export interface ResponsableRow {
   email: string;
   hijos?: { id: number; nombre: string; apellido: string }[]; // Simplified for list display
   activo: boolean;
+  Miembro?: {
+    nombre: string;
+    apellidos: string;
+    dni: string;
+    fecha_nacimiento: string;
+    telefono: string;
+    telefono_emergencia: string;
+    direccion: string;
+    email: string;
+  };
 }
 
 export interface CreateResponsableDto {

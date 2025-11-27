@@ -1,11 +1,12 @@
 /**
  * ProtagonistasList Component
  * Uses GenericDataTable for standardized list view
+ * Refactored to use Container Components for forms
  */
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { confirmDialog } from 'primereact/confirmdialog';
@@ -21,30 +22,15 @@ import {
   useDeleteProtagonistaMutation,
   usePaseRamaMutation,
 } from '@/hooks/queries/useProtagonistas';
-import { useRamasQuery } from '@/hooks/queries/useRamas';
 import type {
   ProtagonistaRow,
   CreateProtagonistaDto,
 } from '@/common/types/protagonista';
-import { GenericForm } from '@/common/components/GenericForm';
-import { getProtagonistaFormSections } from '../forms/protagonistaFormConfig';
-import { toCalendarDate, toApiDate } from '@/lib/date';
-
+import { toCalendarDate, toApiDate, calcularEdad } from '@/lib/date';
 import { useToast } from '@/providers/ToastProvider';
-
-/**
- * Calcula la edad basándose en la fecha de nacimiento
- */
-const calcularEdad = (fechaNacimiento: string): number => {
-  const hoy = new Date();
-  const nacimiento = new Date(fechaNacimiento);
-  let edad = hoy.getFullYear() - nacimiento.getFullYear();
-  const mes = hoy.getMonth() - nacimiento.getMonth();
-  if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
-    edad--;
-  }
-  return edad;
-};
+import { ProtagonistaFormContainer } from './ProtagonistaFormContainer';
+import { PaseRamaContainer } from './PaseRamaContainer';
+import { VinculoResponsableContainer } from './VinculoResponsableContainer';
 
 export default function ProtagonistasList() {
   const { data: protagonistas = [], isLoading } = useProtagonistasQuery();
@@ -52,28 +38,18 @@ export default function ProtagonistasList() {
   const updateMutation = useUpdateProtagonistaMutation();
   const deleteMutation = useDeleteProtagonistaMutation();
   const paseRamaMutation = usePaseRamaMutation();
-  const { data: ramas = [], isLoading: isLoadingRamas } = useRamasQuery();
   const { showErrorToast } = useToast();
-
-  const ramaOptions = ramas?.map((rama) => ({
-    label: rama.nombre,
-    value: rama.id,
-  }));
 
   const [dialogVisible, setDialogVisible] = useState(false);
   const [paseDialogVisible, setPaseDialogVisible] = useState(false);
+  const [vinculoDialogVisible, setVinculoDialogVisible] = useState(false);
+
   const [selectedProtagonista, setSelectedProtagonista] =
     useState<ProtagonistaRow | null>(null);
   const [selectedPaseProtagonista, setSelectedPaseProtagonista] =
     useState<ProtagonistaRow | null>(null);
-
-  /**
-   * Memoized form sections with dynamic options
-   */
-  const formSections = useMemo(
-    () => getProtagonistaFormSections(ramas),
-    [ramas]
-  );
+  const [selectedProtagonistaVinculo, setSelectedProtagonistaVinculo] =
+    useState<ProtagonistaRow | null>(null);
 
   /**
    * Column configuration
@@ -172,6 +148,14 @@ export default function ProtagonistasList() {
   };
 
   /**
+   * Handler para abrir el diálogo de vinculación
+   */
+  const handleVincular = (protagonista: ProtagonistaRow) => {
+    setSelectedProtagonistaVinculo(protagonista);
+    setVinculoDialogVisible(true);
+  };
+
+  /**
    * Handler para submit de pase de rama
    */
   const submitPaseRama = async (formData: any) => {
@@ -250,22 +234,39 @@ export default function ProtagonistasList() {
   );
 
   /**
-   * Custom row actions (Pase de Rama)
+   * Custom row actions (Pase de Rama y Vincular)
    */
   const rowActions = (rowData: ProtagonistaRow) => (
-    <Protect
-      resource={RESOURCE.PROTAGONISTA}
-      action={ACTION.UPDATE}
-    >
-      <Button
-        className="p-button-sm p-button-outlined gap-2"
-        severity="warning"
-        onClick={() => handlePaseRama(rowData)}
+    <div className="flex gap-2">
+      <Protect
+        resource={RESOURCE.PROTAGONISTA}
+        action={ACTION.UPDATE}
       >
-        <span className="hidden md:inline">Pase</span>
-        <i className="pi pi-arrow-right" />
-      </Button>
-    </Protect>
+        <Button
+          className="p-button-sm p-button-outlined gap-2"
+          severity="warning"
+          onClick={() => handlePaseRama(rowData)}
+          tooltip="Pase de Rama"
+          tooltipOptions={{ position: 'top', appendTo: document.body }}
+        >
+          <i className="pi pi-arrow-right" />
+        </Button>
+      </Protect>
+      <Protect
+        resource={RESOURCE.RESPONSABLE}
+        action={ACTION.UPDATE}
+      >
+        <Button
+          className="p-button-sm p-button-outlined gap-2"
+          severity="help"
+          onClick={() => handleVincular(rowData)}
+          tooltip="Vincular Responsable"
+          tooltipOptions={{ position: 'top', appendTo: document.body }}
+        >
+          <i className="pi pi-link" />
+        </Button>
+      </Protect>
+    </div>
   );
 
   return (
@@ -281,7 +282,7 @@ export default function ProtagonistasList() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         permissionResource={RESOURCE.PROTAGONISTA}
-        mobileDetailTemplate={undefined} // Let GenericDataTable handle it automatically
+        mobileDetailTemplate={undefined}
         rowActions={rowActions}
       />
 
@@ -295,22 +296,17 @@ export default function ProtagonistasList() {
         className="w-full md:w-[800px]"
         modal
       >
-        <GenericForm
-          sections={formSections}
-          onSubmit={handleSubmit}
-          defaultValues={
-            selectedProtagonista || { activo: true, es_becado: false }
-          }
-          submitLabel={
-            selectedProtagonista ? 'Guardar Cambios' : 'Crear Protagonista'
-          }
-          isLoading={
-            createMutation.isPending ||
-            updateMutation.isPending ||
-            isLoadingRamas
-          }
-          actionType={selectedProtagonista ? 'update' : 'create'}
-        />
+        {dialogVisible && (
+          <ProtagonistaFormContainer
+            defaultValues={selectedProtagonista}
+            onSubmit={handleSubmit}
+            isLoading={createMutation.isPending || updateMutation.isPending}
+            actionType={selectedProtagonista ? 'update' : 'create'}
+            submitLabel={
+              selectedProtagonista ? 'Guardar Cambios' : 'Crear Protagonista'
+            }
+          />
+        )}
       </Dialog>
 
       {/* Dialog de Pase de Rama */}
@@ -321,36 +317,28 @@ export default function ProtagonistasList() {
         className="w-full md:w-[400px]"
         modal
       >
-        <GenericForm
-          sections={[
-            {
-              title: '',
-              layout: { cols: 1 },
-              fields: [
-                {
-                  name: 'rama',
-                  label: 'Nueva Rama',
-                  type: 'dropdown',
-                  rules: { required: 'La rama es requerida' },
-                  options: ramaOptions,
-                  isLoading: isLoadingRamas,
-                  placeholder: 'Seleccione la nueva rama',
-                },
-                {
-                  name: 'fecha_pase',
-                  label: 'Fecha de Pase',
-                  type: 'date',
-                  rules: { required: 'La fecha es requerida' },
-                },
-              ],
-            },
-          ]}
-          onSubmit={submitPaseRama}
-          defaultValues={{ rama: undefined, fecha_pase: new Date() }}
-          submitLabel="Confirmar Pase"
-          isLoading={paseRamaMutation.isPending || isLoadingRamas}
-          actionType="update"
-        />
+        {paseDialogVisible && (
+          <PaseRamaContainer
+            onSubmit={submitPaseRama}
+            isLoading={paseRamaMutation.isPending}
+          />
+        )}
+      </Dialog>
+
+      {/* Dialog de Vinculación */}
+      <Dialog
+        visible={vinculoDialogVisible}
+        onHide={() => setVinculoDialogVisible(false)}
+        header={`Asignar Responsable a ${selectedProtagonistaVinculo?.nombre} ${selectedProtagonistaVinculo?.apellidos}`}
+        className="w-full md:w-[500px]"
+        modal
+      >
+        {vinculoDialogVisible && selectedProtagonistaVinculo && (
+          <VinculoResponsableContainer
+            protagonistaId={selectedProtagonistaVinculo.id}
+            onClose={() => setVinculoDialogVisible(false)}
+          />
+        )}
       </Dialog>
     </>
   );
