@@ -48,6 +48,9 @@ export const EventosList = () => {
       message: `¿Estás seguro de que deseas eliminar el evento "${evento.nombre}"?`,
       header: 'Confirmar Eliminación',
       icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, eliminar',
+      rejectLabel: 'Cancelar',
+      acceptClassName: 'p-button-danger',
       accept: () => deleteMutation.mutate(evento.id),
     });
   };

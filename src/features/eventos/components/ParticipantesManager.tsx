@@ -72,6 +72,9 @@ export const ParticipantesManager: React.FC<ParticipantesManagerProps> = ({
       message: '¿Está seguro de cancelar esta inscripción?',
       header: 'Confirmar Cancelación',
       icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, eliminar',
+      rejectLabel: 'Cancelar',
+      acceptClassName: 'p-button-danger',
       accept: () => {
         cancelarMutation.mutate(idInscripcion, {
           onSuccess: () => {
@@ -84,6 +87,19 @@ export const ParticipantesManager: React.FC<ParticipantesManagerProps> = ({
       },
     });
   };
+
+  const actions = (rowData: InscripcionRow) => (
+    <Button
+      icon="pi pi-trash"
+      severity="danger"
+      rounded
+      outlined
+      size="small"
+      onClick={() => handleCancelar(rowData.id)}
+      tooltip="Cancelar Inscripción"
+      tooltipOptions={{ position: 'top', appendTo: document.body }}
+    />
+  );
 
   const baseColumns: TableColumn<InscripcionRow>[] = [
     {
@@ -126,39 +142,23 @@ export const ParticipantesManager: React.FC<ParticipantesManagerProps> = ({
     },
   ];
 
-  const ramaColumn: TableColumn<InscripcionRow> = {
+  const colRama: TableColumn<InscripcionRow> = {
     field: 'rama',
     header: 'Rama',
-    body: (rowData: InscripcionRow) => (
-      <Tag
-        value={rowData.rama || 'Sin Rama'}
-        severity="info"
-      />
-    ),
+    type: 'tag',
+    tagConfig: {
+      getSeverity: () => 'info',
+    },
   };
 
-  const areaColumn: TableColumn<InscripcionRow> = {
+  const colArea: TableColumn<InscripcionRow> = {
     field: 'area',
     header: 'Área',
-    body: (rowData: InscripcionRow) => (
-      <Tag
-        value={rowData.area || 'Sin Área'}
-        severity="warning"
-      />
-    ),
+    type: 'tag',
+    tagConfig: {
+      getSeverity: () => 'info',
+    },
   };
-
-  const actions = (rowData: InscripcionRow) => (
-    <Button
-      icon="pi pi-trash"
-      severity="danger"
-      rounded
-      outlined
-      size="small"
-      onClick={() => handleCancelar(rowData.id)}
-      tooltip="Cancelar Inscripción"
-    />
-  );
 
   // Filter out members already registered
   const allInscripciones = useMemo(
@@ -206,30 +206,36 @@ export const ParticipantesManager: React.FC<ParticipantesManagerProps> = ({
         />
       </div>
 
-      <div className="p-4 flex gap-2 items-end bg-slate-800/50 rounded-lg mx-4 mb-4">
-        <div className="flex-1">
-          <label className="block text-sm font-medium text-slate-300 mb-1">
-            Agregar Participante
-          </label>
-          <Dropdown
-            value={selectedMiembroId}
-            onChange={(e) => setSelectedMiembroId(e.value)}
-            options={miembrosOptions}
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Buscar miembro..."
-            filter
-            className="w-full"
-            virtualScrollerOptions={{ itemSize: 38 }}
+      <div className="p-4 bg-slate-800/50 rounded-lg mx-4 mb-4">
+        <label className="block text-sm font-medium text-slate-300 mb-1">
+          Agregar Participante
+        </label>
+        <div className="flex gap-2 items-center">
+          <div className="flex-1">
+            <Dropdown
+              value={selectedMiembroId}
+              onChange={(e) => setSelectedMiembroId(e.value)}
+              options={miembrosOptions}
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Buscar miembro..."
+              filter
+              className="w-full"
+              virtualScrollerOptions={{ itemSize: 38 }}
+            />
+          </div>
+          <Button
+            icon="pi pi-plus"
+            onClick={handleInscribir}
+            disabled={!selectedMiembroId || inscribirMutation.isPending}
+            loading={inscribirMutation.isPending}
+            size="small"
+            outlined
+            severity="success"
+            tooltip="Inscribir"
+            tooltipOptions={{ position: 'top', appendTo: document.body }}
           />
         </div>
-        <Button
-          label="Inscribir"
-          icon="pi pi-plus"
-          onClick={handleInscribir}
-          disabled={!selectedMiembroId || inscribirMutation.isPending}
-          loading={inscribirMutation.isPending}
-        />
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 pb-4">
@@ -240,21 +246,21 @@ export const ParticipantesManager: React.FC<ParticipantesManagerProps> = ({
           <AccordionTab header={`Educadores (Rama) (${educadores.length})`}>
             {renderTable(
               educadores,
-              [...baseColumns, ramaColumn],
+              [...baseColumns, colRama],
               'No hay educadores inscriptos.'
             )}
           </AccordionTab>
           <AccordionTab header={`Protagonistas (${protagonistas.length})`}>
             {renderTable(
               protagonistas,
-              [...baseColumns, ramaColumn],
+              [...baseColumns, colRama],
               'No hay protagonistas inscriptos.'
             )}
           </AccordionTab>
           <AccordionTab header={`Staff / Áreas (${adultos.length})`}>
             {renderTable(
               adultos,
-              [...baseColumns, areaColumn],
+              [...baseColumns, colArea],
               'No hay adultos inscriptos.'
             )}
           </AccordionTab>

@@ -1,8 +1,8 @@
 import api from '@/lib/axios';
 import {
-  Inscripcion,
+  InscripcionRow,
   CreateInscripcionDto,
-  InscripcionesAgrupadas,
+  InscripcionesResponse,
 } from '@/common/types/inscripcion';
 
 interface ApiResponse<T> {
@@ -11,8 +11,8 @@ interface ApiResponse<T> {
 
 export const getInscripcionesPorEventoFn = async (
   idEvento: number
-): Promise<InscripcionesAgrupadas> => {
-  const response = await api.get<ApiResponse<InscripcionesAgrupadas>>(
+): Promise<InscripcionesResponse> => {
+  const response = await api.get<ApiResponse<InscripcionesResponse>>(
     `/inscripciones/evento/${idEvento}`
   );
 
@@ -30,8 +30,8 @@ export const getInscripcionesPorEventoFn = async (
 
 export const inscribirMiembroFn = async (
   data: CreateInscripcionDto
-): Promise<Inscripcion> => {
-  const response = await api.post<Inscripcion>('/inscripciones', data);
+): Promise<InscripcionRow> => {
+  const response = await api.post<InscripcionRow>('/inscripciones', data);
   return response.data;
 };
 
