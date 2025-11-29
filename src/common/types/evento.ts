@@ -17,10 +17,19 @@ export interface Evento {
   costo_ayudante: number;
   terminado: boolean;
   id_tipo: number;
-  tipo?: string;
-  tipo_evento: TipoEvento;
-  ramas: Rama[];
-  areas: Area[];
+  TipoEvento: TipoEvento;
+  RamaAfectada: {
+    id: number;
+    id_evento: number;
+    id_rama: number;
+    Rama: Rama;
+  }[];
+  AreaAfectada: {
+    id: number;
+    id_evento: number;
+    id_area: number;
+    Area: Area;
+  }[];
 }
 
 export interface CreateEventoDto {

@@ -28,6 +28,7 @@ interface GenericDataTableProps<T> {
   rowActions?: (item: T) => ReactNode;
   customActions?: (item: T) => ReactNode;
   emptyMessage?: string;
+  globalFilterFields?: string[];
 }
 
 export function GenericDataTable<T extends Record<string, any>>({

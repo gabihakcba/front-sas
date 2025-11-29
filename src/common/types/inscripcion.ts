@@ -8,6 +8,8 @@ export interface InscripcionRow {
   pagado: boolean;
   rama?: string;
   area?: string;
+  monto_total: number;
+  saldo_pendiente: number;
 }
 
 export interface InscripcionesResponse {

@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { InputText } from 'primereact/inputtext';
@@ -23,6 +25,7 @@ interface GenericFormProps {
   submitLabel: string;
   columns?: number;
   actionType?: 'create' | 'update' | 'delete' | 'login';
+  onValuesChange?: (values: any) => void;
 }
 
 export const GenericForm: React.FC<GenericFormProps> = ({
@@ -35,6 +38,7 @@ export const GenericForm: React.FC<GenericFormProps> = ({
   submitLabel,
   columns = 1,
   actionType = 'create',
+  onValuesChange,
 }) => {
   // Flatten fields from sections or use direct fields
   const allFields = sections
@@ -76,9 +80,17 @@ export const GenericForm: React.FC<GenericFormProps> = ({
     defaultValues: initialValues,
   });
 
-  // useEffect(() => {
-  //   reset(initialValues);
-  // }, [reset, JSON.stringify(defaultValues)]);
+  const values = useWatch({ control });
+
+  React.useEffect(() => {
+    if (onValuesChange) {
+      onValuesChange(values);
+    }
+  }, [values, onValuesChange]);
+
+  React.useEffect(() => {
+    reset(initialValues);
+  }, [reset, JSON.stringify(defaultValues)]);
 
   const renderField = (
     field: FieldConfig,
@@ -119,6 +131,7 @@ export const GenericForm: React.FC<GenericFormProps> = ({
             onChange={(e) => fieldProps.onChange(e.target.value)}
             ref={fieldProps.ref}
             type={field.type}
+            disabled={field.disabled}
           />
         );
         return renderInputWithIcon(inputElement);
@@ -134,6 +147,7 @@ export const GenericForm: React.FC<GenericFormProps> = ({
             toggleMask
             feedback={false}
             inputClassName="w-full p-3"
+            disabled={field.disabled}
           />
         );
         // Note: Password component has its own toggle icon, so we skip the custom icon wrapper
@@ -147,6 +161,7 @@ export const GenericForm: React.FC<GenericFormProps> = ({
             onChange={(e) => fieldProps.onChange(e.target.value)}
             ref={fieldProps.ref}
             type="number"
+            disabled={field.disabled}
           />
         );
         return renderInputWithIcon(inputElement);
@@ -160,6 +175,7 @@ export const GenericForm: React.FC<GenericFormProps> = ({
             ref={fieldProps.ref}
             rows={5}
             autoResize
+            disabled={field.disabled}
           />
         );
         return renderInputWithIcon(inputElement);
@@ -191,8 +207,10 @@ export const GenericForm: React.FC<GenericFormProps> = ({
             loading={field.isLoading}
             filter={field.filter || !!field.filterBy}
             filterBy={field.filterBy}
+            showClear={field.showClear}
             resetFilterOnHide
             virtualScrollerOptions={{ itemSize: 38 }}
+            disabled={field.disabled}
           />
         );
       }
@@ -225,6 +243,7 @@ export const GenericForm: React.FC<GenericFormProps> = ({
             filterBy={field.filterBy}
             ref={fieldProps.ref}
             virtualScrollerOptions={{ itemSize: 38 }}
+            disabled={field.disabled}
           />
         );
       }
@@ -257,6 +276,7 @@ export const GenericForm: React.FC<GenericFormProps> = ({
             appendTo={
               typeof document !== 'undefined' ? document.body : undefined
             }
+            disabled={field.disabled}
           />
         );
         return inputElement;
@@ -271,6 +291,7 @@ export const GenericForm: React.FC<GenericFormProps> = ({
               ref={fieldProps.ref}
               className={classNames({ 'p-invalid': fieldState.invalid })}
               {...field.inputProps}
+              disabled={field.disabled}
             />
             <label
               htmlFor={field.name}

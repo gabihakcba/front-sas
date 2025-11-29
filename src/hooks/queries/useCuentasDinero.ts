@@ -6,6 +6,7 @@ import {
   createCuentaDineroFn,
   updateCuentaDineroFn,
   deleteCuentaDineroFn,
+  getCuentasPorMiembroFn,
 } from '@/queries/cuentas-dinero';
 import {
   CreateCuentaDineroDto,
@@ -27,6 +28,14 @@ export const useCuentaDineroQuery = (id: number) => {
     queryKey: [...CUENTAS_DINERO_QUERY_KEY, id],
     queryFn: () => getCuentaDineroFn(id),
     enabled: !!id,
+  });
+};
+
+export const useCuentasMiembroQuery = (idMiembro?: number) => {
+  return useQuery({
+    queryKey: [...CUENTAS_DINERO_QUERY_KEY, 'miembro', idMiembro],
+    queryFn: () => getCuentasPorMiembroFn(idMiembro!),
+    enabled: !!idMiembro,
   });
 };
 

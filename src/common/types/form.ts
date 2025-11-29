@@ -32,7 +32,9 @@ export interface FieldConfig {
   isLoading?: boolean;
   showIf?: (values: any) => boolean;
   filter?: boolean;
+  showClear?: boolean;
   defaultValue?: any;
+  disabled?: boolean;
 }
 
 export interface FormSection {

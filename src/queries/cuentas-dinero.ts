@@ -44,3 +44,14 @@ export const updateCuentaDineroFn = async (
 export const deleteCuentaDineroFn = async (id: number): Promise<void> => {
   await api.delete(`/cuenta-dinero/${id}`);
 };
+
+export const getCuentasPorMiembroFn = async (
+  idMiembro: number
+): Promise<CuentaDineroRow[]> => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const response = await api.get<any>(`/cuenta-dinero/miembro/${idMiembro}`);
+  if (Array.isArray(response.data)) return response.data;
+  if (response.data && Array.isArray(response.data.data))
+    return response.data.data;
+  return [];
+};

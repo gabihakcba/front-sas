@@ -101,6 +101,19 @@ export const MENU_ITEMS: MenuItem[] = [
       'COLABORADOR_RAMA',
     ],
   },
+  {
+    label: 'Consejo',
+    icon: 'pi pi-briefcase',
+    href: '/dashboard/consejo',
+    allowedRoles: [
+      'SUPER_ADMIN',
+      'JEFE_GRUPO',
+      'SECRETARIA',
+      'TESORERIA',
+      'JEFE_RAMA',
+      'JEFE_AREA',
+    ],
+  },
 ];
 
 /**

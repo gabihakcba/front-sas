@@ -115,16 +115,46 @@ export const ParticipantesManager: React.FC<ParticipantesManagerProps> = ({
       sortable: true,
     },
     {
+      field: 'monto_total',
+      header: 'Costo',
+      body: (rowData: InscripcionRow) =>
+        new Intl.NumberFormat('es-AR', {
+          style: 'currency',
+          currency: 'ARS',
+        }).format(rowData.monto_total),
+      sortable: true,
+    },
+    {
+      field: 'saldo_pendiente',
+      header: 'Pendiente',
+      body: (rowData: InscripcionRow) => {
+        const saldo = rowData.saldo_pendiente;
+        const isPaid = saldo <= 0;
+        return (
+          <span
+            className={`font-bold ${
+              isPaid ? 'text-green-500' : 'text-red-500'
+            }`}
+          >
+            {isPaid
+              ? 'Pagado'
+              : new Intl.NumberFormat('es-AR', {
+                  style: 'currency',
+                  currency: 'ARS',
+                }).format(saldo)}
+          </span>
+        );
+      },
+      sortable: true,
+    },
+    {
       field: 'pagado',
-      header: 'Pagado',
+      header: 'Estado',
       body: (rowData: InscripcionRow) => (
-        <i
-          className={`pi ${
-            rowData.pagado
-              ? 'pi-check-circle text-green-500'
-              : 'pi-times-circle text-red-500'
-          }`}
-        ></i>
+        <Tag
+          value={rowData.saldo_pendiente <= 0 ? 'AL DÍA' : 'DEBE'}
+          severity={rowData.saldo_pendiente <= 0 ? 'success' : 'danger'}
+        />
       ),
     },
     {

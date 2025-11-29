@@ -3,3 +3,10 @@ export interface TipoEvento {
   nombre: string;
   descripcion?: string;
 }
+
+export interface CreateTipoEventoDto {
+  nombre: string;
+  descripcion?: string;
+}
+
+export interface UpdateTipoEventoDto extends Partial<CreateTipoEventoDto> {}

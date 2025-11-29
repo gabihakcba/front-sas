@@ -29,6 +29,13 @@ export default function MasOpcionesPage() {
       href: '/dashboard/mas-opciones/cuentas',
       color: 'text-yellow-500',
     },
+    {
+      title: 'Tipos de Evento',
+      icon: 'pi pi-calendar-plus',
+      description: 'Gestión de tipos de evento',
+      href: '/dashboard/mas-opciones/tipos-evento',
+      color: 'text-purple-500',
+    },
     // Future options can be added here
   ];
 

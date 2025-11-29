@@ -8,11 +8,7 @@ import {
   useUpdateEventoMutation,
   useDeleteEventoMutation,
 } from '@/hooks/queries/useEventos';
-import {
-  Evento,
-  CreateEventoDto,
-  UpdateEventoDto,
-} from '@/common/types/evento';
+import { Evento, CreateEventoDto } from '@/common/types/evento';
 import { TableColumn } from '@/common/types/table';
 import { RESOURCE } from '@/common/types/rbac';
 import { EventoFormContainer } from './EventoFormContainer';
@@ -22,6 +18,7 @@ import { Button } from 'primereact/button';
 import { confirmDialog } from 'primereact/confirmdialog';
 import { Sidebar } from 'primereact/sidebar';
 import { ParticipantesManager } from './ParticipantesManager';
+import { ComisionesManager } from './ComisionesManager';
 
 export const EventosList = () => {
   const { data: eventos = [], isLoading } = useEventosQuery();
@@ -31,6 +28,7 @@ export const EventosList = () => {
 
   const [isDialogVisible, setIsDialogVisible] = useState(false);
   const [isParticipantesVisible, setIsParticipantesVisible] = useState(false);
+  const [showComisiones, setShowComisiones] = useState(false);
   const [selectedEvento, setSelectedEvento] = useState<Evento | null>(null);
 
   const handleCreate = () => {
@@ -83,11 +81,11 @@ export const EventosList = () => {
       sortable: true,
     },
     {
-      field: 'tipo',
+      field: 'TipoEvento',
       header: 'Tipo',
       body: (rowData: Evento) => (
         <Tag
-          value={rowData.tipo}
+          value={rowData.TipoEvento?.nombre}
           severity="info"
         />
       ),
@@ -104,18 +102,18 @@ export const EventosList = () => {
       header: 'Participantes',
       body: (rowData: Evento) => (
         <div className="flex flex-wrap gap-1">
-          {(rowData.ramas || []).map((rama) => (
+          {(rowData.RamaAfectada || []).map((rama) => (
             <Tag
               key={`rama-${rama.id}`}
-              value={rama.nombre}
+              value={rama.Rama?.nombre}
               severity="warning"
               className="mr-1"
             />
           ))}
-          {(rowData.areas || []).map((area) => (
+          {(rowData.AreaAfectada || []).map((area) => (
             <Tag
               key={`area-${area.id}`}
-              value={area.nombre}
+              value={area.Area?.nombre}
               severity="info"
               className="mr-1"
             />
@@ -142,8 +140,9 @@ export const EventosList = () => {
   const initialFormData = selectedEvento
     ? {
         ...selectedEvento,
-        ids_ramas: selectedEvento.ramas?.map((r) => r.id) || [],
-        ids_areas: selectedEvento.areas?.map((a) => a.id) || [],
+        id_tipo: selectedEvento.TipoEvento?.id ?? selectedEvento.id_tipo,
+        ids_ramas: selectedEvento.RamaAfectada?.map((r) => r.id_rama) || [],
+        ids_areas: selectedEvento.AreaAfectada?.map((a) => a.id_area) || [],
       }
     : undefined;
 
@@ -169,16 +168,31 @@ export const EventosList = () => {
         onDelete={handleDelete}
         permissionResource={RESOURCE.EVENTO}
         customActions={(rowData: Evento) => (
-          <Button
-            icon="pi pi-users"
-            severity="info"
-            rounded
-            outlined
-            size="small"
-            tooltip="Participantes"
-            tooltipOptions={{ position: 'top', appendTo: document.body }}
-            onClick={() => handleParticipantes(rowData)}
-          />
+          <div className="flex gap-2">
+            <Button
+              icon="pi pi-users"
+              severity="info"
+              rounded
+              outlined
+              size="small"
+              tooltip="Participantes"
+              tooltipOptions={{ position: 'top', appendTo: document.body }}
+              onClick={() => handleParticipantes(rowData)}
+            />
+            <Button
+              icon="pi pi-sitemap"
+              severity="help"
+              rounded
+              outlined
+              size="small"
+              tooltip="Comisiones"
+              tooltipOptions={{ position: 'top', appendTo: document.body }}
+              onClick={() => {
+                setSelectedEvento(rowData);
+                setShowComisiones(true);
+              }}
+            />
+          </div>
         )}
       />
 
@@ -210,6 +224,13 @@ export const EventosList = () => {
           />
         )}
       </Sidebar>
+
+      {showComisiones && selectedEvento && (
+        <ComisionesManager
+          evento={selectedEvento}
+          onClose={() => setShowComisiones(false)}
+        />
+      )}
     </div>
   );
 };
