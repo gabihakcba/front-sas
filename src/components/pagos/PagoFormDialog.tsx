@@ -1,0 +1,328 @@
+'use client';
+
+import { useEffect, useMemo } from 'react';
+import { Button } from 'primereact/button';
+import { Dialog } from 'primereact/dialog';
+import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
+import { InputText } from 'primereact/inputtext';
+import { Message } from 'primereact/message';
+import { Controller, useForm } from 'react-hook-form';
+import { PagoFormValues, PagosOptionsResponse } from '@/types/pagos';
+
+interface PagoFormDialogProps {
+  visible: boolean;
+  mode: 'create' | 'edit';
+  loading: boolean;
+  submitting: boolean;
+  values: PagoFormValues;
+  options: PagosOptionsResponse;
+  error: string;
+  onHide: () => void;
+  onSubmit: (values: PagoFormValues) => void;
+}
+
+export function PagoFormDialog({
+  visible,
+  mode,
+  loading,
+  submitting,
+  values,
+  options,
+  error,
+  onHide,
+  onSubmit,
+}: PagoFormDialogProps) {
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<PagoFormValues>({
+    defaultValues: values,
+  });
+
+  useEffect(() => {
+    reset(values);
+  }, [reset, values, visible]);
+
+  const cuentaOptions = useMemo(
+    () =>
+      options.cuentas.map((cuenta) => ({
+        ...cuenta,
+        label: `${cuenta.nombre} (${cuenta.monto_actual})`,
+      })),
+    [options.cuentas],
+  );
+
+  const miembroOptions = useMemo(
+    () =>
+      options.miembros.map((miembro) => ({
+        ...miembro,
+        label: `${miembro.apellidos}, ${miembro.nombre} (${miembro.dni})`,
+      })),
+    [options.miembros],
+  );
+
+  const footer = (
+    <div className="flex justify-end gap-2">
+      <Button
+        type="button"
+        label="Cancelar"
+        icon="pi pi-times"
+        iconPos="right"
+        outlined
+        size="small"
+        onClick={onHide}
+        disabled={submitting}
+      />
+      <Button
+        type="button"
+        label={mode === 'create' ? 'Crear' : 'Guardar'}
+        icon={submitting ? 'pi pi-spin pi-spinner' : 'pi pi-check'}
+        iconPos="right"
+        outlined
+        size="small"
+        onClick={handleSubmit(onSubmit)}
+        loading={submitting}
+      />
+    </div>
+  );
+
+  return (
+    <Dialog
+      visible={visible}
+      onHide={onHide}
+      header={mode === 'create' ? 'Crear pago' : 'Editar pago'}
+      footer={footer}
+      className="w-full max-w-3xl"
+      modal
+    >
+      {loading ? (
+        <div className="py-4">Cargando formulario...</div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {error ? (
+            <div className="md:col-span-2">
+              <Message severity="error" text={error} />
+            </div>
+          ) : null}
+          <div className="flex flex-col gap-2">
+            <label htmlFor="pago-monto">
+              Monto <span className="text-red-500">*</span>
+            </label>
+            <Controller
+              name="monto"
+              control={control}
+              rules={{
+                required: 'El monto es obligatorio.',
+                validate: (value) =>
+                  !Number.isNaN(Number(value)) && Number(value) > 0
+                    ? true
+                    : 'El monto debe ser un número válido mayor a cero.',
+              }}
+              render={({ field }) => (
+                <InputText id="pago-monto" {...field} className="w-full" />
+              )}
+            />
+            {errors.monto ? (
+              <small className="text-red-500">{errors.monto.message}</small>
+            ) : null}
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label htmlFor="pago-fecha">
+              Fecha <span className="text-red-500">*</span>
+            </label>
+            <Controller
+              name="fechaPago"
+              control={control}
+              rules={{ required: 'La fecha es obligatoria.' }}
+              render={({ field }) => (
+                <InputText
+                  id="pago-fecha"
+                  type="date"
+                  {...field}
+                  className="w-full"
+                />
+              )}
+            />
+            {errors.fechaPago ? (
+              <small className="text-red-500">{errors.fechaPago.message}</small>
+            ) : null}
+          </div>
+
+          <div className="flex flex-col gap-2 md:col-span-2">
+            <label htmlFor="pago-detalles">Detalles</label>
+            <Controller
+              name="detalles"
+              control={control}
+              render={({ field }) => (
+                <InputText
+                  id="pago-detalles"
+                  {...field}
+                  value={field.value ?? ''}
+                  className="w-full"
+                />
+              )}
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label htmlFor="pago-miembro">
+              Miembro <span className="text-red-500">*</span>
+            </label>
+            <Controller
+              name="idMiembro"
+              control={control}
+              rules={{ required: 'Debes seleccionar un miembro.' }}
+              render={({ field }) => (
+                <Dropdown
+                  id="pago-miembro"
+                  value={field.value}
+                  options={miembroOptions}
+                  optionLabel="label"
+                  optionValue="id"
+                  onChange={(event: DropdownChangeEvent) =>
+                    field.onChange(event.value as number | null)
+                  }
+                  className="w-full"
+                  placeholder="Seleccioná un miembro"
+                  filter
+                />
+              )}
+            />
+            {errors.idMiembro ? (
+              <small className="text-red-500">{errors.idMiembro.message}</small>
+            ) : null}
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label htmlFor="pago-cuenta-destino">
+              Cuenta destino <span className="text-red-500">*</span>
+            </label>
+            <Controller
+              name="idCuentaDinero"
+              control={control}
+              rules={{ required: 'Debes seleccionar una cuenta destino.' }}
+              render={({ field }) => (
+                <Dropdown
+                  id="pago-cuenta-destino"
+                  value={field.value}
+                  options={cuentaOptions}
+                  optionLabel="label"
+                  optionValue="id"
+                  onChange={(event: DropdownChangeEvent) =>
+                    field.onChange(event.value as number | null)
+                  }
+                  className="w-full"
+                  placeholder="Seleccioná una cuenta"
+                  filter
+                />
+              )}
+            />
+            {errors.idCuentaDinero ? (
+              <small className="text-red-500">
+                {errors.idCuentaDinero.message}
+              </small>
+            ) : null}
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label htmlFor="pago-cuenta-origen">Cuenta origen</label>
+            <Controller
+              name="idCuentaOrigen"
+              control={control}
+              rules={{
+                validate: (value, formValues) =>
+                  !value || value !== formValues.idCuentaDinero
+                    ? true
+                    : 'La cuenta de origen y destino no pueden coincidir.',
+              }}
+              render={({ field }) => (
+                <Dropdown
+                  id="pago-cuenta-origen"
+                  value={field.value}
+                  options={cuentaOptions}
+                  optionLabel="label"
+                  optionValue="id"
+                  onChange={(event: DropdownChangeEvent) =>
+                    field.onChange(event.value as number | null)
+                  }
+                  className="w-full"
+                  placeholder="Sin cuenta origen"
+                  showClear
+                  filter
+                />
+              )}
+            />
+            {errors.idCuentaOrigen ? (
+              <small className="text-red-500">
+                {errors.idCuentaOrigen.message}
+              </small>
+            ) : null}
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label htmlFor="pago-concepto">
+              Concepto <span className="text-red-500">*</span>
+            </label>
+            <Controller
+              name="idConceptoPago"
+              control={control}
+              rules={{ required: 'Debes seleccionar un concepto.' }}
+              render={({ field }) => (
+                <Dropdown
+                  id="pago-concepto"
+                  value={field.value}
+                  options={options.conceptos}
+                  optionLabel="nombre"
+                  optionValue="id"
+                  onChange={(event: DropdownChangeEvent) =>
+                    field.onChange(event.value as number | null)
+                  }
+                  className="w-full"
+                  placeholder="Seleccioná un concepto"
+                />
+              )}
+            />
+            {errors.idConceptoPago ? (
+              <small className="text-red-500">
+                {errors.idConceptoPago.message}
+              </small>
+            ) : null}
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label htmlFor="pago-metodo">
+              Método <span className="text-red-500">*</span>
+            </label>
+            <Controller
+              name="idMetodoPago"
+              control={control}
+              rules={{ required: 'Debes seleccionar un método.' }}
+              render={({ field }) => (
+                <Dropdown
+                  id="pago-metodo"
+                  value={field.value}
+                  options={options.metodos}
+                  optionLabel="nombre"
+                  optionValue="id"
+                  onChange={(event: DropdownChangeEvent) =>
+                    field.onChange(event.value as number | null)
+                  }
+                  className="w-full"
+                  placeholder="Seleccioná un método"
+                />
+              )}
+            />
+            {errors.idMetodoPago ? (
+              <small className="text-red-500">
+                {errors.idMetodoPago.message}
+              </small>
+            ) : null}
+          </div>
+        </div>
+      )}
+    </Dialog>
+  );
+}

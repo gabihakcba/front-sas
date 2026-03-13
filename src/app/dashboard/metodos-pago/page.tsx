@@ -1,0 +1,147 @@
+'use client';
+
+import { Button } from 'primereact/button';
+import { Card } from 'primereact/card';
+import { Column } from 'primereact/column';
+import { DataTable, DataTablePageEvent } from 'primereact/datatable';
+import { Message } from 'primereact/message';
+import { MetodoPagoFormDialog } from '@/components/metodos-pago/MetodoPagoFormDialog';
+import { useMetodosPagoHook } from '@/hooks/useMetodosPagoHooks';
+import { MetodoPago } from '@/types/metodos-pago';
+
+export default function MetodosPagoPage() {
+  const {
+    metodosPago,
+    selectedMetodoPago,
+    setSelectedMetodoPago,
+    formValues,
+    dialogMode,
+    dialogVisible,
+    error,
+    successMessage,
+    loading,
+    dialogLoading,
+    submitting,
+    page,
+    total,
+    limit,
+    refetch,
+    openCreateDialog,
+    openEditDialog,
+    closeDialog,
+    submitForm,
+    deleteSelected,
+  } = useMetodosPagoHook();
+
+  const handlePage = (event: DataTablePageEvent) => {
+    const nextPage = Math.floor(event.first / event.rows) + 1;
+    void refetch(nextPage);
+  };
+
+  const handleDelete = () => {
+    if (!selectedMetodoPago) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Se eliminará de forma lógica el método "${selectedMetodoPago.nombre}".`,
+    );
+
+    if (confirmed) {
+      void deleteSelected();
+    }
+  };
+
+  const header = (
+    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <span className="text-lg font-semibold">Listado</span>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          type="button"
+          label="Crear"
+          icon="pi pi-plus"
+          iconPos="right"
+          outlined
+          size="small"
+          onClick={openCreateDialog}
+        />
+        <Button
+          type="button"
+          label="Editar"
+          icon="pi pi-pencil"
+          iconPos="right"
+          outlined
+          size="small"
+          onClick={() => void openEditDialog()}
+          disabled={!selectedMetodoPago}
+        />
+        <Button
+          type="button"
+          label="Eliminar"
+          icon="pi pi-trash"
+          iconPos="right"
+          outlined
+          size="small"
+          severity="danger"
+          onClick={handleDelete}
+          disabled={!selectedMetodoPago}
+        />
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="h-full w-full">
+      <Card title="Métodos de Pago" className="h-full">
+        {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
+        {successMessage ? (
+          <Message severity="success" text={successMessage} className="mb-3 w-full" />
+        ) : null}
+
+        <DataTable
+          value={metodosPago}
+          dataKey="id"
+          loading={loading}
+          lazy
+          paginator
+          header={header}
+          selectionMode="single"
+          selection={selectedMetodoPago}
+          onSelectionChange={(event) =>
+            setSelectedMetodoPago((event.value as MetodoPago | null) ?? null)
+          }
+          first={(page - 1) * limit}
+          rows={10}
+          totalRecords={total}
+          onPage={handlePage}
+          emptyMessage="No hay métodos de pago disponibles."
+          tableStyle={{ minWidth: '42rem', width: '100%' }}
+        >
+          <Column selectionMode="single" headerStyle={{ width: '3rem' }} />
+          <Column field="id" header="ID" />
+          <Column field="nombre" header="Nombre" />
+          <Column
+            field="descripcion"
+            header="Descripción"
+            body={(metodoPago: MetodoPago) => metodoPago.descripcion || '-'}
+          />
+          <Column
+            header="Pagos asociados"
+            body={(metodoPago: MetodoPago) => metodoPago._count.Pago}
+          />
+        </DataTable>
+      </Card>
+
+      <MetodoPagoFormDialog
+        visible={dialogVisible}
+        mode={dialogMode}
+        loading={dialogLoading}
+        submitting={submitting}
+        values={formValues}
+        error={error}
+        onHide={closeDialog}
+        onSubmit={(values) => void submitForm(values)}
+      />
+    </div>
+  );
+}
