@@ -52,39 +52,40 @@ export default function DashboardShell({ children }: DashboardShellProps) {
         onHide={() => setSidebarVisible(false)}
         position="left"
         className="w-full sm:w-80"
-        contentClassName="p-3"
       >
-        <nav className="w-full p-2">
-          {navigationItems.map((item) => (
+        <div className="p-3">
+          <nav className="w-full p-2">
+            {navigationItems.map((item) => (
+              <Button
+                key={item.path}
+                type="button"
+                label={item.label}
+                icon={item.icon}
+                iconPos="left"
+                text
+                size="small"
+                onClick={() => {
+                  router.push(item.path);
+                  setSidebarVisible(false);
+                }}
+                className="w-full justify-content-start"
+                severity={item.active ? "contrast" : undefined}
+              />
+            ))}
+          </nav>
+          <div className="mt-3">
             <Button
-              key={item.path}
               type="button"
-              label={item.label}
-              icon={item.icon}
-              iconPos="left"
-              text
+              label="Cerrar sesión"
+              icon="pi pi-power-off"
+              iconPos="right"
+              outlined
               size="small"
-              onClick={() => {
-                router.push(item.path);
-                setSidebarVisible(false);
-              }}
-              className="w-full justify-content-start"
-              severity={item.active ? "contrast" : undefined}
+              severity="danger"
+              onClick={handleLogout}
+              className="w-full"
             />
-          ))}
-        </nav>
-        <div className="mt-3">
-          <Button
-            type="button"
-            label="Cerrar sesión"
-            icon="pi pi-power-off"
-            iconPos="right"
-            outlined
-            size="small"
-            severity="danger"
-            onClick={handleLogout}
-            className="w-full"
-          />
+          </div>
         </div>
       </Sidebar>
 
