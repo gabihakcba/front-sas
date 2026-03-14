@@ -3,6 +3,7 @@ import {
   CreatePagoPayload,
   Pago,
   PagoFilters,
+  PagoWhatsappShareData,
   PaginatedPagosResponse,
   PagosOptionsResponse,
   UpdatePagoPayload,
@@ -58,6 +59,13 @@ export const getPagoAttachmentRequest = async (id: number): Promise<Blob> => {
   });
 
   return response.data as Blob;
+};
+
+export const getPagoWhatsappShareRequest = async (
+  id: number,
+): Promise<PagoWhatsappShareData> => {
+  const response = await api.get<PagoWhatsappShareData>(`/pagos/${id}/whatsapp`);
+  return response.data;
 };
 
 export const createPagoRequest = async (

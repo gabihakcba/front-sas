@@ -14,7 +14,11 @@ import { FilePreviewDialog } from '@/components/common/FilePreviewDialog';
 import { useAuth } from '@/context/AuthContext';
 import { PagoFormDialog } from '@/components/pagos/PagoFormDialog';
 import { usePagosHook } from '@/hooks/usePagosHooks';
-import { exportPagoReceiptRequest, getPagoAttachmentRequest } from '@/queries/pagos';
+import {
+  exportPagoReceiptRequest,
+  getPagoAttachmentRequest,
+  getPagoWhatsappShareRequest,
+} from '@/queries/pagos';
 import { Pago } from '@/types/pagos';
 
 const hasPermission = (permissions: string[], required: string) => {
@@ -36,6 +40,7 @@ export default function PagosPage() {
   const [previewMimeType, setPreviewMimeType] = useState('application/pdf');
   const [previewFileName, setPreviewFileName] = useState('archivo.pdf');
   const [previewTitle, setPreviewTitle] = useState('Preview');
+  const [whatsappError, setWhatsappError] = useState('');
   const {
     pagos,
     selectedPago,
@@ -136,6 +141,64 @@ export default function PagosPage() {
     }
   };
 
+  const triggerBlobDownload = (blob: Blob, fileName: string) => {
+    const objectUrl = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = objectUrl;
+    anchor.download = fileName;
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    URL.revokeObjectURL(objectUrl);
+  };
+
+  const handleWhatsappShare = async () => {
+    if (!selectedPago) {
+      return;
+    }
+
+    setWhatsappError('');
+
+    try {
+      const [shareData, receiptBlob] = await Promise.all([
+        getPagoWhatsappShareRequest(selectedPago.id),
+        exportPagoReceiptRequest(selectedPago.id),
+      ]);
+
+      const fileName = `comprobante-pago-${String(selectedPago.id).padStart(6, '0')}.pdf`;
+
+      if (typeof navigator !== 'undefined' && 'share' in navigator) {
+        const shareNavigator = navigator as Navigator & {
+          canShare?: (data?: ShareData) => boolean;
+        };
+        const file = new File([receiptBlob], fileName, {
+          type: 'application/pdf',
+        });
+
+        if (shareNavigator.canShare?.({ files: [file] })) {
+          await navigator.share({
+            title: 'Comprobante de pago',
+            text: shareData.message,
+            files: [file],
+          });
+          return;
+        }
+      }
+
+      triggerBlobDownload(receiptBlob, fileName);
+      window.open(
+        `https://wa.me/${shareData.phone}?text=${encodeURIComponent(shareData.message)}`,
+        '_blank',
+        'noopener,noreferrer',
+      );
+      setWhatsappError(
+        'WhatsApp Web no permite adjuntar el PDF automáticamente. Se abrió el chat y se descargó el comprobante para adjuntarlo manualmente.',
+      );
+    } catch {
+      setWhatsappError('No se pudo preparar el envío por WhatsApp.');
+    }
+  };
+
   const header = (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div className="flex flex-wrap gap-2">
@@ -185,6 +248,16 @@ export default function PagosPage() {
           size="small"
           onClick={() => void handlePreviewAttachment()}
           disabled={!selectedPago?.comprobante_pago_mime}
+        />
+        <Button
+          type="button"
+          label="WhatsApp"
+          icon="pi pi-whatsapp"
+          iconPos="right"
+          outlined
+          size="small"
+          onClick={() => void handleWhatsappShare()}
+          disabled={!selectedPago}
         />
       </div>
       <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-center">
@@ -315,6 +388,9 @@ export default function PagosPage() {
     <div className="h-full w-full">
       <Card title="Pagos" className="h-full">
         {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
+        {whatsappError ? (
+          <Message severity="warn" text={whatsappError} className="mb-3 w-full" />
+        ) : null}
         {successMessage ? (
           <Message severity="success" text={successMessage} className="mb-3 w-full" />
         ) : null}

@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 const sidebarItems = [
   { label: "Protagonistas", icon: "pi pi-id-card", path: "/dashboard/protagonistas" },
   { label: "Adultos", icon: "pi pi-users", path: "/dashboard/adultos" },
+  { label: "Responsables", icon: "pi pi-user-edit", path: "/dashboard/responsables" },
   { label: "Pagos", icon: "pi pi-wallet", path: "/dashboard/pagos" },
   { label: "Consejos", icon: "pi pi-comments", path: "/dashboard/consejos" },
 ];

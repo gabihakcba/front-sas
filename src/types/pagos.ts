@@ -61,6 +61,12 @@ export interface PagosOptionsResponse {
   miembros: PagoMiembroOption[];
 }
 
+export interface PagoWhatsappShareData {
+  phone: string;
+  responsableNombre: string;
+  message: string;
+}
+
 export interface PagoFormValues {
   monto: string;
   detalles: string;
