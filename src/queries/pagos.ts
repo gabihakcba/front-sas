@@ -52,6 +52,14 @@ export const exportPagoReceiptRequest = async (id: number): Promise<Blob> => {
   return response.data as Blob;
 };
 
+export const getPagoAttachmentRequest = async (id: number): Promise<Blob> => {
+  const response = await api.get(`/pagos/${id}/comprobante-pago`, {
+    responseType: 'blob',
+  });
+
+  return response.data as Blob;
+};
+
 export const createPagoRequest = async (
   payload: CreatePagoPayload,
 ): Promise<Pago> => {

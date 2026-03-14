@@ -14,7 +14,7 @@ import { FilePreviewDialog } from '@/components/common/FilePreviewDialog';
 import { useAuth } from '@/context/AuthContext';
 import { PagoFormDialog } from '@/components/pagos/PagoFormDialog';
 import { usePagosHook } from '@/hooks/usePagosHooks';
-import { exportPagoReceiptRequest } from '@/queries/pagos';
+import { exportPagoReceiptRequest, getPagoAttachmentRequest } from '@/queries/pagos';
 import { Pago } from '@/types/pagos';
 
 const hasPermission = (permissions: string[], required: string) => {
@@ -33,6 +33,9 @@ export default function PagosPage() {
   const [previewBlob, setPreviewBlob] = useState<Blob | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState('');
+  const [previewMimeType, setPreviewMimeType] = useState('application/pdf');
+  const [previewFileName, setPreviewFileName] = useState('archivo.pdf');
+  const [previewTitle, setPreviewTitle] = useState('Preview');
   const {
     pagos,
     selectedPago,
@@ -95,9 +98,39 @@ export default function PagosPage() {
     try {
       const blob = await exportPagoReceiptRequest(selectedPago.id);
       setPreviewBlob(blob);
+      setPreviewMimeType('application/pdf');
+      setPreviewFileName(
+        `comprobante-pago-${String(selectedPago.id).padStart(6, '0')}.pdf`,
+      );
+      setPreviewTitle('Preview de comprobante');
     } catch {
       setPreviewBlob(null);
       setPreviewError('No se pudo generar el comprobante.');
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  const handlePreviewAttachment = async () => {
+    if (!selectedPago?.comprobante_pago_mime) {
+      return;
+    }
+
+    setPreviewVisible(true);
+    setPreviewLoading(true);
+    setPreviewError('');
+
+    try {
+      const blob = await getPagoAttachmentRequest(selectedPago.id);
+      setPreviewBlob(blob);
+      setPreviewMimeType(selectedPago.comprobante_pago_mime);
+      setPreviewFileName(
+        selectedPago.comprobante_pago_nombre ?? 'comprobante-pago-adjunto',
+      );
+      setPreviewTitle('Preview de adjunto');
+    } catch {
+      setPreviewBlob(null);
+      setPreviewError('No se pudo cargar el adjunto del pago.');
     } finally {
       setPreviewLoading(false);
     }
@@ -142,6 +175,16 @@ export default function PagosPage() {
           size="small"
           onClick={() => void handleDownloadReceipt()}
           disabled={!selectedPago}
+        />
+        <Button
+          type="button"
+          label="Adjunto"
+          icon="pi pi-paperclip"
+          iconPos="right"
+          outlined
+          size="small"
+          onClick={() => void handlePreviewAttachment()}
+          disabled={!selectedPago?.comprobante_pago_mime}
         />
       </div>
       <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-center">
@@ -317,6 +360,10 @@ export default function PagosPage() {
             header="Código"
             body={(pago: Pago) => pago.codigo_validacion.slice(0, 8)}
           />
+          <Column
+            header="Adjunto"
+            body={(pago: Pago) => (pago.comprobante_pago_mime ? 'Sí' : '-')}
+          />
         </DataTable>
       </Card>
 
@@ -334,13 +381,9 @@ export default function PagosPage() {
 
       <FilePreviewDialog
         visible={previewVisible}
-        title="Preview de comprobante"
-        fileName={
-          selectedPago
-            ? `comprobante-pago-${String(selectedPago.id).padStart(6, '0')}.pdf`
-            : 'comprobante.pdf'
-        }
-        mimeType="application/pdf"
+        title={previewTitle}
+        fileName={previewFileName}
+        mimeType={previewMimeType}
         blob={previewBlob}
         loading={previewLoading}
         error={previewError}
@@ -348,6 +391,9 @@ export default function PagosPage() {
           setPreviewVisible(false);
           setPreviewBlob(null);
           setPreviewError('');
+          setPreviewMimeType('application/pdf');
+          setPreviewFileName('archivo.pdf');
+          setPreviewTitle('Preview');
         }}
       />
     </div>

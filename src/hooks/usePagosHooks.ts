@@ -40,6 +40,9 @@ const createEmptyFormValues = (): PagoFormValues => ({
   idMetodoPago: null,
   idConceptoPago: null,
   idMiembro: null,
+  comprobantePagoBase64: undefined,
+  comprobantePagoMimeType: undefined,
+  comprobantePagoNombre: undefined,
 });
 
 const getErrorMessage = (err: unknown, fallback: string): string => {
@@ -71,6 +74,13 @@ const buildCreatePayload = (
   idMetodoPago: values.idMetodoPago!,
   idConceptoPago: values.idConceptoPago!,
   idMiembro: values.idMiembro!,
+  ...(values.comprobantePagoBase64
+    ? {
+        comprobantePagoBase64: values.comprobantePagoBase64,
+        comprobantePagoMimeType: values.comprobantePagoMimeType ?? undefined,
+        comprobantePagoNombre: values.comprobantePagoNombre ?? undefined,
+      }
+    : {}),
 });
 
 const buildUpdatePayload = (
@@ -86,6 +96,13 @@ const buildUpdatePayload = (
   idMetodoPago: values.idMetodoPago!,
   idConceptoPago: values.idConceptoPago!,
   idMiembro: values.idMiembro!,
+  ...(values.comprobantePagoBase64 !== undefined
+    ? {
+        comprobantePagoBase64: values.comprobantePagoBase64,
+        comprobantePagoMimeType: values.comprobantePagoMimeType,
+        comprobantePagoNombre: values.comprobantePagoNombre,
+      }
+    : {}),
 });
 
 interface UsePagosHookResult {
@@ -233,6 +250,9 @@ export const usePagosHook = (): UsePagosHookResult => {
         idMetodoPago: pagoResponse.MetodoPago.id,
         idConceptoPago: pagoResponse.ConceptoPago.id,
         idMiembro: pagoResponse.Miembro.id,
+        comprobantePagoBase64: undefined,
+        comprobantePagoMimeType: pagoResponse.comprobante_pago_mime,
+        comprobantePagoNombre: pagoResponse.comprobante_pago_nombre,
       });
       setDialogVisible(true);
     } catch (err: unknown) {

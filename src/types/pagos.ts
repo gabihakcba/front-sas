@@ -28,6 +28,8 @@ export interface Pago {
   id: number;
   monto: string;
   detalles: string | null;
+  comprobante_pago_mime: string | null;
+  comprobante_pago_nombre: string | null;
   fecha_pago: string;
   codigo_validacion: string;
   Miembro: PagoMiembroOption;
@@ -68,6 +70,9 @@ export interface PagoFormValues {
   idMetodoPago: number | null;
   idConceptoPago: number | null;
   idMiembro: number | null;
+  comprobantePagoBase64: string | null | undefined;
+  comprobantePagoMimeType: string | null | undefined;
+  comprobantePagoNombre: string | null | undefined;
 }
 
 export interface CreatePagoPayload {
@@ -79,6 +84,9 @@ export interface CreatePagoPayload {
   idMetodoPago: number;
   idConceptoPago: number;
   idMiembro: number;
+  comprobantePagoBase64?: string;
+  comprobantePagoMimeType?: string;
+  comprobantePagoNombre?: string;
 }
 
 export interface UpdatePagoPayload {
@@ -90,4 +98,7 @@ export interface UpdatePagoPayload {
   idMetodoPago?: number;
   idConceptoPago?: number;
   idMiembro?: number;
+  comprobantePagoBase64?: string | null;
+  comprobantePagoMimeType?: string | null;
+  comprobantePagoNombre?: string | null;
 }

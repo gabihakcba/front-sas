@@ -250,7 +250,7 @@ export function AdultoFirmaDialog({
             ref={canvasRef}
             width={CANVAS_WIDTH}
             height={CANVAS_HEIGHT}
-            className="bg-gray-300"
+            className="bg-gray-300 touch-none"
             onMouseDown={beginDrawing}
             onMouseMove={draw}
             onMouseUp={endDrawing}

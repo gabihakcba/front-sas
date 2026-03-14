@@ -6,9 +6,10 @@ import { Button } from 'primereact/button';
 import { Calendar } from 'primereact/calendar';
 import { Dialog } from 'primereact/dialog';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
+import { FileUpload, FileUploadSelectEvent } from 'primereact/fileupload';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { PagoFormValues, PagosOptionsResponse } from '@/types/pagos';
 
 interface PagoFormDialogProps {
@@ -38,9 +39,15 @@ export function PagoFormDialog({
     control,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<PagoFormValues>({
     defaultValues: values,
+  });
+
+  const currentAttachmentName = useWatch({
+    control,
+    name: 'comprobantePagoNombre',
   });
 
   useEffect(() => {
@@ -89,6 +96,37 @@ export function PagoFormDialog({
       />
     </div>
   );
+
+  const handleSelectFile = (
+    event: FileUploadSelectEvent,
+    onChange: (
+      value: {
+        base64: string | null;
+        mimeType: string | null;
+        fileName: string | null;
+      },
+    ) => void,
+  ) => {
+    const file = event.files[0];
+
+    if (!(file instanceof File)) {
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result !== 'string') {
+        return;
+      }
+
+      onChange({
+        base64: reader.result,
+        mimeType: file.type || 'application/octet-stream',
+        fileName: file.name,
+      });
+    };
+    reader.readAsDataURL(file);
+  };
 
   return (
     <Dialog
@@ -163,7 +201,7 @@ export function PagoFormDialog({
           </div>
 
           <div className="flex flex-col gap-2 md:col-span-2">
-            <label htmlFor="pago-detalles">Detalles</label>
+            <label htmlFor="pago-detalles">Detalle / Nro Transaccion</label>
             <Controller
               name="detalles"
               control={control}
@@ -174,6 +212,55 @@ export function PagoFormDialog({
                   value={field.value ?? ''}
                   className="w-full"
                 />
+              )}
+            />
+          </div>
+
+          <div className="flex flex-col gap-2 md:col-span-2">
+            <label htmlFor="pago-comprobante-adjunto">Comprobante de transferencia</label>
+            <Controller
+              name="comprobantePagoBase64"
+              control={control}
+              render={({ field }) => (
+                <>
+                  <FileUpload
+                    mode="basic"
+                    name="pago-comprobante-adjunto"
+                    customUpload
+                    auto={false}
+                    chooseLabel="Seleccionar archivo"
+                    accept="application/pdf,image/*"
+                    maxFileSize={10000000}
+                    chooseOptions={{
+                      icon: 'pi pi-upload',
+                    }}
+                    onSelect={(event) =>
+                      handleSelectFile(event, ({ base64, mimeType, fileName }) => {
+                        field.onChange(base64);
+                        setValue('comprobantePagoMimeType', mimeType);
+                        setValue('comprobantePagoNombre', fileName);
+                      })
+                    }
+                  />
+                  {currentAttachmentName || field.value ? (
+                    <div className="flex items-center gap-2">
+                      <small>{currentAttachmentName ?? 'Adjunto seleccionado'}</small>
+                      <Button
+                        type="button"
+                        label="Quitar"
+                        icon="pi pi-times"
+                        iconPos="right"
+                        outlined
+                        size="small"
+                        onClick={() => {
+                          field.onChange(null);
+                          setValue('comprobantePagoMimeType', null);
+                          setValue('comprobantePagoNombre', null);
+                        }}
+                      />
+                    </div>
+                  ) : null}
+                </>
               )}
             />
           </div>
