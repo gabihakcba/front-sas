@@ -1,7 +1,7 @@
 'use client';
 
 import { AxiosError } from 'axios';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   createCuentaDineroRequest,
   deleteCuentaDineroRequest,
@@ -13,6 +13,7 @@ import {
 import {
   CreateCuentaDineroPayload,
   CuentaDinero,
+  CuentaDineroFilters,
   CuentaDineroFormValues,
   CuentaDineroOptionsResponse,
 } from '@/types/cuentas-dinero';
@@ -20,6 +21,12 @@ import { PaginatedResponseMeta } from '@/types/pagination';
 
 const DEFAULT_LIMIT = 10;
 type DialogMode = 'create' | 'edit';
+const createEmptyFilters = (): CuentaDineroFilters => ({
+  q: '',
+  idArea: null,
+  idRama: null,
+  idMiembro: null,
+});
 
 const createEmptyFormValues = (): CuentaDineroFormValues => ({
   nombre: '',
@@ -28,6 +35,7 @@ const createEmptyFormValues = (): CuentaDineroFormValues => ({
   tipoAsignacion: 'AREA',
   idArea: null,
   idRama: null,
+  idMiembro: null,
 });
 
 const getErrorMessage = (err: unknown, fallback: string): string => {
@@ -60,6 +68,9 @@ const buildPayload = (
   ...(values.tipoAsignacion === 'RAMA' && values.idRama
     ? { idRama: values.idRama }
     : {}),
+  ...(values.tipoAsignacion === 'MIEMBRO' && values.idMiembro
+    ? { idMiembro: values.idMiembro }
+    : {}),
 });
 
 interface UseCuentasDineroHookResult {
@@ -79,6 +90,8 @@ interface UseCuentasDineroHookResult {
   page: number;
   total: number;
   limit: number;
+  filters: CuentaDineroFilters;
+  setFilters: (filters: CuentaDineroFilters) => void;
   refetch: (nextPage?: number) => Promise<void>;
   openCreateDialog: () => Promise<void>;
   openEditDialog: () => Promise<void>;
@@ -97,6 +110,7 @@ export const useCuentasDineroHook = (): UseCuentasDineroHookResult => {
   const [options, setOptions] = useState<CuentaDineroOptionsResponse>({
     areas: [],
     ramas: [],
+    miembros: [],
   });
   const [dialogMode, setDialogMode] = useState<DialogMode>('create');
   const [dialogVisible, setDialogVisible] = useState(false);
@@ -112,6 +126,9 @@ export const useCuentasDineroHook = (): UseCuentasDineroHookResult => {
     total: 0,
     totalPages: 0,
   });
+  const [filters, setFiltersState] = useState<CuentaDineroFilters>(
+    createEmptyFilters(),
+  );
 
   const filteredRamas = useMemo(() => {
     if (formValues.tipoAsignacion !== 'RAMA') {
@@ -129,7 +146,16 @@ export const useCuentasDineroHook = (): UseCuentasDineroHookResult => {
     setFormValuesState(values);
   };
 
-  const fetchCuentasDinero = async (nextPage = 1) => {
+  const setFilters = (nextFilters: CuentaDineroFilters) => {
+    setFiltersState(nextFilters);
+  };
+
+  const fetchOptions = useCallback(async () => {
+    const response = await getCuentasDineroOptionsRequest();
+    setOptions(response);
+  }, []);
+
+  const fetchCuentasDinero = useCallback(async (nextPage = 1) => {
     setLoading(true);
     setError('');
 
@@ -137,6 +163,7 @@ export const useCuentasDineroHook = (): UseCuentasDineroHookResult => {
       const response = await getCuentasDineroRequest({
         page: nextPage,
         limit: DEFAULT_LIMIT,
+        filters,
       });
       setCuentasDinero(response.data);
       setMeta(response.meta);
@@ -152,21 +179,24 @@ export const useCuentasDineroHook = (): UseCuentasDineroHookResult => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
   useEffect(() => {
-    void fetchCuentasDinero();
-  }, []);
+    void fetchOptions();
+  }, [fetchOptions]);
 
-  const openCreateDialog = async () => {
+  useEffect(() => {
+    void fetchCuentasDinero(1);
+  }, [fetchCuentasDinero]);
+
+  const openCreateDialog = useCallback(async () => {
     setDialogMode('create');
     setDialogLoading(true);
     setError('');
     setSuccessMessage('');
 
     try {
-      const response = await getCuentasDineroOptionsRequest();
-      setOptions(response);
+      await fetchOptions();
       setFormValuesState(createEmptyFormValues());
       setDialogVisible(true);
     } catch (err: unknown) {
@@ -174,9 +204,9 @@ export const useCuentasDineroHook = (): UseCuentasDineroHookResult => {
     } finally {
       setDialogLoading(false);
     }
-  };
+  }, [fetchOptions]);
 
-  const openEditDialog = async () => {
+  const openEditDialog = useCallback(async () => {
     if (!selectedCuentaDinero) {
       setError('Seleccioná una cuenta de dinero para editar.');
       return;
@@ -188,19 +218,22 @@ export const useCuentasDineroHook = (): UseCuentasDineroHookResult => {
     setSuccessMessage('');
 
     try {
-      const [optionsResponse, cuentaResponse] = await Promise.all([
-        getCuentasDineroOptionsRequest(),
+      const [, cuentaResponse] = await Promise.all([
+        fetchOptions(),
         getCuentaDineroRequest(selectedCuentaDinero.id),
       ]);
-
-      setOptions(optionsResponse);
       setFormValuesState({
         nombre: cuentaResponse.nombre,
         descripcion: cuentaResponse.descripcion ?? '',
         montoActual: cuentaResponse.monto_actual,
-        tipoAsignacion: cuentaResponse.id_rama ? 'RAMA' : 'AREA',
+        tipoAsignacion: cuentaResponse.id_miembro
+          ? 'MIEMBRO'
+          : cuentaResponse.id_rama
+            ? 'RAMA'
+            : 'AREA',
         idArea: cuentaResponse.id_area ?? cuentaResponse.Rama?.id_area ?? null,
         idRama: cuentaResponse.id_rama ?? null,
+        idMiembro: cuentaResponse.id_miembro ?? null,
       });
       setDialogVisible(true);
     } catch (err: unknown) {
@@ -208,7 +241,7 @@ export const useCuentasDineroHook = (): UseCuentasDineroHookResult => {
     } finally {
       setDialogLoading(false);
     }
-  };
+  }, [fetchOptions, selectedCuentaDinero]);
 
   const closeDialog = () => {
     setDialogVisible(false);
@@ -289,6 +322,8 @@ export const useCuentasDineroHook = (): UseCuentasDineroHookResult => {
     page,
     total: meta.total,
     limit: meta.limit,
+    filters,
+    setFilters,
     refetch: fetchCuentasDinero,
     openCreateDialog,
     openEditDialog,

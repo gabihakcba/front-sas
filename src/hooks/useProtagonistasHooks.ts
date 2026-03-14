@@ -2,7 +2,7 @@
 
 import dayjs from 'dayjs';
 import { AxiosError } from 'axios';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   createProtagonistaRequest,
   deleteProtagonistaRequest,
@@ -15,6 +15,7 @@ import {
 import { PaginatedResponseMeta } from '@/types/pagination';
 import {
   CreateProtagonistaPayload,
+  ProtagonistaFilters,
   Protagonista,
   ProtagonistaFormValues,
   ProtagonistaPasePayload,
@@ -24,6 +25,12 @@ import {
 } from '@/types/protagonistas';
 
 const DEFAULT_LIMIT = 10;
+const createEmptyFilters = (): ProtagonistaFilters => ({
+  q: '',
+  idRama: null,
+  esBecado: null,
+  activo: null,
+});
 
 const createEmptyFormValues = (): ProtagonistaFormValues => ({
   user: '',
@@ -71,6 +78,8 @@ interface UseProtagonistasHookResult {
   page: number;
   total: number;
   limit: number;
+  filters: ProtagonistaFilters;
+  setFilters: (filters: ProtagonistaFilters) => void;
   refetch: (nextPage?: number) => Promise<void>;
   openCreateDialog: () => Promise<void>;
   openEditDialog: () => Promise<void>;
@@ -208,6 +217,9 @@ export const useProtagonistasHook = (): UseProtagonistasHookResult => {
     total: 0,
     totalPages: 0,
   });
+  const [filters, setFiltersState] = useState<ProtagonistaFilters>(
+    createEmptyFilters(),
+  );
 
   const setFormValues = (updater: ProtagonistaFormValues) => {
     setFormValuesState(updater);
@@ -217,12 +229,16 @@ export const useProtagonistasHook = (): UseProtagonistasHookResult => {
     setPaseValuesState(values);
   };
 
+  const setFilters = (nextFilters: ProtagonistaFilters) => {
+    setFiltersState(nextFilters);
+  };
+
   const fetchRamas = async () => {
     const response = await getRamasRequest();
     setRamas(response);
   };
 
-  const fetchProtagonistas = async (nextPage = 1) => {
+  const fetchProtagonistas = useCallback(async (nextPage = 1) => {
     setLoading(true);
     setError('');
 
@@ -230,6 +246,7 @@ export const useProtagonistasHook = (): UseProtagonistasHookResult => {
       const response = await getProtagonistasRequest({
         page: nextPage,
         limit: DEFAULT_LIMIT,
+        filters,
       });
       setProtagonistas(response.data);
       setMeta(response.meta);
@@ -250,11 +267,15 @@ export const useProtagonistasHook = (): UseProtagonistasHookResult => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
   useEffect(() => {
-    void fetchProtagonistas();
+    void fetchRamas();
   }, []);
+
+  useEffect(() => {
+    void fetchProtagonistas(1);
+  }, [fetchProtagonistas]);
 
   const openCreateDialog = async () => {
     setDialogMode('create');
@@ -439,6 +460,8 @@ export const useProtagonistasHook = (): UseProtagonistasHookResult => {
     page,
     total: meta.total,
     limit: meta.limit,
+    filters,
+    setFilters,
     refetch: fetchProtagonistas,
     openCreateDialog,
     openEditDialog,

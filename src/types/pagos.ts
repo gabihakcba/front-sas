@@ -43,6 +43,14 @@ export interface PaginatedPagosResponse {
   meta: PaginatedResponseMeta;
 }
 
+export interface PagoFilters {
+  q: string;
+  idConceptoPago: number | null;
+  idMetodoPago: number | null;
+  idCuentaDinero: number | null;
+  idCuentaOrigen: number | null;
+}
+
 export interface PagosOptionsResponse {
   cuentas: PagoCuentaOption[];
   conceptos: PagoRelationOption[];

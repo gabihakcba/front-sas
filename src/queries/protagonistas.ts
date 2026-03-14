@@ -2,6 +2,7 @@ import api from '@/lib/axios';
 import {
   CreateProtagonistaPayload,
   PaginatedProtagonistasResponse,
+  ProtagonistaFilters,
   ProtagonistaPasePayload,
   Protagonista,
   RamaOption,
@@ -11,16 +12,26 @@ import {
 interface GetProtagonistasParams {
   page?: number;
   limit?: number;
+  filters?: ProtagonistaFilters;
 }
 
 export const getProtagonistasRequest = async ({
   page = 1,
   limit = 10,
+  filters,
 }: GetProtagonistasParams = {}): Promise<PaginatedProtagonistasResponse> => {
   const response = await api.get<PaginatedProtagonistasResponse>('/protagonistas', {
     params: {
       page,
       limit,
+      ...(filters?.q.trim() ? { q: filters.q.trim() } : {}),
+      ...(filters?.idRama ? { idRama: filters.idRama } : {}),
+      ...(filters?.esBecado !== null && filters?.esBecado !== undefined
+        ? { esBecado: filters.esBecado }
+        : {}),
+      ...(filters?.activo !== null && filters?.activo !== undefined
+        ? { activo: filters.activo }
+        : {}),
     },
   });
   return response.data;

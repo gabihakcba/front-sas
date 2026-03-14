@@ -4,6 +4,8 @@ import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
+import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
+import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { CuentaDineroFormDialog } from '@/components/cuentas-dinero/CuentaDineroFormDialog';
 import { useCuentasDineroHook } from '@/hooks/useCuentasDineroHooks';
@@ -26,6 +28,8 @@ export default function CuentasDineroPage() {
     page,
     total,
     limit,
+    filters,
+    setFilters,
     refetch,
     openCreateDialog,
     openEditDialog,
@@ -55,8 +59,22 @@ export default function CuentasDineroPage() {
 
   const header = (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <span className="text-lg font-semibold">Listado</span>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-center">
+        <span className="p-input-icon-left">
+          <i className="pi pi-search" />
+          <InputText
+            value={filters.q}
+            onChange={(event) =>
+              setFilters({
+                ...filters,
+                q: event.target.value,
+              })
+            }
+            placeholder="Buscar cuenta"
+          />
+        </span>
+      </div>
+      <div className="flex flex-wrap justify-end gap-2">
         <Button
           type="button"
           label="Crear"
@@ -89,6 +107,67 @@ export default function CuentasDineroPage() {
         />
       </div>
     </div>
+  );
+
+  const areaHeader = (
+    <Dropdown
+      value={filters.idArea}
+      options={options.areas}
+      optionLabel="nombre"
+      optionValue="id"
+      onChange={(event: DropdownChangeEvent) =>
+        setFilters({
+          ...filters,
+          idArea: (event.value as number | null) ?? null,
+        })
+      }
+      placeholder="Área"
+      showClear
+    />
+  );
+
+  const ramaHeader = (
+    <Dropdown
+      value={filters.idRama}
+      options={options.ramas}
+      optionLabel="nombre"
+      optionValue="id"
+      onChange={(event: DropdownChangeEvent) =>
+        setFilters({
+          ...filters,
+          idRama: (event.value as number | null) ?? null,
+        })
+      }
+      placeholder="Rama"
+      showClear
+    />
+  );
+
+  const miembroHeader = (
+    <Dropdown
+      value={filters.idMiembro}
+      options={options.miembros}
+      optionLabel="apellidos"
+      optionValue="id"
+      onChange={(event: DropdownChangeEvent) =>
+        setFilters({
+          ...filters,
+          idMiembro: (event.value as number | null) ?? null,
+        })
+      }
+      placeholder="Miembro"
+      showClear
+      itemTemplate={(miembro) =>
+        miembro
+          ? `${miembro.apellidos}, ${miembro.nombre} (${miembro.dni})`
+          : null
+      }
+      valueTemplate={(miembro) =>
+        miembro
+          ? `${miembro.apellidos}, ${miembro.nombre} (${miembro.dni})`
+          : 'Miembro'
+      }
+    />
   );
 
   return (
@@ -127,13 +206,19 @@ export default function CuentasDineroPage() {
           />
           <Column field="monto_actual" header="Monto actual" />
           <Column
-            header="Asignación"
+            header={areaHeader}
+            body={(cuenta: CuentaDinero) => cuenta.Area?.nombre ?? '-'}
+          />
+          <Column
+            header={ramaHeader}
+            body={(cuenta: CuentaDinero) => cuenta.Rama?.nombre ?? '-'}
+          />
+          <Column
+            header={miembroHeader}
             body={(cuenta: CuentaDinero) =>
-              cuenta.Rama
-                ? `Rama: ${cuenta.Rama.nombre}`
-                : cuenta.Area
-                  ? `Área: ${cuenta.Area.nombre}`
-                  : '-'
+              cuenta.Miembro
+                ? `${cuenta.Miembro.apellidos}, ${cuenta.Miembro.nombre}`
+                : '-'
             }
           />
           <Column

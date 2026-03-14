@@ -54,8 +54,8 @@ export default function ConceptosPagoPage() {
 
   const header = (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <span className="text-lg font-semibold">Listado</span>
-      <div className="flex flex-wrap gap-2">
+      <div />
+      <div className="flex flex-wrap justify-end gap-2">
         <Button
           type="button"
           label="Crear"

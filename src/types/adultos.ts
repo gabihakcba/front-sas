@@ -65,6 +65,15 @@ export interface PaginatedAdultosResponse {
   meta: PaginatedResponseMeta;
 }
 
+export interface AdultoFilters {
+  q: string;
+  idArea: number | null;
+  idPosicion: number | null;
+  idRama: number | null;
+  esBecado: boolean | null;
+  activo: boolean | null;
+}
+
 export interface AreaOption {
   id: number;
   nombre: string;

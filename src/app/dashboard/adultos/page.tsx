@@ -5,6 +5,8 @@ import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
+import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
+import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
 import { AdultoFormDialog } from '@/components/adultos/AdultoFormDialog';
@@ -35,6 +37,8 @@ export default function AdultosPage() {
     page,
     total,
     limit,
+    filters,
+    setFilters,
     refetch,
     openCreateDialog,
     openEditDialog,
@@ -64,8 +68,22 @@ export default function AdultosPage() {
 
   const header = (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <span className="text-lg font-semibold">Listado</span>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-center">
+        <span className="p-input-icon-left">
+          <i className="pi pi-search" />
+          <InputText
+            value={filters.q}
+            onChange={(event) =>
+              setFilters({
+                ...filters,
+                q: event.target.value,
+              })
+            }
+            placeholder="Buscar adulto"
+          />
+        </span>
+      </div>
+      <div className="flex flex-wrap justify-end gap-2">
         <Button
           type="button"
           label="Crear"
@@ -98,6 +116,99 @@ export default function AdultosPage() {
         />
       </div>
     </div>
+  );
+
+  const areaHeader = (
+    <Dropdown
+      value={filters.idArea}
+      options={options.areas}
+      optionLabel="nombre"
+      optionValue="id"
+      onChange={(event: DropdownChangeEvent) =>
+        setFilters({
+          ...filters,
+          idArea: (event.value as number | null) ?? null,
+        })
+      }
+      placeholder="Área"
+      showClear
+    />
+  );
+
+  const ramaHeader = (
+    <Dropdown
+      value={filters.idRama}
+      options={options.ramas}
+      optionLabel="nombre"
+      optionValue="id"
+      onChange={(event: DropdownChangeEvent) =>
+        setFilters({
+          ...filters,
+          idRama: (event.value as number | null) ?? null,
+        })
+      }
+      placeholder="Rama"
+      showClear
+    />
+  );
+
+  const posicionHeader = (
+    <Dropdown
+      value={filters.idPosicion}
+      options={options.posiciones}
+      optionLabel="nombre"
+      optionValue="id"
+      onChange={(event: DropdownChangeEvent) =>
+        setFilters({
+          ...filters,
+          idPosicion: (event.value as number | null) ?? null,
+        })
+      }
+      placeholder="Posición"
+      showClear
+    />
+  );
+
+  const becaHeader = (
+    <Dropdown
+      value={filters.esBecado}
+      options={[
+        { label: 'Becado', value: true },
+        { label: 'Sin beca', value: false },
+      ]}
+      optionLabel="label"
+      optionValue="value"
+      onChange={(event: DropdownChangeEvent) =>
+        setFilters({
+          ...filters,
+          esBecado:
+            event.value === undefined ? null : (event.value as boolean | null),
+        })
+      }
+      placeholder="Beca"
+      showClear
+    />
+  );
+
+  const estadoHeader = (
+    <Dropdown
+      value={filters.activo}
+      options={[
+        { label: 'Activo', value: true },
+        { label: 'Inactivo', value: false },
+      ]}
+      optionLabel="label"
+      optionValue="value"
+      onChange={(event: DropdownChangeEvent) =>
+        setFilters({
+          ...filters,
+          activo:
+            event.value === undefined ? null : (event.value as boolean | null),
+        })
+      }
+      placeholder="Estado"
+      showClear
+    />
   );
 
   return (
@@ -139,19 +250,19 @@ export default function AdultosPage() {
           <Column field="Miembro.email" header="Email" />
           <Column field="Miembro.Cuenta.user" header="Usuario" />
           <Column
-            header="Área"
+            header={areaHeader}
             body={(adulto: Adulto) =>
               getAsignacionActual(adulto)?.Area.nombre ?? 'Sin asignación'
             }
           />
           <Column
-            header="Rama"
+            header={ramaHeader}
             body={(adulto: Adulto) =>
               getAsignacionActual(adulto)?.Rama?.nombre ?? '-'
             }
           />
           <Column
-            header="Posición"
+            header={posicionHeader}
             body={(adulto: Adulto) =>
               getAsignacionActual(adulto)?.Posicion.nombre ?? '-'
             }
@@ -170,7 +281,7 @@ export default function AdultosPage() {
             body={(adulto: Adulto) => getRolesActuales(adulto) || 'Sin roles'}
           />
           <Column
-            header="Beca"
+            header={becaHeader}
             body={(adulto: Adulto) => (
               <Tag
                 value={adulto.es_becado ? 'Becado' : 'Sin beca'}
@@ -179,7 +290,7 @@ export default function AdultosPage() {
             )}
           />
           <Column
-            header="Estado"
+            header={estadoHeader}
             body={(adulto: Adulto) => (
               <Tag
                 value={adulto.activo ? 'Activo' : 'Inactivo'}

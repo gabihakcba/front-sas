@@ -2,6 +2,7 @@ import api from '@/lib/axios';
 import {
   CreateCuentaDineroPayload,
   CuentaDinero,
+  CuentaDineroFilters,
   CuentaDineroOptionsResponse,
   PaginatedCuentasDineroResponse,
   UpdateCuentaDineroPayload,
@@ -10,14 +11,23 @@ import {
 interface GetCuentasDineroParams {
   page?: number;
   limit?: number;
+  filters?: CuentaDineroFilters;
 }
 
 export const getCuentasDineroRequest = async ({
   page = 1,
   limit = 10,
+  filters,
 }: GetCuentasDineroParams = {}): Promise<PaginatedCuentasDineroResponse> => {
   const response = await api.get<PaginatedCuentasDineroResponse>('/cuentas-dinero', {
-    params: { page, limit },
+    params: {
+      page,
+      limit,
+      ...(filters?.q.trim() ? { q: filters.q.trim() } : {}),
+      ...(filters?.idArea ? { idArea: filters.idArea } : {}),
+      ...(filters?.idRama ? { idRama: filters.idRama } : {}),
+      ...(filters?.idMiembro ? { idMiembro: filters.idMiembro } : {}),
+    },
   });
 
   return response.data;

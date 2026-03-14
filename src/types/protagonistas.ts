@@ -46,6 +46,13 @@ export interface PaginatedProtagonistasResponse {
   meta: PaginatedResponseMeta;
 }
 
+export interface ProtagonistaFilters {
+  q: string;
+  idRama: number | null;
+  esBecado: boolean | null;
+  activo: boolean | null;
+}
+
 export interface RamaOption {
   id: number;
   nombre: string;

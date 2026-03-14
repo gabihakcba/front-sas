@@ -2,6 +2,7 @@ import api from '@/lib/axios';
 import {
   CreatePagoPayload,
   Pago,
+  PagoFilters,
   PaginatedPagosResponse,
   PagosOptionsResponse,
   UpdatePagoPayload,
@@ -10,14 +11,24 @@ import {
 interface GetPagosParams {
   page?: number;
   limit?: number;
+  filters?: PagoFilters;
 }
 
 export const getPagosRequest = async ({
   page = 1,
   limit = 10,
+  filters,
 }: GetPagosParams = {}): Promise<PaginatedPagosResponse> => {
   const response = await api.get<PaginatedPagosResponse>('/pagos', {
-    params: { page, limit },
+    params: {
+      page,
+      limit,
+      ...(filters?.q.trim() ? { q: filters.q.trim() } : {}),
+      ...(filters?.idConceptoPago ? { idConceptoPago: filters.idConceptoPago } : {}),
+      ...(filters?.idMetodoPago ? { idMetodoPago: filters.idMetodoPago } : {}),
+      ...(filters?.idCuentaDinero ? { idCuentaDinero: filters.idCuentaDinero } : {}),
+      ...(filters?.idCuentaOrigen ? { idCuentaOrigen: filters.idCuentaOrigen } : {}),
+    },
   });
 
   return response.data;

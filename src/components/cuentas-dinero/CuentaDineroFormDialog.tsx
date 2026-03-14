@@ -57,6 +57,7 @@ export function CuentaDineroFormDialog({
   const tipoOptions = [
     { label: 'Área', value: 'AREA' },
     { label: 'Rama', value: 'RAMA' },
+    { label: 'Miembro', value: 'MIEMBRO' },
   ];
 
   const footer = (
@@ -185,8 +186,13 @@ export function CuentaDineroFormDialog({
                     field.onChange(event.value);
                     if (event.value === 'AREA') {
                       setValue('idRama', null);
+                      setValue('idMiembro', null);
+                    } else if (event.value === 'RAMA') {
+                      setValue('idArea', null);
+                      setValue('idMiembro', null);
                     } else {
                       setValue('idArea', null);
+                      setValue('idRama', null);
                     }
                   }}
                   className="w-full"
@@ -233,7 +239,7 @@ export function CuentaDineroFormDialog({
                 <small className="text-red-500">{errors.idArea.message}</small>
               ) : null}
             </div>
-          ) : (
+          ) : tipoAsignacion === 'RAMA' ? (
             <div className="flex flex-col gap-2">
               <label htmlFor="cuenta-rama">
                 Rama <span className="text-red-500">*</span>
@@ -264,6 +270,51 @@ export function CuentaDineroFormDialog({
               />
               {errors.idRama ? (
                 <small className="text-red-500">{errors.idRama.message}</small>
+              ) : null}
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2">
+              <label htmlFor="cuenta-miembro">
+                Miembro <span className="text-red-500">*</span>
+              </label>
+              <Controller
+                name="idMiembro"
+                control={control}
+                rules={{
+                  validate: (value) =>
+                    tipoAsignacion !== 'MIEMBRO' || value
+                      ? true
+                      : 'Debes seleccionar un miembro.',
+                }}
+                render={({ field }) => (
+                  <Dropdown
+                    id="cuenta-miembro"
+                    value={field.value}
+                    options={options.miembros}
+                    optionLabel="apellidos"
+                    optionValue="id"
+                    onChange={(event: DropdownChangeEvent) =>
+                      field.onChange(event.value as number | null)
+                    }
+                    className="w-full"
+                    placeholder="Seleccioná un miembro"
+                    itemTemplate={(miembro) =>
+                      miembro
+                        ? `${miembro.apellidos}, ${miembro.nombre} (${miembro.dni})`
+                        : null
+                    }
+                    valueTemplate={(miembro) =>
+                      miembro
+                        ? `${miembro.apellidos}, ${miembro.nombre} (${miembro.dni})`
+                        : 'Seleccioná un miembro'
+                    }
+                  />
+                )}
+              />
+              {errors.idMiembro ? (
+                <small className="text-red-500">
+                  {errors.idMiembro.message}
+                </small>
               ) : null}
             </div>
           )}

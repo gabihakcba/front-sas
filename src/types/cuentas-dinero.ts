@@ -11,6 +11,13 @@ export interface CuentaDineroRama {
   id_area: number;
 }
 
+export interface CuentaDineroMiembro {
+  id: number;
+  nombre: string;
+  apellidos: string;
+  dni: string;
+}
+
 export interface CuentaDinero {
   id: number;
   nombre: string;
@@ -18,8 +25,10 @@ export interface CuentaDinero {
   monto_actual: string;
   id_area: number | null;
   id_rama: number | null;
+  id_miembro: number | null;
   Area: CuentaDineroArea | null;
   Rama: CuentaDineroRama | null;
+  Miembro: CuentaDineroMiembro | null;
   _count: {
     Pago: number;
   };
@@ -30,18 +39,27 @@ export interface PaginatedCuentasDineroResponse {
   meta: PaginatedResponseMeta;
 }
 
+export interface CuentaDineroFilters {
+  q: string;
+  idArea: number | null;
+  idRama: number | null;
+  idMiembro: number | null;
+}
+
 export interface CuentaDineroOptionsResponse {
   areas: CuentaDineroArea[];
   ramas: CuentaDineroRama[];
+  miembros: CuentaDineroMiembro[];
 }
 
 export interface CuentaDineroFormValues {
   nombre: string;
   descripcion: string;
   montoActual: string;
-  tipoAsignacion: 'AREA' | 'RAMA';
+  tipoAsignacion: 'AREA' | 'RAMA' | 'MIEMBRO';
   idArea: number | null;
   idRama: number | null;
+  idMiembro: number | null;
 }
 
 export interface CreateCuentaDineroPayload {
@@ -50,6 +68,7 @@ export interface CreateCuentaDineroPayload {
   montoActual: number;
   idArea?: number;
   idRama?: number;
+  idMiembro?: number;
 }
 
 export interface UpdateCuentaDineroPayload {
@@ -58,4 +77,5 @@ export interface UpdateCuentaDineroPayload {
   montoActual?: number;
   idArea?: number;
   idRama?: number;
+  idMiembro?: number;
 }

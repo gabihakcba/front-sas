@@ -95,8 +95,37 @@ export default function ConsejosPage() {
 
   const header = (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <span className="text-lg font-semibold">Listado</span>
       <div className="flex flex-wrap gap-2">
+        <Button
+          type="button"
+          label="Temario"
+          icon="pi pi-list"
+          iconPos="right"
+          outlined
+          size="small"
+          onClick={() => void openTemarioDialog()}
+          disabled={!selectedConsejo}
+        />
+        <Button
+          type="button"
+          label="Iniciar consejo"
+          icon="pi pi-play"
+          iconPos="right"
+          outlined
+          size="small"
+          onClick={() => {
+            if (!selectedConsejo) {
+              return;
+            }
+
+            startTransition(() =>
+              router.push(`/dashboard/consejos/${selectedConsejo.id}`),
+            );
+          }}
+          disabled={!selectedConsejo}
+        />
+      </div>
+      <div className="flex flex-wrap justify-end gap-2">
         {canCreate ? (
           <Button
             type="button"
@@ -133,34 +162,6 @@ export default function ConsejosPage() {
             disabled={!selectedConsejo}
           />
         ) : null}
-        <Button
-          type="button"
-          label="Temario"
-          icon="pi pi-list"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={() => void openTemarioDialog()}
-          disabled={!selectedConsejo}
-        />
-        <Button
-          type="button"
-          label="Iniciar consejo"
-          icon="pi pi-play"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={() => {
-            if (!selectedConsejo) {
-              return;
-            }
-
-            startTransition(() =>
-              router.push(`/dashboard/consejos/${selectedConsejo.id}`),
-            );
-          }}
-          disabled={!selectedConsejo}
-        />
       </div>
     </div>
   );

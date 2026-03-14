@@ -1,6 +1,7 @@
 import api from '@/lib/axios';
 import {
   Adulto,
+  AdultoFilters,
   AdultoOptionsResponse,
   CreateAdultoPayload,
   PaginatedAdultosResponse,
@@ -10,16 +11,28 @@ import {
 interface GetAdultosParams {
   page?: number;
   limit?: number;
+  filters?: AdultoFilters;
 }
 
 export const getAdultosRequest = async ({
   page = 1,
   limit = 10,
+  filters,
 }: GetAdultosParams = {}): Promise<PaginatedAdultosResponse> => {
   const response = await api.get<PaginatedAdultosResponse>('/adultos', {
     params: {
       page,
       limit,
+      ...(filters?.q.trim() ? { q: filters.q.trim() } : {}),
+      ...(filters?.idArea ? { idArea: filters.idArea } : {}),
+      ...(filters?.idPosicion ? { idPosicion: filters.idPosicion } : {}),
+      ...(filters?.idRama ? { idRama: filters.idRama } : {}),
+      ...(filters?.esBecado !== null && filters?.esBecado !== undefined
+        ? { esBecado: filters.esBecado }
+        : {}),
+      ...(filters?.activo !== null && filters?.activo !== undefined
+        ? { activo: filters.activo }
+        : {}),
     },
   });
 

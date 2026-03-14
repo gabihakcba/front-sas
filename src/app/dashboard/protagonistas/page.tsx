@@ -5,6 +5,8 @@ import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
+import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
+import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
 import { ProtagonistaFormDialog } from '@/components/protagonistas/ProtagonistaFormDialog';
@@ -35,6 +37,8 @@ export default function ProtagonistasPage() {
     page,
     total,
     limit,
+    filters,
+    setFilters,
     refetch,
     openCreateDialog,
     openEditDialog,
@@ -67,8 +71,34 @@ export default function ProtagonistasPage() {
 
   const header = (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <span className="text-lg font-semibold">Listado</span>
       <div className="flex flex-wrap gap-2">
+        <Button
+          type="button"
+          label="Pase"
+          icon="pi pi-arrow-right-arrow-left"
+          iconPos="right"
+          outlined
+          size="small"
+          onClick={() => void openPaseDialog()}
+          disabled={!selectedProtagonista}
+        />
+      </div>
+      <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-center">
+        <span className="p-input-icon-left">
+          <i className="pi pi-search" />
+          <InputText
+            value={filters.q}
+            onChange={(event) =>
+              setFilters({
+                ...filters,
+                q: event.target.value,
+              })
+            }
+            placeholder="Buscar protagonista"
+          />
+        </span>
+      </div>
+      <div className="flex flex-wrap justify-end gap-2">
         <Button
           type="button"
           label="Crear"
@@ -90,16 +120,6 @@ export default function ProtagonistasPage() {
         />
         <Button
           type="button"
-          label="Pase"
-          icon="pi pi-arrow-right-arrow-left"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={() => void openPaseDialog()}
-          disabled={!selectedProtagonista}
-        />
-        <Button
-          type="button"
           label="Eliminar"
           icon="pi pi-trash"
           iconPos="right"
@@ -111,6 +131,65 @@ export default function ProtagonistasPage() {
         />
       </div>
     </div>
+  );
+
+  const ramaHeader = (
+    <Dropdown
+      value={filters.idRama}
+      options={ramas}
+      optionLabel="nombre"
+      optionValue="id"
+      onChange={(event: DropdownChangeEvent) =>
+        setFilters({
+          ...filters,
+          idRama: (event.value as number | null) ?? null,
+        })
+      }
+      placeholder="Rama"
+      showClear
+    />
+  );
+
+  const becaHeader = (
+    <Dropdown
+      value={filters.esBecado}
+      options={[
+        { label: 'Becado', value: true },
+        { label: 'Sin beca', value: false },
+      ]}
+      optionLabel="label"
+      optionValue="value"
+      onChange={(event: DropdownChangeEvent) =>
+        setFilters({
+          ...filters,
+          esBecado:
+            event.value === undefined ? null : (event.value as boolean | null),
+        })
+      }
+      placeholder="Beca"
+      showClear
+    />
+  );
+
+  const estadoHeader = (
+    <Dropdown
+      value={filters.activo}
+      options={[
+        { label: 'Activo', value: true },
+        { label: 'Inactivo', value: false },
+      ]}
+      optionLabel="label"
+      optionValue="value"
+      onChange={(event: DropdownChangeEvent) =>
+        setFilters({
+          ...filters,
+          activo:
+            event.value === undefined ? null : (event.value as boolean | null),
+        })
+      }
+      placeholder="Estado"
+      showClear
+    />
   );
 
   return (
@@ -152,7 +231,7 @@ export default function ProtagonistasPage() {
           <Column field="Miembro.email" header="Email" />
           <Column field="Miembro.telefono" header="Teléfono" />
           <Column
-            header="Rama actual"
+            header={ramaHeader}
             body={(protagonista: Protagonista) =>
               getRamaActual(protagonista)?.Rama.nombre ?? 'Sin rama activa'
             }
@@ -167,7 +246,7 @@ export default function ProtagonistasPage() {
             }}
           />
           <Column
-            header="Beca"
+            header={becaHeader}
             body={(protagonista: Protagonista) => (
               <Tag
                 value={protagonista.es_becado ? 'Becado' : 'Sin beca'}
@@ -176,7 +255,7 @@ export default function ProtagonistasPage() {
             )}
           />
           <Column
-            header="Estado"
+            header={estadoHeader}
             body={(protagonista: Protagonista) => (
               <Tag
                 value={protagonista.activo ? 'Activo' : 'Inactivo'}

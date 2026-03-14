@@ -2,7 +2,7 @@
 
 import dayjs from 'dayjs';
 import { AxiosError } from 'axios';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   createPagoRequest,
   deletePagoRequest,
@@ -14,6 +14,7 @@ import {
 import {
   CreatePagoPayload,
   Pago,
+  PagoFilters,
   PagoFormValues,
   PagosOptionsResponse,
 } from '@/types/pagos';
@@ -21,6 +22,13 @@ import { PaginatedResponseMeta } from '@/types/pagination';
 
 const DEFAULT_LIMIT = 10;
 type DialogMode = 'create' | 'edit';
+const createEmptyFilters = (): PagoFilters => ({
+  q: '',
+  idConceptoPago: null,
+  idMetodoPago: null,
+  idCuentaDinero: null,
+  idCuentaOrigen: null,
+});
 
 const createEmptyFormValues = (): PagoFormValues => ({
   monto: '',
@@ -81,6 +89,8 @@ interface UsePagosHookResult {
   page: number;
   total: number;
   limit: number;
+  filters: PagoFilters;
+  setFilters: (filters: PagoFilters) => void;
   refetch: (nextPage?: number) => Promise<void>;
   openCreateDialog: () => Promise<void>;
   openEditDialog: () => Promise<void>;
@@ -115,12 +125,22 @@ export const usePagosHook = (): UsePagosHookResult => {
     total: 0,
     totalPages: 0,
   });
+  const [filters, setFiltersState] = useState<PagoFilters>(createEmptyFilters());
 
   const setFormValues = (values: PagoFormValues) => {
     setFormValuesState(values);
   };
 
-  const fetchPagos = async (nextPage = 1) => {
+  const setFilters = (nextFilters: PagoFilters) => {
+    setFiltersState(nextFilters);
+  };
+
+  const fetchOptions = useCallback(async () => {
+    const response = await getPagosOptionsRequest();
+    setOptions(response);
+  }, []);
+
+  const fetchPagos = useCallback(async (nextPage = 1) => {
     setLoading(true);
     setError('');
 
@@ -128,6 +148,7 @@ export const usePagosHook = (): UsePagosHookResult => {
       const response = await getPagosRequest({
         page: nextPage,
         limit: DEFAULT_LIMIT,
+        filters,
       });
       setPagos(response.data);
       setMeta(response.meta);
@@ -144,21 +165,24 @@ export const usePagosHook = (): UsePagosHookResult => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
   useEffect(() => {
-    void fetchPagos();
-  }, []);
+    void fetchOptions();
+  }, [fetchOptions]);
 
-  const openCreateDialog = async () => {
+  useEffect(() => {
+    void fetchPagos(1);
+  }, [fetchPagos]);
+
+  const openCreateDialog = useCallback(async () => {
     setDialogMode('create');
     setDialogLoading(true);
     setError('');
     setSuccessMessage('');
 
     try {
-      const response = await getPagosOptionsRequest();
-      setOptions(response);
+      await fetchOptions();
       setFormValuesState(createEmptyFormValues());
       setDialogVisible(true);
     } catch (err: unknown) {
@@ -166,9 +190,9 @@ export const usePagosHook = (): UsePagosHookResult => {
     } finally {
       setDialogLoading(false);
     }
-  };
+  }, [fetchOptions]);
 
-  const openEditDialog = async () => {
+  const openEditDialog = useCallback(async () => {
     if (!selectedPago) {
       setError('Seleccioná un pago para editar.');
       return;
@@ -180,12 +204,10 @@ export const usePagosHook = (): UsePagosHookResult => {
     setSuccessMessage('');
 
     try {
-      const [optionsResponse, pagoResponse] = await Promise.all([
-        getPagosOptionsRequest(),
+      const [, pagoResponse] = await Promise.all([
+        fetchOptions(),
         getPagoRequest(selectedPago.id),
       ]);
-
-      setOptions(optionsResponse);
       setFormValuesState({
         monto: pagoResponse.monto,
         detalles: pagoResponse.detalles ?? '',
@@ -202,7 +224,7 @@ export const usePagosHook = (): UsePagosHookResult => {
     } finally {
       setDialogLoading(false);
     }
-  };
+  }, [fetchOptions, selectedPago]);
 
   const closeDialog = () => {
     setDialogVisible(false);
@@ -271,6 +293,8 @@ export const usePagosHook = (): UsePagosHookResult => {
     page,
     total: meta.total,
     limit: meta.limit,
+    filters,
+    setFilters,
     refetch: fetchPagos,
     openCreateDialog,
     openEditDialog,

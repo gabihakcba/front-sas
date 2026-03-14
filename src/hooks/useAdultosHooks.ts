@@ -2,7 +2,7 @@
 
 import dayjs from 'dayjs';
 import { AxiosError } from 'axios';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   createAdultoRequest,
   deleteAdultoRequest,
@@ -13,6 +13,7 @@ import {
 } from '@/queries/adultos';
 import {
   Adulto,
+  AdultoFilters,
   AdultoFormValues,
   AdultoOptionsResponse,
   CreateAdultoPayload,
@@ -21,6 +22,14 @@ import {
 import { PaginatedResponseMeta } from '@/types/pagination';
 
 const DEFAULT_LIMIT = 10;
+const createEmptyFilters = (): AdultoFilters => ({
+  q: '',
+  idArea: null,
+  idPosicion: null,
+  idRama: null,
+  esBecado: null,
+  activo: null,
+});
 
 type DialogMode = 'create' | 'edit';
 
@@ -166,6 +175,8 @@ interface UseAdultosHookResult {
   page: number;
   total: number;
   limit: number;
+  filters: AdultoFilters;
+  setFilters: (filters: AdultoFilters) => void;
   refetch: (nextPage?: number) => Promise<void>;
   openCreateDialog: () => Promise<void>;
   openEditDialog: () => Promise<void>;
@@ -201,9 +212,14 @@ export const useAdultosHook = (): UseAdultosHookResult => {
     total: 0,
     totalPages: 0,
   });
+  const [filters, setFiltersState] = useState<AdultoFilters>(createEmptyFilters());
 
   const setFormValues = (values: AdultoFormValues) => {
     setFormValuesState(values);
+  };
+
+  const setFilters = (nextFilters: AdultoFilters) => {
+    setFiltersState(nextFilters);
   };
 
   const filteredRamas = useMemo(() => {
@@ -216,7 +232,12 @@ export const useAdultosHook = (): UseAdultosHookResult => {
 
   void filteredRamas;
 
-  const fetchAdultos = async (nextPage = 1) => {
+  const fetchOptions = useCallback(async () => {
+    const response = await getAdultosOptionsRequest();
+    setOptions(response);
+  }, []);
+
+  const fetchAdultos = useCallback(async (nextPage = 1) => {
     setLoading(true);
     setError('');
 
@@ -224,6 +245,7 @@ export const useAdultosHook = (): UseAdultosHookResult => {
       const response = await getAdultosRequest({
         page: nextPage,
         limit: DEFAULT_LIMIT,
+        filters,
       });
       setAdultos(response.data);
       setMeta(response.meta);
@@ -240,21 +262,24 @@ export const useAdultosHook = (): UseAdultosHookResult => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
   useEffect(() => {
-    void fetchAdultos();
-  }, []);
+    void fetchOptions();
+  }, [fetchOptions]);
 
-  const openCreateDialog = async () => {
+  useEffect(() => {
+    void fetchAdultos(1);
+  }, [fetchAdultos]);
+
+  const openCreateDialog = useCallback(async () => {
     setDialogMode('create');
     setDialogLoading(true);
     setError('');
     setSuccessMessage('');
 
     try {
-      const response = await getAdultosOptionsRequest();
-      setOptions(response);
+      await fetchOptions();
       setFormValuesState(createEmptyFormValues());
       setDialogVisible(true);
     } catch (err: unknown) {
@@ -262,9 +287,9 @@ export const useAdultosHook = (): UseAdultosHookResult => {
     } finally {
       setDialogLoading(false);
     }
-  };
+  }, [fetchOptions]);
 
-  const openEditDialog = async () => {
+  const openEditDialog = useCallback(async () => {
     if (!selectedAdulto) {
       setError('Seleccioná un adulto para editar.');
       return;
@@ -276,11 +301,10 @@ export const useAdultosHook = (): UseAdultosHookResult => {
     setSuccessMessage('');
 
     try {
-      const [optionsResponse, adultoResponse] = await Promise.all([
-        getAdultosOptionsRequest(),
+      const [, adultoResponse] = await Promise.all([
+        fetchOptions(),
         getAdultoRequest(selectedAdulto.id),
       ]);
-      setOptions(optionsResponse);
       setFormValuesState(mapAdultoToFormValues(adultoResponse));
       setDialogVisible(true);
     } catch (err: unknown) {
@@ -288,7 +312,7 @@ export const useAdultosHook = (): UseAdultosHookResult => {
     } finally {
       setDialogLoading(false);
     }
-  };
+  }, [fetchOptions, selectedAdulto]);
 
   const closeDialog = () => {
     setDialogVisible(false);
@@ -366,6 +390,8 @@ export const useAdultosHook = (): UseAdultosHookResult => {
     page,
     total: meta.total,
     limit: meta.limit,
+    filters,
+    setFilters,
     refetch: fetchAdultos,
     openCreateDialog,
     openEditDialog,

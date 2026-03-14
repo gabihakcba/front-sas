@@ -1,10 +1,13 @@
 'use client';
 
 import dayjs from 'dayjs';
+import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
+import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
+import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { useAuth } from '@/context/AuthContext';
 import { PagoFormDialog } from '@/components/pagos/PagoFormDialog';
@@ -21,6 +24,7 @@ const hasPermission = (permissions: string[], required: string) => {
 };
 
 export default function PagosPage() {
+  const router = useRouter();
   const { user } = useAuth();
   const {
     pagos,
@@ -38,6 +42,8 @@ export default function PagosPage() {
     page,
     total,
     limit,
+    filters,
+    setFilters,
     refetch,
     openCreateDialog,
     openEditDialog,
@@ -72,7 +78,50 @@ export default function PagosPage() {
 
   const header = (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <span className="text-lg font-semibold">Listado</span>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          type="button"
+          label="Conceptos"
+          icon="pi pi-tags"
+          iconPos="right"
+          outlined
+          size="small"
+          onClick={() => router.push('/dashboard/conceptos-pago')}
+        />
+        <Button
+          type="button"
+          label="Métodos"
+          icon="pi pi-credit-card"
+          iconPos="right"
+          outlined
+          size="small"
+          onClick={() => router.push('/dashboard/metodos-pago')}
+        />
+        <Button
+          type="button"
+          label="Cuentas"
+          icon="pi pi-building-columns"
+          iconPos="right"
+          outlined
+          size="small"
+          onClick={() => router.push('/dashboard/cuentas-dinero')}
+        />
+      </div>
+      <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-center">
+        <span className="p-input-icon-left">
+          <i className="pi pi-search" />
+          <InputText
+            value={filters.q}
+            onChange={(event) =>
+              setFilters({
+                ...filters,
+                q: event.target.value,
+              })
+            }
+            placeholder="Buscar pago"
+          />
+        </span>
+      </div>
       <div className="flex flex-wrap gap-2">
         {canCreate ? (
           <Button
@@ -114,6 +163,74 @@ export default function PagosPage() {
     </div>
   );
 
+  const conceptoHeader = (
+    <Dropdown
+      value={filters.idConceptoPago}
+      options={options.conceptos}
+      optionLabel="nombre"
+      optionValue="id"
+      onChange={(event: DropdownChangeEvent) =>
+        setFilters({
+          ...filters,
+          idConceptoPago: (event.value as number | null) ?? null,
+        })
+      }
+      placeholder="Concepto"
+      showClear
+    />
+  );
+
+  const metodoHeader = (
+    <Dropdown
+      value={filters.idMetodoPago}
+      options={options.metodos}
+      optionLabel="nombre"
+      optionValue="id"
+      onChange={(event: DropdownChangeEvent) =>
+        setFilters({
+          ...filters,
+          idMetodoPago: (event.value as number | null) ?? null,
+        })
+      }
+      placeholder="Método"
+      showClear
+    />
+  );
+
+  const cuentaDestinoHeader = (
+    <Dropdown
+      value={filters.idCuentaDinero}
+      options={options.cuentas}
+      optionLabel="nombre"
+      optionValue="id"
+      onChange={(event: DropdownChangeEvent) =>
+        setFilters({
+          ...filters,
+          idCuentaDinero: (event.value as number | null) ?? null,
+        })
+      }
+      placeholder="Cuenta destino"
+      showClear
+    />
+  );
+
+  const cuentaOrigenHeader = (
+    <Dropdown
+      value={filters.idCuentaOrigen}
+      options={options.cuentas}
+      optionLabel="nombre"
+      optionValue="id"
+      onChange={(event: DropdownChangeEvent) =>
+        setFilters({
+          ...filters,
+          idCuentaOrigen: (event.value as number | null) ?? null,
+        })
+      }
+      placeholder="Cuenta origen"
+      showClear
+    />
+  );
+
   return (
     <div className="h-full w-full">
       <Card title="Pagos" className="h-full">
@@ -152,11 +269,11 @@ export default function PagosPage() {
             header="Miembro"
             body={(pago: Pago) => `${pago.Miembro.apellidos}, ${pago.Miembro.nombre}`}
           />
-          <Column field="ConceptoPago.nombre" header="Concepto" />
-          <Column field="MetodoPago.nombre" header="Método" />
-          <Column field="CuentaDinero.nombre" header="Cuenta destino" />
+          <Column field="ConceptoPago.nombre" header={conceptoHeader} />
+          <Column field="MetodoPago.nombre" header={metodoHeader} />
+          <Column field="CuentaDinero.nombre" header={cuentaDestinoHeader} />
           <Column
-            header="Cuenta origen"
+            header={cuentaOrigenHeader}
             body={(pago: Pago) => pago.CuentaOrigen?.nombre ?? '-'}
           />
           <Column

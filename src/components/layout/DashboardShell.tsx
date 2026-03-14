@@ -9,9 +9,6 @@ import { useAuth } from "@/context/AuthContext";
 const sidebarItems = [
   { label: "Protagonistas", icon: "pi pi-id-card", path: "/dashboard/protagonistas" },
   { label: "Adultos", icon: "pi pi-users", path: "/dashboard/adultos" },
-  { label: "Conceptos de pago", icon: "pi pi-tags", path: "/dashboard/conceptos-pago" },
-  { label: "Métodos de pago", icon: "pi pi-credit-card", path: "/dashboard/metodos-pago" },
-  { label: "Cuentas de dinero", icon: "pi pi-building-columns", path: "/dashboard/cuentas-dinero" },
   { label: "Pagos", icon: "pi pi-wallet", path: "/dashboard/pagos" },
   { label: "Consejos", icon: "pi pi-comments", path: "/dashboard/consejos" },
 ];
