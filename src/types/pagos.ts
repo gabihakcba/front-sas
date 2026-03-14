@@ -86,7 +86,7 @@ export interface UpdatePagoPayload {
   detalles?: string;
   fechaPago?: string;
   idCuentaDinero?: number;
-  idCuentaOrigen?: number;
+  idCuentaOrigen?: number | null;
   idMetodoPago?: number;
   idConceptoPago?: number;
   idMiembro?: number;

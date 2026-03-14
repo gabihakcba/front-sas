@@ -17,6 +17,7 @@ import {
   PagoFilters,
   PagoFormValues,
   PagosOptionsResponse,
+  UpdatePagoPayload,
 } from '@/types/pagos';
 import { PaginatedResponseMeta } from '@/types/pagination';
 
@@ -57,7 +58,7 @@ const getErrorMessage = (err: unknown, fallback: string): string => {
   return fallback;
 };
 
-const buildPayload = (
+const buildCreatePayload = (
   values: PagoFormValues,
 ): CreatePagoPayload => ({
   monto: Number(values.monto),
@@ -67,6 +68,21 @@ const buildPayload = (
     : {}),
   idCuentaDinero: values.idCuentaDinero!,
   ...(values.idCuentaOrigen ? { idCuentaOrigen: values.idCuentaOrigen } : {}),
+  idMetodoPago: values.idMetodoPago!,
+  idConceptoPago: values.idConceptoPago!,
+  idMiembro: values.idMiembro!,
+});
+
+const buildUpdatePayload = (
+  values: PagoFormValues,
+): UpdatePagoPayload => ({
+  monto: Number(values.monto),
+  ...(values.detalles.trim() ? { detalles: values.detalles.trim() } : {}),
+  ...(values.fechaPago
+    ? { fechaPago: dayjs(values.fechaPago).toISOString() }
+    : {}),
+  idCuentaDinero: values.idCuentaDinero!,
+  idCuentaOrigen: values.idCuentaOrigen ?? null,
   idMetodoPago: values.idMetodoPago!,
   idConceptoPago: values.idConceptoPago!,
   idMiembro: values.idMiembro!,
@@ -238,10 +254,10 @@ export const usePagosHook = (): UsePagosHookResult => {
 
     try {
       if (dialogMode === 'create') {
-        await createPagoRequest(buildPayload(values));
+        await createPagoRequest(buildCreatePayload(values));
         setSuccessMessage('Pago creado correctamente.');
       } else if (selectedPago) {
-        await updatePagoRequest(selectedPago.id, buildPayload(values));
+        await updatePagoRequest(selectedPago.id, buildUpdatePayload(values));
         setSuccessMessage('Pago actualizado correctamente.');
       }
 
