@@ -23,14 +23,14 @@ interface DashboardShellProps {
 export default function DashboardShell({ children }: DashboardShellProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, isLoading, logout } = useAuth();
   const [sidebarVisible, setSidebarVisible] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isLoading && !isAuthenticated) {
       router.push("/");
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, isLoading, router]);
 
   const handleLogout = () => {
     logout();
@@ -44,6 +44,10 @@ export default function DashboardShell({ children }: DashboardShellProps) {
       active: pathname.startsWith(item.path),
     }));
   }, [pathname]);
+
+  if (isLoading) {
+    return <div className="min-h-screen" />;
+  }
 
   return (
     <>

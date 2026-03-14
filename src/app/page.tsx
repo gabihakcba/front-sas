@@ -32,9 +32,11 @@ export default function LoginPage() {
                 <i className="pi pi-user" />
                 <InputText
                   id="username"
+                  name="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Nombre de usuario"
+                  autoComplete="username"
                   disabled={loading}
                   className="w-full"
                 />
@@ -48,11 +50,13 @@ export default function LoginPage() {
               <div className="w-full">
                 <Password
                   id="password"
+                  name="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   toggleMask
                   feedback={false}
                   placeholder="••••••••"
+                  autoComplete="current-password"
                   disabled={loading}
                   inputClassName="w-full"
                   className="w-full"

@@ -14,14 +14,31 @@ export const useLoginHook = () => {
   const router = useRouter();
 
   const handleLogin = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
+    e?.preventDefault();
     setLoading(true);
     setError('');
 
+    let submittedUsername = username;
+    let submittedPassword = password;
+
+    if (e?.currentTarget instanceof HTMLFormElement) {
+      const formData = new FormData(e.currentTarget);
+      const formUsername = formData.get('username');
+      const formPassword = formData.get('password');
+
+      if (typeof formUsername === 'string') {
+        submittedUsername = formUsername;
+      }
+
+      if (typeof formPassword === 'string') {
+        submittedPassword = formPassword;
+      }
+    }
+
     try {
       const { access_token, user } = await loginRequest({
-        user: username,
-        password: password,
+        user: submittedUsername,
+        password: submittedPassword,
       });
 
       login(access_token, user);
