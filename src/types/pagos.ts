@@ -31,6 +31,7 @@ export interface Pago {
   fecha_pago: string;
   codigo_validacion: string;
   Miembro: PagoMiembroOption;
+  Responsable: PagoMiembroOption | null;
   MetodoPago: PagoRelationOption;
   ConceptoPago: PagoRelationOption;
   CuentaDinero: PagoRelationOption;

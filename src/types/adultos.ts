@@ -60,6 +60,10 @@ export interface Adulto {
   EquipoArea: AdultoEquipoArea[];
 }
 
+export interface AdultoFirmaResponse {
+  firmaBase64: string | null;
+}
+
 export interface PaginatedAdultosResponse {
   data: Adulto[];
   meta: PaginatedResponseMeta;

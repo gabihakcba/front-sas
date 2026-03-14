@@ -9,6 +9,7 @@ import { Card } from 'primereact/card';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
 import { Editor, EditorTextChangeEvent } from 'primereact/editor';
 import { Message } from 'primereact/message';
+import { FilePreviewDialog } from '@/components/common/FilePreviewDialog';
 import { ConsejoAsistenciaDialog } from '@/components/consejos/ConsejoAsistenciaDialog';
 import { ConsejoTemarioFormDialog } from '@/components/consejos/ConsejoTemarioFormDialog';
 import { useAuth } from '@/context/AuthContext';
@@ -224,6 +225,11 @@ export default function ConsejoWorkspacePage() {
   const [asistenciaSuccessMessage, setAsistenciaSuccessMessage] = useState('');
   const [exportingAll, setExportingAll] = useState(false);
   const [exportingPublic, setExportingPublic] = useState(false);
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewBlob, setPreviewBlob] = useState<Blob | null>(null);
+  const [previewTitle, setPreviewTitle] = useState('Preview PDF');
+  const [previewFileName, setPreviewFileName] = useState('archivo.pdf');
+  const [previewError, setPreviewError] = useState('');
 
   const permissions = user?.permissions ?? [];
   const canManageTemario = hasPermission(permissions, 'UPDATE:CONSEJO');
@@ -376,17 +382,6 @@ export default function ConsejoWorkspacePage() {
     }
   };
 
-  const downloadBlob = (blob: Blob, filename: string) => {
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
-  };
-
   const handleExportPdf = async (includePrivateTopics: boolean) => {
     const setLoadingState = includePrivateTopics
       ? setExportingAll
@@ -394,13 +389,22 @@ export default function ConsejoWorkspacePage() {
 
     setLoadingState(true);
     setError('');
+    setPreviewVisible(true);
+    setPreviewError('');
 
     try {
       const blob = await exportConsejoPdfRequest(consejoId, includePrivateTopics);
       const suffix = includePrivateTopics ? 'completo' : 'publico';
-      downloadBlob(blob, `consejo-${consejoId}-${suffix}.pdf`);
+      setPreviewBlob(blob);
+      setPreviewTitle(
+        includePrivateTopics ? 'Preview PDF completo' : 'Preview PDF sin MP',
+      );
+      setPreviewFileName(`consejo-${consejoId}-${suffix}.pdf`);
     } catch (err: unknown) {
-      setError(getErrorMessage(err, 'No se pudo exportar el PDF del consejo.'));
+      const message = getErrorMessage(err, 'No se pudo exportar el PDF del consejo.');
+      setError(message);
+      setPreviewError(message);
+      setPreviewBlob(null);
     } finally {
       setLoadingState(false);
     }
@@ -694,6 +698,20 @@ export default function ConsejoWorkspacePage() {
         onHide={closeAsistenciaDialog}
         onSearch={(value) => void handleAsistenciaSearch(value)}
         onAdd={(idMiembro) => void handleAddAsistencia(idMiembro)}
+      />
+      <FilePreviewDialog
+        visible={previewVisible}
+        title={previewTitle}
+        fileName={previewFileName}
+        mimeType="application/pdf"
+        blob={previewBlob}
+        loading={exportingAll || exportingPublic}
+        error={previewError}
+        onHide={() => {
+          setPreviewVisible(false);
+          setPreviewBlob(null);
+          setPreviewError('');
+        }}
       />
     </div>
   );

@@ -1,6 +1,8 @@
 'use client';
 
 import dayjs from 'dayjs';
+import { AxiosError } from 'axios';
+import { useState } from 'react';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
@@ -10,6 +12,8 @@ import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
 import { AdultoFormDialog } from '@/components/adultos/AdultoFormDialog';
+import { AdultoFirmaDialog } from '@/components/adultos/AdultoFirmaDialog';
+import { useAuth } from '@/context/AuthContext';
 import { useAdultosHook } from '@/hooks/useAdultosHooks';
 import { Adulto } from '@/types/adultos';
 
@@ -21,6 +25,12 @@ const getRolesActuales = (adulto: Adulto) =>
   );
 
 export default function AdultosPage() {
+  const { user } = useAuth();
+  const [signatureDialogVisible, setSignatureDialogVisible] = useState(false);
+  const [signatureLoading, setSignatureLoading] = useState(false);
+  const [signatureSubmitting, setSignatureSubmitting] = useState(false);
+  const [signatureError, setSignatureError] = useState('');
+  const [signatureValue, setSignatureValue] = useState<string | null>(null);
   const {
     adultos,
     selectedAdulto,
@@ -42,6 +52,8 @@ export default function AdultosPage() {
     refetch,
     openCreateDialog,
     openEditDialog,
+    getSignature,
+    saveSignature,
     closeDialog,
     submitForm,
     deleteSelected,
@@ -66,8 +78,76 @@ export default function AdultosPage() {
     }
   };
 
+  const canEditSelectedSignature = Boolean(
+    selectedAdulto &&
+      user &&
+      Number(selectedAdulto.Miembro.Cuenta.id) === Number(user.id),
+  );
+
+  const openSignatureDialog = async () => {
+    if (!selectedAdulto) {
+      return;
+    }
+
+    setSignatureDialogVisible(true);
+    setSignatureLoading(true);
+    setSignatureError('');
+
+    try {
+      const firma = await getSignature(selectedAdulto.id);
+      setSignatureValue(firma);
+    } catch (err: unknown) {
+      if (err instanceof AxiosError) {
+        setSignatureError('No se pudo cargar la firma actual.');
+      } else {
+        setSignatureError('No se pudo cargar la firma actual.');
+      }
+    } finally {
+      setSignatureLoading(false);
+    }
+  };
+
+  const closeSignatureDialog = () => {
+    setSignatureDialogVisible(false);
+    setSignatureLoading(false);
+    setSignatureSubmitting(false);
+    setSignatureError('');
+    setSignatureValue(null);
+  };
+
+  const handleSaveSignature = async (firmaBase64: string | null) => {
+    if (!selectedAdulto) {
+      return;
+    }
+
+    setSignatureSubmitting(true);
+    setSignatureError('');
+
+    try {
+      const savedSignature = await saveSignature(selectedAdulto.id, firmaBase64);
+      setSignatureValue(savedSignature);
+      closeSignatureDialog();
+    } catch {
+      setSignatureError('No se pudo guardar la firma.');
+    } finally {
+      setSignatureSubmitting(false);
+    }
+  };
+
   const header = (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-wrap gap-2">
+        <Button
+          type="button"
+          label="Firma"
+          icon="pi pi-pencil"
+          iconPos="right"
+          outlined
+          size="small"
+          onClick={() => void openSignatureDialog()}
+          disabled={!selectedAdulto}
+        />
+      </div>
       <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-center">
         <span className="p-input-icon-left">
           <i className="pi pi-search" />
@@ -311,6 +391,22 @@ export default function AdultosPage() {
         error={error}
         onHide={closeDialog}
         onSubmit={(values) => void submitForm(values)}
+      />
+
+      <AdultoFirmaDialog
+        visible={signatureDialogVisible}
+        adultoNombre={
+          selectedAdulto
+            ? `${selectedAdulto.Miembro.nombre} ${selectedAdulto.Miembro.apellidos}`
+            : 'adulto'
+        }
+        firmaBase64={signatureValue}
+        loading={signatureLoading}
+        submitting={signatureSubmitting}
+        editable={canEditSelectedSignature}
+        error={signatureError}
+        onHide={closeSignatureDialog}
+        onSave={(firmaBase64) => void handleSaveSignature(firmaBase64)}
       />
     </div>
   );

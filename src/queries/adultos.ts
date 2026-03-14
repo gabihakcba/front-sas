@@ -2,6 +2,7 @@ import api from '@/lib/axios';
 import {
   Adulto,
   AdultoFilters,
+  AdultoFirmaResponse,
   AdultoOptionsResponse,
   CreateAdultoPayload,
   PaginatedAdultosResponse,
@@ -44,6 +45,13 @@ export const getAdultoRequest = async (id: number): Promise<Adulto> => {
   return response.data;
 };
 
+export const getAdultoFirmaRequest = async (
+  id: number,
+): Promise<AdultoFirmaResponse> => {
+  const response = await api.get<AdultoFirmaResponse>(`/adultos/${id}/firma`);
+  return response.data;
+};
+
 export const getAdultosOptionsRequest =
   async (): Promise<AdultoOptionsResponse> => {
     const response = await api.get<AdultoOptionsResponse>('/adultos/options');
@@ -62,6 +70,16 @@ export const updateAdultoRequest = async (
   payload: UpdateAdultoPayload,
 ): Promise<Adulto> => {
   const response = await api.patch<Adulto>(`/adultos/${id}`, payload);
+  return response.data;
+};
+
+export const updateAdultoFirmaRequest = async (
+  id: number,
+  firmaBase64: string | null,
+): Promise<AdultoFirmaResponse> => {
+  const response = await api.patch<AdultoFirmaResponse>(`/adultos/${id}/firma`, {
+    firmaBase64,
+  });
   return response.data;
 };
 

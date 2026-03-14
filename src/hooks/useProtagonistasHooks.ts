@@ -169,11 +169,11 @@ const buildUpdatePayload = (
   dni: values.dni.trim(),
   fechaNacimiento: dayjs(values.fechaNacimiento).toISOString(),
   direccion: values.direccion.trim(),
-  email: values.email.trim(),
-  telefono: values.telefono.trim(),
+  ...(values.email.trim() ? { email: values.email.trim() } : {}),
+  ...(values.telefono.trim() ? { telefono: values.telefono.trim() } : {}),
   telefonoEmergencia: values.telefonoEmergencia.trim(),
-  totem: values.totem.trim(),
-  cualidad: values.cualidad.trim(),
+  ...(values.totem.trim() ? { totem: values.totem.trim() } : {}),
+  ...(values.cualidad.trim() ? { cualidad: values.cualidad.trim() } : {}),
   ...(values.idRama ? { idRama: values.idRama } : {}),
   ...(values.fechaIngresoRama
     ? { fechaIngresoRama: dayjs(values.fechaIngresoRama).toISOString() }

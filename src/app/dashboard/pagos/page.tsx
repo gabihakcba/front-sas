@@ -1,6 +1,7 @@
 'use client';
 
 import dayjs from 'dayjs';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
@@ -9,9 +10,11 @@ import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
+import { FilePreviewDialog } from '@/components/common/FilePreviewDialog';
 import { useAuth } from '@/context/AuthContext';
 import { PagoFormDialog } from '@/components/pagos/PagoFormDialog';
 import { usePagosHook } from '@/hooks/usePagosHooks';
+import { exportPagoReceiptRequest } from '@/queries/pagos';
 import { Pago } from '@/types/pagos';
 
 const hasPermission = (permissions: string[], required: string) => {
@@ -26,6 +29,10 @@ const hasPermission = (permissions: string[], required: string) => {
 export default function PagosPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewBlob, setPreviewBlob] = useState<Blob | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState('');
   const {
     pagos,
     selectedPago,
@@ -76,6 +83,26 @@ export default function PagosPage() {
     }
   };
 
+  const handleDownloadReceipt = async () => {
+    if (!selectedPago) {
+      return;
+    }
+
+    setPreviewVisible(true);
+    setPreviewLoading(true);
+    setPreviewError('');
+
+    try {
+      const blob = await exportPagoReceiptRequest(selectedPago.id);
+      setPreviewBlob(blob);
+    } catch {
+      setPreviewBlob(null);
+      setPreviewError('No se pudo generar el comprobante.');
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
   const header = (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div className="flex flex-wrap gap-2">
@@ -105,6 +132,16 @@ export default function PagosPage() {
           outlined
           size="small"
           onClick={() => router.push('/dashboard/cuentas-dinero')}
+        />
+        <Button
+          type="button"
+          label="Comprobante"
+          icon="pi pi-file-pdf"
+          iconPos="right"
+          outlined
+          size="small"
+          onClick={() => void handleDownloadReceipt()}
+          disabled={!selectedPago}
         />
       </div>
       <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-center">
@@ -293,6 +330,25 @@ export default function PagosPage() {
         error={error}
         onHide={closeDialog}
         onSubmit={(values) => void submitForm(values)}
+      />
+
+      <FilePreviewDialog
+        visible={previewVisible}
+        title="Preview de comprobante"
+        fileName={
+          selectedPago
+            ? `comprobante-pago-${String(selectedPago.id).padStart(6, '0')}.pdf`
+            : 'comprobante.pdf'
+        }
+        mimeType="application/pdf"
+        blob={previewBlob}
+        loading={previewLoading}
+        error={previewError}
+        onHide={() => {
+          setPreviewVisible(false);
+          setPreviewBlob(null);
+          setPreviewError('');
+        }}
       />
     </div>
   );

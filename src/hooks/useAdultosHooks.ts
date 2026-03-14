@@ -7,8 +7,10 @@ import {
   createAdultoRequest,
   deleteAdultoRequest,
   getAdultoRequest,
+  getAdultoFirmaRequest,
   getAdultosOptionsRequest,
   getAdultosRequest,
+  updateAdultoFirmaRequest,
   updateAdultoRequest,
 } from '@/queries/adultos';
 import {
@@ -180,6 +182,11 @@ interface UseAdultosHookResult {
   refetch: (nextPage?: number) => Promise<void>;
   openCreateDialog: () => Promise<void>;
   openEditDialog: () => Promise<void>;
+  getSignature: (adultoId: number) => Promise<string | null>;
+  saveSignature: (
+    adultoId: number,
+    firmaBase64: string | null,
+  ) => Promise<string | null>;
   closeDialog: () => void;
   submitForm: (values: AdultoFormValues) => Promise<void>;
   deleteSelected: () => Promise<void>;
@@ -319,6 +326,20 @@ export const useAdultosHook = (): UseAdultosHookResult => {
     setFormValuesState(createEmptyFormValues());
   };
 
+  const getSignature = useCallback(async (adultoId: number) => {
+    const response = await getAdultoFirmaRequest(adultoId);
+    return response.firmaBase64;
+  }, []);
+
+  const saveSignature = useCallback(
+    async (adultoId: number, firmaBase64: string | null) => {
+      const response = await updateAdultoFirmaRequest(adultoId, firmaBase64);
+      await fetchAdultos(page);
+      return response.firmaBase64;
+    },
+    [fetchAdultos, page],
+  );
+
   const submitForm = async (values: AdultoFormValues) => {
     setSubmitting(true);
     setError('');
@@ -395,6 +416,8 @@ export const useAdultosHook = (): UseAdultosHookResult => {
     refetch: fetchAdultos,
     openCreateDialog,
     openEditDialog,
+    getSignature,
+    saveSignature,
     closeDialog,
     submitForm,
     deleteSelected,
