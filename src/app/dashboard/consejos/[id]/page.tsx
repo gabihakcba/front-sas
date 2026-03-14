@@ -435,7 +435,7 @@ export default function ConsejoWorkspacePage() {
     }
   };
 
-  const handleSaveTema = async () => {
+  const handleSaveTema = useCallback(async () => {
     if (!selectedTema) {
       return;
     }
@@ -457,7 +457,29 @@ export default function ConsejoWorkspacePage() {
     } finally {
       setSaving(false);
     }
-  };
+  }, [acuerdo, consejoId, debate, estado, loadConsejo, selectedTema]);
+
+  useEffect(() => {
+    if (!canManageTemario) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+        event.preventDefault();
+
+        if (!saving && selectedTema) {
+          void handleSaveTema();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [canManageTemario, handleSaveTema, saving, selectedTema]);
 
   if (loading) {
     return <div className="py-4">Cargando consejo...</div>;
@@ -582,6 +604,8 @@ export default function ConsejoWorkspacePage() {
                     iconPos="right"
                     outlined
                     size="small"
+                    tooltip="Guardar (Ctrl+S / Cmd+S)"
+                    tooltipOptions={{ position: 'top' }}
                     onClick={() => void handleSaveTema()}
                     loading={saving}
                   />
