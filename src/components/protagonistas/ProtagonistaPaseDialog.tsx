@@ -1,10 +1,10 @@
 'use client';
 
-import { ChangeEvent } from 'react';
+import dayjs from 'dayjs';
 import { Button } from 'primereact/button';
+import { Calendar } from 'primereact/calendar';
 import { Dialog } from 'primereact/dialog';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
-import { InputText } from 'primereact/inputtext';
 import {
   ProtagonistaPaseValues,
   RamaOption,
@@ -90,17 +90,26 @@ export function ProtagonistaPaseDialog({
 
           <div className="flex flex-col gap-2">
             <label htmlFor="pase-fecha">Fecha de pase</label>
-            <InputText
+            <Calendar
               id="pase-fecha"
-              type="date"
-              value={values.fechaIngresoRama}
-              onChange={(event: ChangeEvent<HTMLInputElement>) =>
+              value={
+                values.fechaIngresoRama
+                  ? dayjs(values.fechaIngresoRama, 'YYYY-MM-DD').toDate()
+                  : null
+              }
+              onChange={(event) =>
                 onChange({
                   ...values,
-                  fechaIngresoRama: event.target.value,
+                  fechaIngresoRama:
+                    event.value instanceof Date
+                      ? dayjs(event.value).format('YYYY-MM-DD')
+                      : '',
                 })
               }
+              dateFormat="dd/mm/yy"
+              showButtonBar
               className="w-full"
+              inputClassName="w-full"
             />
           </div>
         </div>

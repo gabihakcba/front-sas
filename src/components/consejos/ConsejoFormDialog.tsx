@@ -1,7 +1,9 @@
 'use client';
 
+import dayjs from 'dayjs';
 import { useEffect } from 'react';
 import { Button } from 'primereact/button';
+import { Calendar } from 'primereact/calendar';
 import { Checkbox, CheckboxChangeEvent } from 'primereact/checkbox';
 import { Dialog } from 'primereact/dialog';
 import { InputTextarea } from 'primereact/inputtextarea';
@@ -121,7 +123,21 @@ export function ConsejoFormDialog({
               control={control}
               rules={{ required: 'La fecha es obligatoria.' }}
               render={({ field }) => (
-                <InputText id="consejo-fecha" type="date" {...field} className="w-full" />
+                <Calendar
+                  id="consejo-fecha"
+                  value={field.value ? dayjs(field.value, 'YYYY-MM-DD').toDate() : null}
+                  onChange={(event) =>
+                    field.onChange(
+                      event.value instanceof Date
+                        ? dayjs(event.value).format('YYYY-MM-DD')
+                        : '',
+                    )
+                  }
+                  dateFormat="dd/mm/yy"
+                  showButtonBar
+                  className="w-full"
+                  inputClassName="w-full"
+                />
               )}
             />
             {errors.fecha ? (

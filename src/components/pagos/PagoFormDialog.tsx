@@ -1,7 +1,9 @@
 'use client';
 
+import dayjs from 'dayjs';
 import { useEffect, useMemo } from 'react';
 import { Button } from 'primereact/button';
+import { Calendar } from 'primereact/calendar';
 import { Dialog } from 'primereact/dialog';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
@@ -138,11 +140,20 @@ export function PagoFormDialog({
               control={control}
               rules={{ required: 'La fecha es obligatoria.' }}
               render={({ field }) => (
-                <InputText
+                <Calendar
                   id="pago-fecha"
-                  type="date"
-                  {...field}
+                  value={field.value ? dayjs(field.value, 'YYYY-MM-DD').toDate() : null}
+                  onChange={(event) =>
+                    field.onChange(
+                      event.value instanceof Date
+                        ? dayjs(event.value).format('YYYY-MM-DD')
+                        : '',
+                    )
+                  }
+                  dateFormat="dd/mm/yy"
+                  showButtonBar
                   className="w-full"
+                  inputClassName="w-full"
                 />
               )}
             />

@@ -1,7 +1,9 @@
 'use client';
 
+import dayjs from 'dayjs';
 import { useEffect } from 'react';
 import { Button } from 'primereact/button';
+import { Calendar } from 'primereact/calendar';
 import { Checkbox } from 'primereact/checkbox';
 import { Dialog } from 'primereact/dialog';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
@@ -215,11 +217,20 @@ export function ProtagonistaFormDialog({
               control={control}
               rules={{ required: 'La fecha de nacimiento es obligatoria.' }}
               render={({ field }) => (
-                <InputText
+                <Calendar
                   id="fechaNacimiento"
-                  type="date"
-                  {...field}
+                  value={field.value ? dayjs(field.value, 'YYYY-MM-DD').toDate() : null}
+                  onChange={(event) =>
+                    field.onChange(
+                      event.value instanceof Date
+                        ? dayjs(event.value).format('YYYY-MM-DD')
+                        : '',
+                    )
+                  }
+                  dateFormat="dd/mm/yy"
+                  showButtonBar
                   className="w-full"
+                  inputClassName="w-full"
                 />
               )}
             />
@@ -332,11 +343,20 @@ export function ProtagonistaFormDialog({
               name="fechaIngresoRama"
               control={control}
               render={({ field }) => (
-                <InputText
+                <Calendar
                   id="fechaIngresoRama"
-                  type="date"
-                  {...field}
+                  value={field.value ? dayjs(field.value, 'YYYY-MM-DD').toDate() : null}
+                  onChange={(event) =>
+                    field.onChange(
+                      event.value instanceof Date
+                        ? dayjs(event.value).format('YYYY-MM-DD')
+                        : '',
+                    )
+                  }
+                  dateFormat="dd/mm/yy"
+                  showButtonBar
                   className="w-full"
+                  inputClassName="w-full"
                 />
               )}
             />
