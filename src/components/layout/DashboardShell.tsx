@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { Sidebar } from "primereact/sidebar";
 import { Button } from "primereact/button";
@@ -26,6 +27,8 @@ export default function DashboardShell({ children }: DashboardShellProps) {
   const pathname = usePathname();
   const { isAuthenticated, isLoading, logout } = useAuth();
   const [sidebarVisible, setSidebarVisible] = useState(false);
+  const groupName =
+    process.env.NEXT_PUBLIC_GRUPO_NOMBRE ?? "Grupo Scout Adalberto O. Lopez 494";
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -50,6 +53,25 @@ export default function DashboardShell({ children }: DashboardShellProps) {
     return <div className="min-h-screen" />;
   }
 
+  const sidebarHeader = (
+    <div className="px-2 py-3">
+      <div className="flex items-center gap-3">
+        <div className="h-[44px] w-[44px] flex-shrink-0">
+          <Image
+            src="/scout_logo.png"
+            alt={`Logo de ${groupName}`}
+            width={480}
+            height={480}
+            className="h-full w-full object-contain"
+            priority
+          />
+        </div>
+        <span className="text-sm font-semibold">{groupName}</span>
+      </div>
+      <div className="mt-3 border-b border-surface-300" />
+    </div>
+  );
+
   return (
     <>
       <Sidebar
@@ -59,6 +81,7 @@ export default function DashboardShell({ children }: DashboardShellProps) {
         className="w-full sm:w-80"
       >
         <div className="p-3">
+          {sidebarHeader}
           <nav className="w-full p-2">
             {navigationItems.map((item) => (
               <Button
@@ -97,6 +120,7 @@ export default function DashboardShell({ children }: DashboardShellProps) {
       <div className="min-h-screen lg:pl-80">
         <aside className="hidden lg:block lg:fixed lg:top-0 lg:left-0 lg:h-screen lg:w-80">
           <div className="h-full flex flex-col p-3">
+            {sidebarHeader}
             <nav className="w-full p-2">
               {navigationItems.map((item) => (
                 <Button

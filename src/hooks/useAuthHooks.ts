@@ -37,7 +37,7 @@ export const useLoginHook = () => {
 
     try {
       const { access_token, user } = await loginRequest({
-        user: submittedUsername,
+        user: submittedUsername.trim(),
         password: submittedPassword,
       });
 
