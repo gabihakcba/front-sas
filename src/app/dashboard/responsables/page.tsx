@@ -219,6 +219,21 @@ export default function ResponsablesPage() {
             body={(responsable: Responsable) => responsable.Miembro.telefono ?? '-'}
           />
           <Column
+            header="Perfil"
+            body={(responsable: Responsable) => (
+              <Button
+                type="button"
+                icon="pi pi-eye"
+                iconPos="right"
+                outlined
+                size="small"
+                onClick={() =>
+                  router.push(`/dashboard/perfil/${responsable.Miembro.id}`)
+                }
+              />
+            )}
+          />
+          <Column
             header="Responsabilidades"
             body={(responsable: Responsable) =>
               responsable.Responsabilidad.length > 0

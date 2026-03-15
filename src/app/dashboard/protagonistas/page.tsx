@@ -1,6 +1,7 @@
 'use client';
 
 import dayjs from 'dayjs';
+import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
@@ -18,6 +19,7 @@ const getRamaActual = (protagonista: Protagonista) =>
   protagonista.Miembro.MiembroRama[0] ?? null;
 
 export default function ProtagonistasPage() {
+  const router = useRouter();
   const {
     protagonistas,
     ramas,
@@ -230,6 +232,21 @@ export default function ProtagonistasPage() {
           <Column field="Miembro.dni" header="DNI" />
           <Column field="Miembro.email" header="Email" />
           <Column field="Miembro.telefono" header="Teléfono" />
+          <Column
+            header="Perfil"
+            body={(protagonista: Protagonista) => (
+              <Button
+                type="button"
+                icon="pi pi-eye"
+                iconPos="right"
+                outlined
+                size="small"
+                onClick={() =>
+                  router.push(`/dashboard/perfil/${protagonista.Miembro.id}`)
+                }
+              />
+            )}
+          />
           <Column
             header={ramaHeader}
             body={(protagonista: Protagonista) =>

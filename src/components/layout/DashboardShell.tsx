@@ -7,9 +7,12 @@ import { Button } from "primereact/button";
 import { useAuth } from "@/context/AuthContext";
 
 const sidebarItems = [
+  { label: "Perfil", icon: "pi pi-user", path: "/dashboard/perfil" },
   { label: "Protagonistas", icon: "pi pi-id-card", path: "/dashboard/protagonistas" },
   { label: "Adultos", icon: "pi pi-users", path: "/dashboard/adultos" },
   { label: "Responsables", icon: "pi pi-user-edit", path: "/dashboard/responsables" },
+  { label: "Eventos", icon: "pi pi-calendar", path: "/dashboard/eventos" },
+  { label: "Comisiones", icon: "pi pi-briefcase", path: "/dashboard/comisiones" },
   { label: "Pagos", icon: "pi pi-wallet", path: "/dashboard/pagos" },
   { label: "Consejos", icon: "pi pi-comments", path: "/dashboard/consejos" },
 ];

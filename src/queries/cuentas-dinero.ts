@@ -5,7 +5,6 @@ import {
   CuentaDineroFilters,
   CuentaDineroOptionsResponse,
   PaginatedCuentasDineroResponse,
-  UpdateCuentaDineroPayload,
 } from '@/types/cuentas-dinero';
 
 interface GetCuentasDineroParams {
@@ -51,16 +50,4 @@ export const createCuentaDineroRequest = async (
 ): Promise<CuentaDinero> => {
   const response = await api.post<CuentaDinero>('/cuentas-dinero', payload);
   return response.data;
-};
-
-export const updateCuentaDineroRequest = async (
-  id: number,
-  payload: UpdateCuentaDineroPayload,
-): Promise<CuentaDinero> => {
-  const response = await api.patch<CuentaDinero>(`/cuentas-dinero/${id}`, payload);
-  return response.data;
-};
-
-export const deleteCuentaDineroRequest = async (id: number): Promise<void> => {
-  await api.delete(`/cuentas-dinero/${id}`);
 };

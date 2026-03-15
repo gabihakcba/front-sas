@@ -32,29 +32,13 @@ export default function CuentasDineroPage() {
     setFilters,
     refetch,
     openCreateDialog,
-    openEditDialog,
     closeDialog,
     submitForm,
-    deleteSelected,
   } = useCuentasDineroHook();
 
   const handlePage = (event: DataTablePageEvent) => {
     const nextPage = Math.floor(event.first / event.rows) + 1;
     void refetch(nextPage);
-  };
-
-  const handleDelete = () => {
-    if (!selectedCuentaDinero) {
-      return;
-    }
-
-    const confirmed = window.confirm(
-      `Se eliminará de forma lógica la cuenta "${selectedCuentaDinero.nombre}".`,
-    );
-
-    if (confirmed) {
-      void deleteSelected();
-    }
   };
 
   const header = (
@@ -83,27 +67,6 @@ export default function CuentasDineroPage() {
           outlined
           size="small"
           onClick={() => void openCreateDialog()}
-        />
-        <Button
-          type="button"
-          label="Editar"
-          icon="pi pi-pencil"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={() => void openEditDialog()}
-          disabled={!selectedCuentaDinero}
-        />
-        <Button
-          type="button"
-          label="Eliminar"
-          icon="pi pi-trash"
-          iconPos="right"
-          outlined
-          size="small"
-          severity="danger"
-          onClick={handleDelete}
-          disabled={!selectedCuentaDinero}
         />
       </div>
     </div>

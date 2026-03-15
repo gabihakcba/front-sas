@@ -4,11 +4,8 @@ import { AxiosError } from 'axios';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   createCuentaDineroRequest,
-  deleteCuentaDineroRequest,
-  getCuentaDineroRequest,
   getCuentasDineroOptionsRequest,
   getCuentasDineroRequest,
-  updateCuentaDineroRequest,
 } from '@/queries/cuentas-dinero';
 import {
   CreateCuentaDineroPayload,
@@ -20,7 +17,7 @@ import {
 import { PaginatedResponseMeta } from '@/types/pagination';
 
 const DEFAULT_LIMIT = 10;
-type DialogMode = 'create' | 'edit';
+type DialogMode = 'create';
 const createEmptyFilters = (): CuentaDineroFilters => ({
   q: '',
   idArea: null,
@@ -94,10 +91,8 @@ interface UseCuentasDineroHookResult {
   setFilters: (filters: CuentaDineroFilters) => void;
   refetch: (nextPage?: number) => Promise<void>;
   openCreateDialog: () => Promise<void>;
-  openEditDialog: () => Promise<void>;
   closeDialog: () => void;
   submitForm: (values: CuentaDineroFormValues) => Promise<void>;
-  deleteSelected: () => Promise<void>;
 }
 
 export const useCuentasDineroHook = (): UseCuentasDineroHookResult => {
@@ -206,43 +201,6 @@ export const useCuentasDineroHook = (): UseCuentasDineroHookResult => {
     }
   }, [fetchOptions]);
 
-  const openEditDialog = useCallback(async () => {
-    if (!selectedCuentaDinero) {
-      setError('Seleccioná una cuenta de dinero para editar.');
-      return;
-    }
-
-    setDialogMode('edit');
-    setDialogLoading(true);
-    setError('');
-    setSuccessMessage('');
-
-    try {
-      const [, cuentaResponse] = await Promise.all([
-        fetchOptions(),
-        getCuentaDineroRequest(selectedCuentaDinero.id),
-      ]);
-      setFormValuesState({
-        nombre: cuentaResponse.nombre,
-        descripcion: cuentaResponse.descripcion ?? '',
-        montoActual: cuentaResponse.monto_actual,
-        tipoAsignacion: cuentaResponse.id_miembro
-          ? 'MIEMBRO'
-          : cuentaResponse.id_rama
-            ? 'RAMA'
-            : 'AREA',
-        idArea: cuentaResponse.id_area ?? cuentaResponse.Rama?.id_area ?? null,
-        idRama: cuentaResponse.id_rama ?? null,
-        idMiembro: cuentaResponse.id_miembro ?? null,
-      });
-      setDialogVisible(true);
-    } catch (err: unknown) {
-      setError(getErrorMessage(err, 'No se pudo cargar la cuenta de dinero.'));
-    } finally {
-      setDialogLoading(false);
-    }
-  }, [fetchOptions, selectedCuentaDinero]);
-
   const closeDialog = () => {
     setDialogVisible(false);
     setFormValuesState(createEmptyFormValues());
@@ -254,51 +212,15 @@ export const useCuentasDineroHook = (): UseCuentasDineroHookResult => {
     setSuccessMessage('');
 
     try {
-      if (dialogMode === 'create') {
-        await createCuentaDineroRequest(buildPayload(values));
-        setSuccessMessage('Cuenta de dinero creada correctamente.');
-      } else if (selectedCuentaDinero) {
-        await updateCuentaDineroRequest(
-          selectedCuentaDinero.id,
-          buildPayload(values),
-        );
-        setSuccessMessage('Cuenta de dinero actualizada correctamente.');
-      }
+      await createCuentaDineroRequest(buildPayload(values));
+      setSuccessMessage('Cuenta de dinero creada correctamente.');
 
       closeDialog();
-      await fetchCuentasDinero(page);
+      await fetchCuentasDinero(1);
     } catch (err: unknown) {
-      setError(
-        getErrorMessage(
-          err,
-          dialogMode === 'create'
-            ? 'No se pudo crear la cuenta de dinero.'
-            : 'No se pudo actualizar la cuenta de dinero.',
-        ),
-      );
+      setError(getErrorMessage(err, 'No se pudo crear la cuenta de dinero.'));
     } finally {
       setSubmitting(false);
-    }
-  };
-
-  const deleteSelected = async () => {
-    if (!selectedCuentaDinero) {
-      setError('Seleccioná una cuenta de dinero para eliminar.');
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-    setSuccessMessage('');
-
-    try {
-      await deleteCuentaDineroRequest(selectedCuentaDinero.id);
-      setSelectedCuentaDinero(null);
-      setSuccessMessage('Cuenta de dinero eliminada correctamente.');
-      await fetchCuentasDinero(page);
-    } catch (err: unknown) {
-      setError(getErrorMessage(err, 'No se pudo eliminar la cuenta de dinero.'));
-      setLoading(false);
     }
   };
 
@@ -326,9 +248,7 @@ export const useCuentasDineroHook = (): UseCuentasDineroHookResult => {
     setFilters,
     refetch: fetchCuentasDinero,
     openCreateDialog,
-    openEditDialog,
     closeDialog,
     submitForm,
-    deleteSelected,
   };
 };

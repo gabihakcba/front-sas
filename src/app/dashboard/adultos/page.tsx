@@ -3,6 +3,7 @@
 import dayjs from 'dayjs';
 import { AxiosError } from 'axios';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
@@ -25,6 +26,7 @@ const getRolesActuales = (adulto: Adulto) =>
   );
 
 export default function AdultosPage() {
+  const router = useRouter();
   const { user } = useAuth();
   const [signatureDialogVisible, setSignatureDialogVisible] = useState(false);
   const [signatureLoading, setSignatureLoading] = useState(false);
@@ -329,6 +331,19 @@ export default function AdultosPage() {
           <Column field="Miembro.dni" header="DNI" />
           <Column field="Miembro.email" header="Email" />
           <Column field="Miembro.Cuenta.user" header="Usuario" />
+          <Column
+            header="Perfil"
+            body={(adulto: Adulto) => (
+              <Button
+                type="button"
+                icon="pi pi-eye"
+                iconPos="right"
+                outlined
+                size="small"
+                onClick={() => router.push(`/dashboard/perfil/${adulto.Miembro.id}`)}
+              />
+            )}
+          />
           <Column
             header={areaHeader}
             body={(adulto: Adulto) =>
