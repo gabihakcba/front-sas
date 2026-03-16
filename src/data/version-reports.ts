@@ -13,6 +13,22 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.3.3',
+    date: '2026-03-15',
+    title: 'Panel de oradores minimizable',
+    summary:
+      'El panel de oradores ahora puede colapsarse a una vista minima para ocupar menos espacio sin perder acceso rapido a las acciones principales.',
+    sections: [
+      {
+        title: 'Consejos en tiempo real',
+        items: [
+          'El panel puede minimizarse y expandirse desde su encabezado.',
+          'En vista minimizada se conserva el titulo del panel y el acceso rapido a levantar o bajar la mano para participantes.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.3.2',
     date: '2026-03-15',
     title: 'Compatibilidad mejorada del websocket en produccion',

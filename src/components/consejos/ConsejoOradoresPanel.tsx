@@ -53,6 +53,7 @@ export function ConsejoOradoresPanel({
   const [draggingSpeakerId, setDraggingSpeakerId] = useState<number | null>(null);
   const [panelOffset, setPanelOffset] = useState({ x: 0, y: 0 });
   const [canDesktopInteract, setCanDesktopInteract] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const availableAttendanceOptions = useMemo(() => {
     const speakerIds = new Set(speakers.map((item) => item.memberId));
@@ -167,18 +168,51 @@ export function ConsejoOradoresPanel({
             : undefined
         }
       >
-        <Card>
+        <Card pt={{ body: { className: 'p-3 pt-2' } }}>
           <div
             onPointerDown={handlePanelPointerDown}
             className={
               canDesktopInteract
-                ? 'mb-3 cursor-move select-none font-semibold'
-                : 'mb-3 font-semibold'
+                ? 'mb-2 flex cursor-move items-center justify-between gap-2 select-none font-semibold'
+                : 'mb-2 flex items-center justify-between gap-2 font-semibold'
             }
             style={canDesktopInteract ? { touchAction: 'none' } : undefined}
           >
-            Lista de oradores
+            <span>Lista de oradores</span>
+            <div className="flex items-center gap-2">
+              {!isModerator ? (
+                <Button
+                  type="button"
+                  icon={hasRaisedHand ? 'pi pi-minus-circle' : 'pi pi-arrow-up'}
+                  outlined
+                  size="small"
+                  aria-label={hasRaisedHand ? 'Bajar la mano' : 'Levantar la mano'}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    if (hasRaisedHand) {
+                      onCancelRaiseHand();
+                      return;
+                    }
+
+                    onRaiseHand();
+                  }}
+                  disabled={!canRaiseHand}
+                />
+              ) : null}
+              <Button
+                type="button"
+                icon={isCollapsed ? 'pi pi-window-maximize' : 'pi pi-window-minimize'}
+                outlined
+                size="small"
+                aria-label={isCollapsed ? 'Expandir panel' : 'Minimizar panel'}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setIsCollapsed((current) => !current);
+                }}
+              />
+            </div>
           </div>
+        {isCollapsed ? null : (
         <div className="flex flex-col gap-3">
           <div className="text-sm text-color-secondary">
             {isConnected
@@ -341,6 +375,7 @@ export function ConsejoOradoresPanel({
             </div>
           ) : null}
         </div>
+        )}
         </Card>
       </div>
     </div>

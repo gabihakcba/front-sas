@@ -2,6 +2,16 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.3.3
+
+Fecha: 2026-03-15
+
+### Ajustes funcionales relevantes
+
+- el panel de oradores ahora puede minimizarse a una vista compacta
+- en estado minimizado se conserva el titulo y el acceso rapido para levantar o bajar la mano
+- se agrega un control directo para volver a expandir el panel
+
 ## 1.3.2
 
 Fecha: 2026-03-15
