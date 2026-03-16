@@ -22,6 +22,8 @@ import {
   UpdateTemplatePayload,
 } from '@/types/formacion';
 
+const MAX_ADJUNTO_SIZE_BYTES = 8 * 1024 * 1024;
+
 type TemplateDraft = {
   nombre: string;
   descripcion: string;
@@ -121,6 +123,14 @@ const fileToBase64 = (file: File) =>
     reader.onerror = () => reject(new Error('No se pudo leer el archivo.'));
     reader.readAsDataURL(file);
   });
+
+const validateAdjuntoFile = (file: File) => {
+  if (file.size > MAX_ADJUNTO_SIZE_BYTES) {
+    throw new Error(
+      'El archivo seleccionado supera el tamaño máximo recomendado de 8 MB.',
+    );
+  }
+};
 
 function FormacionTemplateEditor({
   template,
@@ -529,6 +539,36 @@ export default function FormacionesPage() {
   const [previewMimeType, setPreviewMimeType] = useState('application/pdf');
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState('');
+  const [uploadError, setUploadError] = useState('');
+
+  const runAdjuntoUpload = async (
+    templateId: number,
+    file: File,
+    replaceAdjuntoId?: number,
+  ) => {
+    try {
+      setUploadError('');
+      validateAdjuntoFile(file);
+      const archivoBase64 = await fileToBase64(file);
+      const payload: CreateAdjuntoFormacionPayload = {
+        titulo: file.name,
+        archivoNombre: file.name,
+        archivoMime: file.type || 'application/octet-stream',
+        archivoBase64,
+      };
+
+      if (replaceAdjuntoId) {
+        await deleteAdjunto(replaceAdjuntoId);
+      }
+
+      await uploadAdjunto(templateId, payload);
+    } catch (nextError) {
+      if (nextError instanceof Error) {
+        setUploadError(nextError.message);
+      }
+      return;
+    }
+  };
 
   const areaOptions = useMemo(
     () =>
@@ -589,6 +629,7 @@ export default function FormacionesPage() {
   return (
     <div className="flex flex-col gap-4">
       {error ? <Message severity="error" text={error} /> : null}
+      {uploadError ? <Message severity="error" text={uploadError} /> : null}
       {successMessage ? <Message severity="success" text={successMessage} /> : null}
 
       {canManage ? (
@@ -799,30 +840,10 @@ export default function FormacionesPage() {
                   }}
                   onUseTemplate={() => setSelectedTemplateForInscription(template.id)}
                   onUploadAdjunto={(file) => {
-                    void fileToBase64(file).then((archivoBase64) => {
-                      const payload: CreateAdjuntoFormacionPayload = {
-                        titulo: file.name,
-                        archivoNombre: file.name,
-                        archivoMime: file.type || 'application/octet-stream',
-                        archivoBase64,
-                      };
-
-                      void uploadAdjunto(template.id, payload);
-                    });
+                    void runAdjuntoUpload(template.id, file);
                   }}
                   onReplaceAdjunto={(adjuntoId, file) => {
-                    void fileToBase64(file).then((archivoBase64) => {
-                      const payload: CreateAdjuntoFormacionPayload = {
-                        titulo: file.name,
-                        archivoNombre: file.name,
-                        archivoMime: file.type || 'application/octet-stream',
-                        archivoBase64,
-                      };
-
-                      void deleteAdjunto(adjuntoId).then(() => {
-                        void uploadAdjunto(template.id, payload);
-                      });
-                    });
+                    void runAdjuntoUpload(template.id, file, adjuntoId);
                   }}
                   onPreviewAdjunto={(adjuntoId) => {
                     setPreviewVisible(true);

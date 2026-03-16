@@ -25,6 +25,10 @@ import {
 
 const getErrorMessage = (error: unknown, fallback: string) => {
   if (error instanceof AxiosError) {
+    if (error.response?.status === 413) {
+      return 'El archivo supera el tamaño permitido por el servidor. Probá con un PDF o adjunto más liviano.';
+    }
+
     const message = error.response?.data?.message;
 
     if (Array.isArray(message)) {

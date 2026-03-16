@@ -2,6 +2,16 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.6.1
+
+Fecha: 2026-03-16
+
+### Ajustes funcionales relevantes
+
+- se mejora la carga de adjuntos de formacion para tolerar requests JSON mas grandes en la API
+- el frontend ahora muestra un mensaje claro cuando el archivo supera el tamaño permitido por el servidor
+- se evita la promesa rechazada sin capturar al fallar una subida de adjuntos
+
 ## 1.6.0
 
 Fecha: 2026-03-16

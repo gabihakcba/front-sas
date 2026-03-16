@@ -13,6 +13,23 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.6.1',
+    date: '2026-03-16',
+    title: 'Carga de adjuntos de formacion mas tolerante y clara',
+    summary:
+      'Se mejora el manejo de archivos adjuntos en Formaciones para aceptar cargas mas grandes en la API y mostrar errores mas claros cuando el tamaño supera los limites.',
+    sections: [
+      {
+        title: 'Adjuntos de formacion',
+        items: [
+          'La API amplía el límite de body para soportar mejor adjuntos enviados en base64.',
+          'La interfaz muestra un mensaje específico cuando el servidor rechaza la carga por tamaño.',
+          'La subida deja de generar errores de promesa no capturada en el navegador cuando falla el upload.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.6.0',
     date: '2026-03-16',
     title: 'Gestión centralizada de formaciones y habilitación de APFs',
