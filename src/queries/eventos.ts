@@ -1,5 +1,7 @@
 import api from '@/lib/axios';
 import {
+  CalendarBirthday,
+  CalendarEvento,
   CreateEventoPayload,
   Evento,
   EventoInscripcion,
@@ -11,6 +13,14 @@ import {
 interface GetEventosParams {
   page?: number;
   limit?: number;
+}
+
+interface GetCalendarEventosParams {
+  from: string;
+  to: string;
+  idTipo?: number | null;
+  idArea?: number | null;
+  idRama?: number | null;
 }
 
 export const getEventosRequest = async ({
@@ -30,6 +40,38 @@ export const getEventoRequest = async (id: number): Promise<Evento> => {
 
 export const getEventosOptionsRequest = async (): Promise<EventosOptionsResponse> => {
   const response = await api.get<EventosOptionsResponse>('/eventos/options');
+  return response.data;
+};
+
+export const getCalendarEventosRequest = async ({
+  from,
+  to,
+  idTipo,
+  idArea,
+  idRama,
+}: GetCalendarEventosParams): Promise<CalendarEvento[]> => {
+  const response = await api.get<CalendarEvento[]>('/eventos/calendar', {
+    params: {
+      from,
+      to,
+      ...(idTipo !== null && idTipo !== undefined ? { idTipo } : {}),
+      ...(idArea !== null && idArea !== undefined ? { idArea } : {}),
+      ...(idRama !== null && idRama !== undefined ? { idRama } : {}),
+    },
+  });
+  return response.data;
+};
+
+export const getCalendarCumpleaniosRequest = async ({
+  from,
+  to,
+}: {
+  from: string;
+  to: string;
+}): Promise<CalendarBirthday[]> => {
+  const response = await api.get<CalendarBirthday[]>('/calendario/cumpleanios', {
+    params: { from, to },
+  });
   return response.data;
 };
 

@@ -58,6 +58,34 @@ export interface EventoInscripcion {
   Miembro: EventoMiembroOption;
 }
 
+export interface CalendarEvento {
+  id: number;
+  nombre: string;
+  descripcion: string | null;
+  fecha_inicio: string;
+  fecha_fin: string;
+  lugar: string | null;
+  terminado: boolean;
+  TipoEvento: EventoOption;
+  AreaAfectada: Array<{
+    Area: EventoOption;
+  }>;
+  RamaAfectada: Array<{
+    Rama: EventoOption;
+  }>;
+}
+
+export interface CalendarBirthday {
+  id: string;
+  miembroId: number;
+  nombreCompleto: string;
+  dni: string;
+  fecha: string;
+  tipoMiembro: 'protagonista' | 'adulto' | 'otro';
+  ramaNombre: string | null;
+  areaNombre: string | null;
+}
+
 export interface PaginatedEventosResponse {
   data: Evento[];
   meta: PaginatedResponseMeta;

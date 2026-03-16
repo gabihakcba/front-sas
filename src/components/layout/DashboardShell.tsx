@@ -12,10 +12,11 @@ const sidebarItems = [
   { label: "Protagonistas", icon: "pi pi-id-card", path: "/dashboard/protagonistas" },
   { label: "Adultos", icon: "pi pi-users", path: "/dashboard/adultos" },
   { label: "Responsables", icon: "pi pi-user-edit", path: "/dashboard/responsables" },
+  { label: "Pagos", icon: "pi pi-wallet", path: "/dashboard/pagos" },
   { label: "Eventos", icon: "pi pi-calendar", path: "/dashboard/eventos" },
   { label: "Comisiones", icon: "pi pi-briefcase", path: "/dashboard/comisiones" },
-  { label: "Pagos", icon: "pi pi-wallet", path: "/dashboard/pagos" },
   { label: "Consejos", icon: "pi pi-comments", path: "/dashboard/consejos" },
+  { label: "Calendario", icon: "pi pi-calendar-clock", path: "/dashboard/calendario" },
 ];
 
 interface DashboardShellProps {
