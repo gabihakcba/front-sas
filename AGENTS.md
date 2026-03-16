@@ -42,3 +42,7 @@ Aplicación cliente desarrollada con la última versión de Next.js (App Router)
 - Cada cambio funcional nuevo o corrección relevante del frontend debe actualizar obligatoriamente `src/data/version-reports.ts` y `CHANGELOG.md`.
 - Si el cambio representa una nueva entrega o release visible para usuarios, también debe actualizarse la versión en `package.json`.
 - La IA debe recordar este paso en cada cambio relevante y, cuando corresponda claramente, aplicarlo automáticamente.
+- El versionado debe manejarse de forma profesional siguiendo SemVer: `MAJOR.MINOR.PATCH`.
+- `MAJOR` se incrementa para cambios incompatibles o grandes hitos de producto.
+- `MINOR` se incrementa para funcionalidades nuevas compatibles hacia atrás.
+- `PATCH` se incrementa para correcciones, ajustes visuales, bugs y mejoras menores compatibles.
