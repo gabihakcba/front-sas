@@ -2,6 +2,21 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.4.0
+
+Fecha: 2026-03-15
+
+### Funcionalidades principales
+
+- asignacion de secretario y prosecretario por consejo
+- restriccion de edicion del temario para secretario y prosecretario
+- sincronizacion realtime del acta del consejo mientras se escribe
+
+### Ajustes funcionales relevantes
+
+- los cambios de debate, acuerdo y estado se emiten y persisten con debounce de 500 ms
+- el workspace del consejo ahora muestra los cargos de secretaria junto al moderador
+
 ## 1.3.3
 
 Fecha: 2026-03-15

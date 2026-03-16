@@ -2,7 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { ConsejoRealtimeState } from '@/types/consejos';
+import {
+  ConsejoRealtimeState,
+  ConsejoRealtimeTemarioUpdate,
+} from '@/types/consejos';
 
 const EMPTY_STATE: ConsejoRealtimeState = {
   speakers: [],
@@ -26,6 +29,8 @@ export function useConsejoRealtime({
 }: UseConsejoRealtimeParams) {
   const socketRef = useRef<Socket | null>(null);
   const [state, setState] = useState<ConsejoRealtimeState>(EMPTY_STATE);
+  const [lastTemarioUpdate, setLastTemarioUpdate] =
+    useState<ConsejoRealtimeTemarioUpdate | null>(null);
   const [error, setError] = useState('');
   const [isConnected, setIsConnected] = useState(false);
 
@@ -58,6 +63,10 @@ export function useConsejoRealtime({
       setState(nextState);
     });
 
+    socket.on('consejo:temario:updated', (payload: ConsejoRealtimeTemarioUpdate) => {
+      setLastTemarioUpdate(payload);
+    });
+
     socket.on('connect_error', (socketError: Error) => {
       setError(socketError.message || 'No se pudo conectar al tiempo real del consejo.');
     });
@@ -81,6 +90,7 @@ export function useConsejoRealtime({
 
   return {
     state: enabled ? state : EMPTY_STATE,
+    lastTemarioUpdate: enabled ? lastTemarioUpdate : null,
     error: enabled ? error : '',
     isConnected: enabled ? isConnected : false,
     setError,

@@ -1,7 +1,7 @@
 'use client';
 
 import { AxiosError } from 'axios';
-import { useCallback, useEffect, useState, startTransition } from 'react';
+import { useCallback, useEffect, useRef, useState, startTransition } from 'react';
 import dayjs from 'dayjs';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
@@ -13,6 +13,7 @@ import { FilePreviewDialog } from '@/components/common/FilePreviewDialog';
 import { ConsejoAsistenciaDialog } from '@/components/consejos/ConsejoAsistenciaDialog';
 import { ConsejoModeradorDialog } from '@/components/consejos/ConsejoModeradorDialog';
 import { ConsejoOradoresPanel } from '@/components/consejos/ConsejoOradoresPanel';
+import { ConsejoSecretariaDialog } from '@/components/consejos/ConsejoSecretariaDialog';
 import { ConsejoTemarioFormDialog } from '@/components/consejos/ConsejoTemarioFormDialog';
 import { useAuth } from '@/context/AuthContext';
 import { useConsejoRealtime } from '@/hooks/useConsejoRealtime';
@@ -24,6 +25,7 @@ import {
   exportConsejoPdfRequest,
   getConsejoRequest,
   updateConsejoModeradorRequest,
+  updateConsejoSecretariaRequest,
   updateConsejoTemarioRequest,
 } from '@/queries/consejos';
 import {
@@ -220,6 +222,7 @@ export default function ConsejoWorkspacePage() {
   const [temaDialogError, setTemaDialogError] = useState('');
   const [asistenciaDialogVisible, setAsistenciaDialogVisible] = useState(false);
   const [moderadorDialogVisible, setModeradorDialogVisible] = useState(false);
+  const [secretariaDialogVisible, setSecretariaDialogVisible] = useState(false);
   const [asistencias, setAsistencias] = useState<ConsejoAsistenciaItem[]>([]);
   const [asistenciaOptions, setAsistenciaOptions] = useState<
     ConsejoAsistenciaOption[]
@@ -230,6 +233,8 @@ export default function ConsejoWorkspacePage() {
   const [asistenciaSuccessMessage, setAsistenciaSuccessMessage] = useState('');
   const [moderadorLoading, setModeradorLoading] = useState(false);
   const [moderadorError, setModeradorError] = useState('');
+  const [secretariaLoading, setSecretariaLoading] = useState(false);
+  const [secretariaError, setSecretariaError] = useState('');
   const [exportingAll, setExportingAll] = useState(false);
   const [exportingPublic, setExportingPublic] = useState(false);
   const [previewVisible, setPreviewVisible] = useState(false);
@@ -239,12 +244,14 @@ export default function ConsejoWorkspacePage() {
   const [previewError, setPreviewError] = useState('');
 
   const permissions = user?.permissions ?? [];
-  const canManageTemario = hasPermission(permissions, 'UPDATE:CONSEJO');
+  const canManageConsejo = hasPermission(permissions, 'UPDATE:CONSEJO');
+  const canAssignSecretaria = hasPermission(permissions, 'READ:CONSEJO');
   const canRead = hasPermission(permissions, 'READ:CONSEJO');
   const currentMemberId = user?.memberId ?? null;
 
   const {
     state: realtimeState,
+    lastTemarioUpdate,
     error: realtimeError,
     isConnected: realtimeConnected,
     setError: setRealtimeError,
@@ -265,6 +272,18 @@ export default function ConsejoWorkspacePage() {
     currentMemberId &&
     asistencias.some((item) => item.Miembro.id === currentMemberId)
   );
+  const canEditActa = !!(
+    currentMemberId &&
+    (consejo?.Secretario?.id === currentMemberId ||
+      consejo?.Prosecretario?.id === currentMemberId)
+  );
+  const temarioSyncTimeoutRef = useRef<number | null>(null);
+  const lastSyncedTemarioRef = useRef<{
+    temarioId: number;
+    debate: string;
+    acuerdo: string;
+    estado: string;
+  } | null>(null);
 
   const temas = consejo?.TemarioConsejo ?? [];
   const selectedTema =
@@ -423,6 +442,34 @@ export default function ConsejoWorkspacePage() {
     setModeradorError('');
   };
 
+  const openSecretariaDialog = async () => {
+    setSecretariaDialogVisible(true);
+    setSecretariaLoading(false);
+    setSecretariaError('');
+
+    if (asistenciaOptions.length > 0) {
+      return;
+    }
+
+    setAsistenciaLoading(true);
+
+    try {
+      const currentOptions = await getConsejoAsistenciaOptionsRequest(consejoId);
+      setAsistenciaOptions(currentOptions);
+    } catch (err: unknown) {
+      setSecretariaError(
+        getErrorMessage(err, 'No se pudo cargar la lista de adultos.'),
+      );
+    } finally {
+      setAsistenciaLoading(false);
+    }
+  };
+
+  const closeSecretariaDialog = () => {
+    setSecretariaDialogVisible(false);
+    setSecretariaError('');
+  };
+
   const handleAsistenciaSearch = async (value: string) => {
     setAsistenciaSearching(true);
 
@@ -478,6 +525,32 @@ export default function ConsejoWorkspacePage() {
       );
     } finally {
       setModeradorLoading(false);
+    }
+  };
+
+  const handleUpdateSecretaria = async ({
+    idSecretario,
+    idProsecretario,
+  }: {
+    idSecretario: number | null;
+    idProsecretario: number | null;
+  }) => {
+    setSecretariaLoading(true);
+    setSecretariaError('');
+
+    try {
+      const response = await updateConsejoSecretariaRequest(consejoId, {
+        idSecretario,
+        idProsecretario,
+      });
+      setConsejo(response);
+      closeSecretariaDialog();
+    } catch (err: unknown) {
+      setSecretariaError(
+        getErrorMessage(err, 'No se pudo actualizar la secretaria del consejo.'),
+      );
+    } finally {
+      setSecretariaLoading(false);
     }
   };
 
@@ -549,8 +622,12 @@ export default function ConsejoWorkspacePage() {
 
     try {
       await updateConsejoTemarioRequest(consejoId, selectedTema.id, {
-        debate: debate.trim(),
-        acuerdo: acuerdo.trim(),
+        ...(canEditActa
+          ? {
+              debate: debate.trim(),
+              acuerdo: acuerdo.trim(),
+            }
+          : {}),
         estado,
       });
       setSuccessMessage('Tema guardado correctamente.');
@@ -560,10 +637,10 @@ export default function ConsejoWorkspacePage() {
     } finally {
       setSaving(false);
     }
-  }, [acuerdo, consejoId, debate, estado, loadConsejo, selectedTema]);
+  }, [acuerdo, canEditActa, consejoId, debate, estado, loadConsejo, selectedTema]);
 
   useEffect(() => {
-    if (!canManageTemario) {
+    if (!canEditActa) {
       return;
     }
 
@@ -582,7 +659,77 @@ export default function ConsejoWorkspacePage() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [canManageTemario, handleSaveTema, saving, selectedTema]);
+  }, [canEditActa, handleSaveTema, saving, selectedTema]);
+
+  useEffect(() => {
+    if (!canManageConsejo || !selectedTema) {
+      return;
+    }
+
+    const nextPayload = {
+      temarioId: selectedTema.id,
+      debate: canEditActa ? debate : selectedTema.debate ?? '',
+      acuerdo: canEditActa ? acuerdo : selectedTema.acuerdo ?? '',
+      estado,
+    };
+
+    const lastPayload = lastSyncedTemarioRef.current;
+    if (
+      lastPayload &&
+      lastPayload.temarioId === nextPayload.temarioId &&
+      lastPayload.debate === nextPayload.debate &&
+      lastPayload.acuerdo === nextPayload.acuerdo &&
+      lastPayload.estado === nextPayload.estado
+    ) {
+      return;
+    }
+
+    if (temarioSyncTimeoutRef.current !== null) {
+      window.clearTimeout(temarioSyncTimeoutRef.current);
+    }
+
+    temarioSyncTimeoutRef.current = window.setTimeout(() => {
+      emit('consejo:temario:sync', nextPayload);
+      lastSyncedTemarioRef.current = nextPayload;
+    }, 500);
+
+    return () => {
+      if (temarioSyncTimeoutRef.current !== null) {
+        window.clearTimeout(temarioSyncTimeoutRef.current);
+      }
+    };
+  }, [acuerdo, canEditActa, canManageConsejo, debate, emit, estado, selectedTema]);
+
+  useEffect(() => {
+    if (!lastTemarioUpdate) {
+      return;
+    }
+
+    setConsejo((current) => {
+      if (!current) {
+        return current;
+      }
+
+      return {
+        ...current,
+        TemarioConsejo: current.TemarioConsejo.map((tema) =>
+          tema.id === lastTemarioUpdate.id ? lastTemarioUpdate : tema,
+        ),
+      };
+    });
+
+    if (selectedTemaId === lastTemarioUpdate.id) {
+      setDebate(lastTemarioUpdate.debate ?? '');
+      setAcuerdo(lastTemarioUpdate.acuerdo ?? '');
+      setEstado(lastTemarioUpdate.estado);
+      lastSyncedTemarioRef.current = {
+        temarioId: lastTemarioUpdate.id,
+        debate: lastTemarioUpdate.debate ?? '',
+        acuerdo: lastTemarioUpdate.acuerdo ?? '',
+        estado: lastTemarioUpdate.estado,
+      };
+    }
+  }, [lastTemarioUpdate, selectedTemaId]);
 
   useEffect(() => {
     if (!consejo) {
@@ -621,7 +768,18 @@ export default function ConsejoWorkspacePage() {
               size="small"
               onClick={() => void openAsistenciaDialog()}
             />
-            {canManageTemario ? (
+            {canAssignSecretaria ? (
+              <Button
+                type="button"
+                label="Asignar secretaria"
+                icon="pi pi-users"
+                iconPos="right"
+                outlined
+                size="small"
+                onClick={() => void openSecretariaDialog()}
+              />
+            ) : null}
+            {canAssignSecretaria ? (
               <Button
                 type="button"
                 label="Asignar moderador"
@@ -669,6 +827,18 @@ export default function ConsejoWorkspacePage() {
                 ? `${consejo.Moderador.apellidos}, ${consejo.Moderador.nombre}`
                 : 'Sin asignar'}
             </span>
+            <span>
+              Secretario:{' '}
+              {consejo?.Secretario
+                ? `${consejo.Secretario.apellidos}, ${consejo.Secretario.nombre}`
+                : 'Sin asignar'}
+            </span>
+            <span>
+              Prosecretario:{' '}
+              {consejo?.Prosecretario
+                ? `${consejo.Prosecretario.apellidos}, ${consejo.Prosecretario.nombre}`
+                : 'Sin asignar'}
+            </span>
             <span>Asistencias: {consejo?._count.AsistenciaConsejo ?? 0}</span>
             <span>
               Tiempo real: {realtimeConnected ? 'Conectado' : 'Desconectado'}
@@ -698,7 +868,7 @@ export default function ConsejoWorkspacePage() {
                       setEstado(event.value as string)
                     }
                     className="w-full"
-                    disabled={!canManageTemario}
+                    disabled={!canManageConsejo}
                   />
                 </div>
               </div>
@@ -709,12 +879,17 @@ export default function ConsejoWorkspacePage() {
                   id="tema-debate"
                   value={debate}
                   onLoad={registerEditorShortcuts}
-                  onTextChange={(event: EditorTextChangeEvent) =>
-                    setDebate(event.htmlValue ?? '')
-                  }
+                  onTextChange={(event: EditorTextChangeEvent) => {
+                    if (!canEditActa) {
+                      return;
+                    }
+
+                    setDebate(event.htmlValue ?? '');
+                  }}
                   headerTemplate={EDITOR_HEADER}
                   style={{ height: '18rem' }}
-                  disabled={!canManageTemario}
+                  readOnly={!canEditActa}
+                  disabled={!canEditActa}
                 />
               </div>
 
@@ -724,16 +899,21 @@ export default function ConsejoWorkspacePage() {
                   id="tema-acuerdo"
                   value={acuerdo}
                   onLoad={registerEditorShortcuts}
-                  onTextChange={(event: EditorTextChangeEvent) =>
-                    setAcuerdo(event.htmlValue ?? '')
-                  }
+                  onTextChange={(event: EditorTextChangeEvent) => {
+                    if (!canEditActa) {
+                      return;
+                    }
+
+                    setAcuerdo(event.htmlValue ?? '');
+                  }}
                   headerTemplate={EDITOR_HEADER}
                   style={{ height: '16rem' }}
-                  disabled={!canManageTemario}
+                  readOnly={!canEditActa}
+                  disabled={!canEditActa}
                 />
               </div>
 
-              {canManageTemario ? (
+              {canManageConsejo ? (
                 <div className="flex justify-end">
                   <Button
                     type="button"
@@ -746,6 +926,7 @@ export default function ConsejoWorkspacePage() {
                     tooltipOptions={{ position: 'top' }}
                     onClick={() => void handleSaveTema()}
                     loading={saving}
+                    disabled={!canEditActa}
                   />
                 </div>
               ) : null}
@@ -757,7 +938,7 @@ export default function ConsejoWorkspacePage() {
       <div className="order-1 xl:order-2">
         <Card title="Temas">
           <div className="mb-3 flex flex-wrap gap-2">
-            {canManageTemario ? (
+            {canManageConsejo ? (
               <Button
                 type="button"
                 label="Agregar tema"
@@ -768,7 +949,7 @@ export default function ConsejoWorkspacePage() {
                 onClick={openCreateTemaDialog}
               />
             ) : null}
-            {canManageTemario ? (
+            {canManageConsejo ? (
               <Button
                 type="button"
                 label="Editar"
@@ -822,7 +1003,7 @@ export default function ConsejoWorkspacePage() {
       />
       <ConsejoAsistenciaDialog
         visible={asistenciaDialogVisible}
-        canManage={canManageTemario}
+        canManage={canAssignSecretaria}
         loading={asistenciaLoading}
         searching={asistenciaSearching}
         error={asistenciaError}
@@ -841,6 +1022,16 @@ export default function ConsejoWorkspacePage() {
         error={moderadorError}
         onHide={closeModeradorDialog}
         onSubmit={(idModerador) => void handleUpdateModerador(idModerador)}
+      />
+      <ConsejoSecretariaDialog
+        visible={secretariaDialogVisible}
+        loading={secretariaLoading}
+        options={asistenciaOptions}
+        secretario={consejo?.Secretario ?? null}
+        prosecretario={consejo?.Prosecretario ?? null}
+        error={secretariaError}
+        onHide={closeSecretariaDialog}
+        onSubmit={(values) => void handleUpdateSecretaria(values)}
       />
       <FilePreviewDialog
         visible={previewVisible}

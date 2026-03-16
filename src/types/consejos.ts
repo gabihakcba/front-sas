@@ -58,6 +58,13 @@ export interface ConsejoModeradorMember {
   dni: string;
 }
 
+export interface ConsejoSecretariaMember {
+  id: number;
+  nombre: string;
+  apellidos: string;
+  dni: string;
+}
+
 export interface Consejo {
   id: number;
   nombre: string;
@@ -67,6 +74,8 @@ export interface Consejo {
   hora_inicio: string | null;
   hora_fin: string | null;
   Moderador: ConsejoModeradorMember | null;
+  Secretario: ConsejoSecretariaMember | null;
+  Prosecretario: ConsejoSecretariaMember | null;
   TemarioConsejo: ConsejoTemarioItem[];
   _count: {
     AsistenciaConsejo: number;
@@ -76,6 +85,11 @@ export interface Consejo {
 
 export interface UpdateConsejoModeradorPayload {
   idModerador: number | null;
+}
+
+export interface UpdateConsejoSecretariaPayload {
+  idSecretario: number | null;
+  idProsecretario: number | null;
 }
 
 export interface ConsejoRealtimeSpeaker {
@@ -95,6 +109,8 @@ export interface ConsejoRealtimeState {
   raisedHands: ConsejoRealtimeHand[];
   moderatorMemberId: number | null;
 }
+
+export type ConsejoRealtimeTemarioUpdate = ConsejoTemarioItem;
 
 export interface PaginatedConsejosResponse {
   data: Consejo[];

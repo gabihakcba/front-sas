@@ -8,6 +8,7 @@ import {
   CreateConsejoPayload,
   PaginatedConsejosResponse,
   UpdateConsejoModeradorPayload,
+  UpdateConsejoSecretariaPayload,
   UpdateConsejoTemarioPayload,
   UpdateConsejoPayload,
 } from '@/types/consejos';
@@ -53,6 +54,14 @@ export const updateConsejoModeradorRequest = async (
   payload: UpdateConsejoModeradorPayload,
 ): Promise<Consejo> => {
   const response = await api.patch<Consejo>(`/consejos/${id}/moderador`, payload);
+  return response.data;
+};
+
+export const updateConsejoSecretariaRequest = async (
+  id: number,
+  payload: UpdateConsejoSecretariaPayload,
+): Promise<Consejo> => {
+  const response = await api.patch<Consejo>(`/consejos/${id}/secretaria`, payload);
   return response.data;
 };
 

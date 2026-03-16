@@ -13,6 +13,30 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.4.0',
+    date: '2026-03-15',
+    title: 'Secretaria de consejo y acta colaborativa en vivo',
+    summary:
+      'Cada consejo ahora puede asignar secretario y prosecretario, y el trabajo del acta se sincroniza en tiempo real con guardado debounceado mientras editan.',
+    sections: [
+      {
+        title: 'Roles de consejo',
+        items: [
+          'Se pueden asignar secretario y prosecretario para cada consejo.',
+          'Cualquier adulto puede modificar esos cargos desde el workspace del consejo.',
+          'Solo secretario y prosecretario pueden editar el temario y el acta del consejo.',
+        ],
+      },
+      {
+        title: 'Edicion colaborativa',
+        items: [
+          'Los cambios de debate, acuerdo y estado se sincronizan en vivo entre usuarios conectados al mismo consejo.',
+          'La persistencia se hace con debounce de 500 ms para evitar sobrecarga mientras escriben.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.3.3',
     date: '2026-03-15',
     title: 'Panel de oradores minimizable',
