@@ -6,6 +6,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { Sidebar } from "primereact/sidebar";
 import { Button } from "primereact/button";
 import { useAuth } from "@/context/AuthContext";
+import packageJson from "../../../package.json";
 
 const sidebarItems = [
   { label: "Perfil", icon: "pi pi-user", path: "/dashboard/perfil" },
@@ -30,6 +31,7 @@ export default function DashboardShell({ children }: DashboardShellProps) {
   const [sidebarVisible, setSidebarVisible] = useState(false);
   const groupName =
     process.env.NEXT_PUBLIC_GRUPO_NOMBRE ?? "Grupo Scout Adalberto O. Lopez 494";
+  const appVersion = packageJson.version;
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -115,6 +117,18 @@ export default function DashboardShell({ children }: DashboardShellProps) {
               className="w-full"
             />
           </div>
+          <div className="mt-4 px-2 text-center">
+            <button
+              type="button"
+              className="cursor-pointer border-none bg-transparent p-0 text-sm text-color-secondary"
+              onClick={() => {
+                router.push("/dashboard/versiones");
+                setSidebarVisible(false);
+              }}
+            >
+              Version {appVersion}
+            </button>
+          </div>
         </div>
       </Sidebar>
 
@@ -153,6 +167,18 @@ export default function DashboardShell({ children }: DashboardShellProps) {
                 onClick={handleLogout}
                 className="w-full"
               />
+            </div>
+            <div className="mt-4 px-2 text-center">
+              <button
+                type="button"
+                className="cursor-pointer border-none bg-transparent p-0 text-sm text-color-secondary"
+                onClick={() => {
+                  router.push("/dashboard/versiones");
+                  setSidebarVisible(false);
+                }}
+              >
+                Version {appVersion}
+              </button>
             </div>
           </div>
         </aside>

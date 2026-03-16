@@ -19,6 +19,7 @@ Aplicación cliente desarrollada con la última versión de Next.js (App Router)
 - Iniciar servidor de desarrollo: `npm run dev`
 - Compilar para producción: `npm run build`
 - Linter: `npm run lint`
+- Version actual visible del frontend: debe mantenerse sincronizada en `package.json`
 
 ## Component Structure & Clean Architecture
 
@@ -35,3 +36,9 @@ Aplicación cliente desarrollada con la última versión de Next.js (App Router)
 - **Estilos Nativos por Defecto:** Está estrictamente PROHIBIDO agregar clases de TailwindCSS, CSS en línea o archivos `.css`/`.module.css` adicionales para estilizar componentes a menos que el usuario lo solicite explícitamente.
 - **Prioridad PrimeReact:** Debes confiar en los estilos, márgenes y comportamientos por defecto que proveen los componentes de PrimeReact.
 - **Uso de Tailwind:** TailwindCSS solo se debe utilizar de forma mínima y general para layouts estructurales de alto nivel (ej. crear grillas para la página, o alinear elementos en un contenedor con `flex` o `grid`), NUNCA para sobrescribir la estética interna de un botón, tabla o input. PROHIBIDO el uso de Tailwind para estilos de botones, tablas o inputs y/o colores de fondo, sombras.
+
+## Versionado y Reportes
+
+- Cada cambio funcional nuevo o corrección relevante del frontend debe actualizar obligatoriamente `src/data/version-reports.ts` y `CHANGELOG.md`.
+- Si el cambio representa una nueva entrega o release visible para usuarios, también debe actualizarse la versión en `package.json`.
+- La IA debe recordar este paso en cada cambio relevante y, cuando corresponda claramente, aplicarlo automáticamente.

@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Front SAS
 
-## Getting Started
+Frontend del Sistema de Administracion Scout construido con Next.js App Router y PrimeReact.
 
-First, run the development server:
+## Stack
+
+- Next.js
+- React
+- PrimeReact
+- TailwindCSS
+- Axios
+- Day.js
+
+## Objetivo
+
+Proveer la interfaz principal del sistema para la gestion de:
+
+- autenticacion y acceso
+- protagonistas, adultos y responsables
+- relaciones familiares
+- pagos, conceptos, metodos y cuentas de dinero
+- eventos, comisiones y consejos
+- perfil del miembro
+- calendario con eventos y cumpleaños
+- reportes de version dentro de la app
+
+## Scripts
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run build
+npm run start
+npm run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Variables de entorno
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Crear un archivo `.env.local` con al menos:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+NEXT_PUBLIC_API_URL="http://localhost:3001"
+NEXT_PUBLIC_GRUPO_NOMBRE="Grupo Scout Adalberto O. Lopez 494"
+```
 
-## Learn More
+## Estructura
 
-To learn more about Next.js, take a look at the following resources:
+- `src/app`: rutas App Router
+- `src/components`: componentes de interfaz
+- `src/hooks`: logica de estado y consumo
+- `src/queries`: capa de llamadas HTTP
+- `src/types`: contratos TypeScript
+- `src/data`: contenido estructurado de soporte, incluyendo reportes de version
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Versionado
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- La version visible de la app vive en `package.json`
+- El historial funcional para usuarios vive en `CHANGELOG.md`
+- La fuente estructurada para renderizar reportes en pantalla vive en `src/data/version-reports.ts`
 
-## Deploy on Vercel
+## Convencion operativa
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Cada cambio funcional o correccion relevante del frontend debe actualizar:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. `src/data/version-reports.ts`
+2. `CHANGELOG.md`
+3. `package.json` si corresponde subir version
