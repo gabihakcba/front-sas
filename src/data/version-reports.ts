@@ -13,6 +13,22 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.6.2',
+    date: '2026-03-16',
+    title: 'Adjuntos de formacion con límite local ampliado',
+    summary:
+      'La carga de adjuntos en Formaciones ahora acompaña el límite ampliado del backend y evita rechazos prematuros desde la interfaz.',
+    sections: [
+      {
+        title: 'Adjuntos de formacion',
+        items: [
+          'El control local del frontend pasa de 8 MB a 50 MB para alinearse con la configuración productiva.',
+          'El mensaje preventivo de tamaño máximo se actualiza para reflejar correctamente el nuevo límite.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.6.1',
     date: '2026-03-16',
     title: 'Carga de adjuntos de formacion mas tolerante y clara',

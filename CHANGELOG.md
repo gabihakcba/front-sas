@@ -2,6 +2,15 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.6.2
+
+Fecha: 2026-03-16
+
+### Ajustes funcionales relevantes
+
+- el límite local de adjuntos en Formaciones se alinea con el backend y pasa a 50 MB
+- el mensaje preventivo de la interfaz ahora informa correctamente el nuevo máximo permitido
+
 ## 1.6.1
 
 Fecha: 2026-03-16
