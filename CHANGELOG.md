@@ -2,6 +2,15 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.3.2
+
+Fecha: 2026-03-15
+
+### Ajustes funcionales relevantes
+
+- mejora de compatibilidad del realtime de consejos en produccion al permitir fallback de transporte en Socket.IO
+- la conexion deja de depender de websocket puro y tolera despliegues con proxy que requieren polling inicial
+
 ## 1.3.1
 
 Fecha: 2026-03-15

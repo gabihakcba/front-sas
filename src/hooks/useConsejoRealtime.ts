@@ -35,7 +35,8 @@ export function useConsejoRealtime({
     }
 
     const socket: Socket = io(`${getSocketBaseUrl()}/consejos`, {
-      transports: ['websocket'],
+      transports: ['polling', 'websocket'],
+      withCredentials: true,
       auth: {
         token,
         consejoId,

@@ -13,6 +13,22 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.3.2',
+    date: '2026-03-15',
+    title: 'Compatibilidad mejorada del websocket en produccion',
+    summary:
+      'La conexion realtime de consejos ahora permite fallback de transporte para adaptarse mejor a proxies y despliegues productivos donde el upgrade directo a websocket puede fallar.',
+    sections: [
+      {
+        title: 'Consejos en tiempo real',
+        items: [
+          'El cliente Socket.IO ya no fuerza solo websocket y permite iniciar por polling cuando el proxy de produccion lo requiere.',
+          'Se mantiene el flujo realtime del consejo con una estrategia de conexion mas tolerante para entornos productivos.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.3.1',
     date: '2026-03-15',
     title: 'Correccion de arrastre del panel de oradores',
