@@ -4,8 +4,10 @@ import { Accordion, AccordionTab } from 'primereact/accordion';
 import { Message } from 'primereact/message';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { usePerfilHook } from '@/hooks/usePerfilHook';
+import { usePlanFormacionPerfilHook } from '@/hooks/usePlanFormacionPerfilHook';
 import { ProfileActividadSection } from './ProfileActividadSection';
 import { ProfileAsignacionSection } from './ProfileAsignacionSection';
+import { ProfileFormacionSection } from './ProfileFormacionSection';
 import { ProfileInfoSection } from './ProfileInfoSection';
 import { ProfileVinculosSection } from './ProfileVinculosSection';
 
@@ -28,6 +30,19 @@ export function MemberProfileView({ memberId }: Props) {
     loadActividad,
     loadVinculos,
   } = usePerfilHook(memberId);
+  const {
+    data: formacion,
+    options: formacionOptions,
+    loading: loadingFormacion,
+    loadingOptions: loadingFormacionOptions,
+    submitting: submittingFormacion,
+    error: formacionError,
+    successMessage: formacionSuccessMessage,
+    load: loadFormacion,
+    loadOptions: loadFormacionOptions,
+    createPlan,
+    updateCompetencia,
+  } = usePlanFormacionPerfilHook(memberId);
 
   if (loading) {
     return (
@@ -49,6 +64,13 @@ export function MemberProfileView({ memberId }: Props) {
   const canShowActividadTab = true;
   const canShowVinculosTab =
     summary.Responsable !== null || summary.Protagonista !== null;
+  const canShowFormacionTab = summary.Adulto !== null;
+  const tabKeys = [
+    ...(canShowAsignacionTab ? ['asignacion'] : []),
+    ...(canShowFormacionTab ? ['formacion'] : []),
+    ...(canShowActividadTab ? ['actividad'] : []),
+    ...(canShowVinculosTab ? ['vinculos'] : []),
+  ];
 
   return (
     <div className="flex flex-col gap-4">
@@ -59,26 +81,21 @@ export function MemberProfileView({ memberId }: Props) {
       <Accordion
         multiple
         onTabOpen={(event) => {
-          const index = Number(event.index);
+          const key = tabKeys[Number(event.index)];
 
-          if (canShowAsignacionTab && index === 0) {
+          if (key === 'asignacion') {
             void loadAsignacion();
           }
 
-          if (
-            (!canShowAsignacionTab && canShowActividadTab && index === 0) ||
-            (canShowAsignacionTab && canShowActividadTab && index === 1)
-          ) {
+          if (key === 'formacion') {
+            void loadFormacion();
+          }
+
+          if (key === 'actividad') {
             void loadActividad();
           }
 
-          if (
-            canShowVinculosTab &&
-            ((canShowAsignacionTab && canShowActividadTab && index === 2) ||
-              (!canShowAsignacionTab && canShowActividadTab && index === 1) ||
-              (canShowAsignacionTab && !canShowActividadTab && index === 1) ||
-              (!canShowAsignacionTab && !canShowActividadTab && index === 0))
-          ) {
+          if (key === 'vinculos') {
             void loadVinculos();
           }
         }}
@@ -88,6 +105,23 @@ export function MemberProfileView({ memberId }: Props) {
             <ProfileAsignacionSection
               asignacion={asignacion}
               loading={loadingAsignacion}
+            />
+          </AccordionTab>
+        ) : null}
+
+        {canShowFormacionTab ? (
+          <AccordionTab header="Formación">
+            <ProfileFormacionSection
+              data={formacion}
+              options={formacionOptions}
+              loading={loadingFormacion}
+              loadingOptions={loadingFormacionOptions}
+              submitting={submittingFormacion}
+              error={formacionError}
+              successMessage={formacionSuccessMessage}
+              onLoadOptions={loadFormacionOptions}
+              onCreatePlan={createPlan}
+              onUpdateCompetencia={updateCompetencia}
             />
           </AccordionTab>
         ) : null}

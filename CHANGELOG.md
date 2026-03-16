@@ -2,6 +2,41 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.6.0
+
+Fecha: 2026-03-16
+
+### Funcionalidades principales
+
+- nueva sección `Formaciones` en la sidebar
+- ABM inicial de templates de formación desde el frontend
+- gestión de APFs habilitados con decisión asociada a consejo
+
+### Ajustes funcionales relevantes
+
+- se incorpora la tabla histórica `AsignacionAPF` para determinar qué adultos pueden actuar como APF
+- la inscripción a planes de desempeño también puede iniciarse desde la nueva sección `Formaciones`
+- los templates permiten editar estructura, textos, adjuntos y estado desde una sola pantalla
+- los adjuntos de formación ahora pueden cargarse, descargarse y eliminarse desde la UI
+- la pantalla distingue lectura general de templates y gestión exclusiva para personas adultas
+
+## 1.5.0
+
+Fecha: 2026-03-16
+
+### Funcionalidades principales
+
+- nueva seccion de formacion dentro del perfil adulto
+- inicio de plan de desempeño propio con seleccion de plantilla y APF
+- validacion de competencias del plan por parte del APF
+
+### Ajustes funcionales relevantes
+
+- se agregan endpoints y permisos para templates de formacion y planes de desempeño
+- el perfil adulto ahora muestra el plan cargado con niveles, competencias, comportamientos, aprendizajes y resultados esperados
+- la edicion de validaciones queda restringida al APF asignado aunque la lectura del plan siga disponible desde el perfil
+- se amplian los recursos de permisos del backend con `PLAN_DESEMPENO` y `ADJUNTO_FORMACION`
+
 ## 1.4.0
 
 Fecha: 2026-03-15

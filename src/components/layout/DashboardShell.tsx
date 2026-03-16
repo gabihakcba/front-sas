@@ -15,6 +15,7 @@ const sidebarItems = [
   { label: "Responsables", icon: "pi pi-user-edit", path: "/dashboard/responsables" },
   { label: "Pagos", icon: "pi pi-wallet", path: "/dashboard/pagos" },
   { label: "Eventos", icon: "pi pi-calendar", path: "/dashboard/eventos" },
+  { label: "Formaciones", icon: "pi pi-book", path: "/dashboard/formaciones" },
   { label: "Comisiones", icon: "pi pi-briefcase", path: "/dashboard/comisiones" },
   { label: "Consejos", icon: "pi pi-comments", path: "/dashboard/consejos" },
   { label: "Calendario", icon: "pi pi-calendar-clock", path: "/dashboard/calendario" },

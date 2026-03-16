@@ -13,6 +13,68 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.6.0',
+    date: '2026-03-16',
+    title: 'Gestión centralizada de formaciones y habilitación de APFs',
+    summary:
+      'Se agrega una sección específica para administrar templates de formación, adjuntos e inscripciones, junto con la habilitación formal de APFs vinculada a consejos.',
+    sections: [
+      {
+        title: 'Sección Formaciones',
+        items: [
+          'La sidebar ahora incluye una sección Formaciones con acceso centralizado al dominio de formación.',
+          'Desde esa pantalla se pueden consultar todos los templates y usar cualquiera de ellos para iniciar una inscripción propia.',
+        ],
+      },
+      {
+        title: 'Templates y adjuntos',
+        items: [
+          'Los templates pueden editarse desde el frontend, incluyendo niveles, competencias y textos asociados.',
+          'Se agrega gestión de adjuntos con carga manual, descarga y eliminación.',
+        ],
+      },
+      {
+        title: 'APFs',
+        items: [
+          'La habilitación de APF deja de ser implícita y pasa a estar modelada en base de datos con historial.',
+          'Cada asignación APF queda vinculada al consejo que la decidió.',
+          'Solo los APFs activos aparecen como opciones válidas al inscribirse a un plan de desempeño.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.5.0',
+    date: '2026-03-16',
+    title: 'Planes de formación y desempeño en perfiles adultos',
+    summary:
+      'El sistema incorpora una primera versión operativa para formación adulta, con lectura del plan desde el perfil, alta del plan de desempeño y validación de competencias por APF.',
+    sections: [
+      {
+        title: 'Perfil y formación',
+        items: [
+          'El perfil de cada adulto ahora muestra su información de formación y su plan de desempeño activo.',
+          'Se visualizan niveles, competencias, comportamientos deseados, propuestas de aprendizaje y resultados esperados de la plantilla asociada.',
+        ],
+      },
+      {
+        title: 'Plan de desempeño',
+        items: [
+          'Cada persona adulta puede iniciar su propio plan de desempeño seleccionando una plantilla y un APF.',
+          'El APF asignado puede validar competencias y dejar observaciones dentro del plan.',
+          'La lectura del plan queda disponible desde el perfil, mientras que la edición de validaciones se restringe al APF.',
+        ],
+      },
+      {
+        title: 'Backend y permisos',
+        items: [
+          'Se agregan endpoints específicos para templates de formación y planes de desempeño.',
+          'El backend incorpora los nuevos recursos de permisos `PLAN_DESEMPENO` y `ADJUNTO_FORMACION` para sostener el nuevo dominio.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.4.0',
     date: '2026-03-15',
     title: 'Secretaria de consejo y acta colaborativa en vivo',
