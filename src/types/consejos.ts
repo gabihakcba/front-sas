@@ -51,6 +51,13 @@ export interface ConsejoTemarioFormValues {
   estado: string;
 }
 
+export interface ConsejoModeradorMember {
+  id: number;
+  nombre: string;
+  apellidos: string;
+  dni: string;
+}
+
 export interface Consejo {
   id: number;
   nombre: string;
@@ -59,11 +66,34 @@ export interface Consejo {
   es_ordinario: boolean;
   hora_inicio: string | null;
   hora_fin: string | null;
+  Moderador: ConsejoModeradorMember | null;
   TemarioConsejo: ConsejoTemarioItem[];
   _count: {
     AsistenciaConsejo: number;
     TemarioConsejo: number;
   };
+}
+
+export interface UpdateConsejoModeradorPayload {
+  idModerador: number | null;
+}
+
+export interface ConsejoRealtimeSpeaker {
+  memberId: number;
+  fullName: string;
+  description: string;
+}
+
+export interface ConsejoRealtimeHand {
+  memberId: number;
+  fullName: string;
+  description: string;
+}
+
+export interface ConsejoRealtimeState {
+  speakers: ConsejoRealtimeSpeaker[];
+  raisedHands: ConsejoRealtimeHand[];
+  moderatorMemberId: number | null;
 }
 
 export interface PaginatedConsejosResponse {

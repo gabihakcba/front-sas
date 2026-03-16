@@ -7,6 +7,7 @@ export interface RoleScope {
 export interface User {
   id: number;
   user: string;
+  memberId: number | null;
   roles: string[];
   permissions: string[];
   scopes: RoleScope[];

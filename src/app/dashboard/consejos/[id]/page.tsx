@@ -11,8 +11,11 @@ import { Editor, EditorTextChangeEvent } from 'primereact/editor';
 import { Message } from 'primereact/message';
 import { FilePreviewDialog } from '@/components/common/FilePreviewDialog';
 import { ConsejoAsistenciaDialog } from '@/components/consejos/ConsejoAsistenciaDialog';
+import { ConsejoModeradorDialog } from '@/components/consejos/ConsejoModeradorDialog';
+import { ConsejoOradoresPanel } from '@/components/consejos/ConsejoOradoresPanel';
 import { ConsejoTemarioFormDialog } from '@/components/consejos/ConsejoTemarioFormDialog';
 import { useAuth } from '@/context/AuthContext';
+import { useConsejoRealtime } from '@/hooks/useConsejoRealtime';
 import {
   createConsejoAsistenciaRequest,
   getConsejoAsistenciaOptionsRequest,
@@ -20,6 +23,7 @@ import {
   createConsejoTemarioRequest,
   exportConsejoPdfRequest,
   getConsejoRequest,
+  updateConsejoModeradorRequest,
   updateConsejoTemarioRequest,
 } from '@/queries/consejos';
 import {
@@ -197,7 +201,7 @@ const registerEditorShortcuts = (quill: QuillEditorInstance) => {
 export default function ConsejoWorkspacePage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const consejoId = Number(params.id);
   const [consejo, setConsejo] = useState<Consejo | null>(null);
   const [selectedTemaId, setSelectedTemaId] = useState<number | null>(null);
@@ -215,6 +219,7 @@ export default function ConsejoWorkspacePage() {
   );
   const [temaDialogError, setTemaDialogError] = useState('');
   const [asistenciaDialogVisible, setAsistenciaDialogVisible] = useState(false);
+  const [moderadorDialogVisible, setModeradorDialogVisible] = useState(false);
   const [asistencias, setAsistencias] = useState<ConsejoAsistenciaItem[]>([]);
   const [asistenciaOptions, setAsistenciaOptions] = useState<
     ConsejoAsistenciaOption[]
@@ -223,6 +228,8 @@ export default function ConsejoWorkspacePage() {
   const [asistenciaSearching, setAsistenciaSearching] = useState(false);
   const [asistenciaError, setAsistenciaError] = useState('');
   const [asistenciaSuccessMessage, setAsistenciaSuccessMessage] = useState('');
+  const [moderadorLoading, setModeradorLoading] = useState(false);
+  const [moderadorError, setModeradorError] = useState('');
   const [exportingAll, setExportingAll] = useState(false);
   const [exportingPublic, setExportingPublic] = useState(false);
   const [previewVisible, setPreviewVisible] = useState(false);
@@ -234,6 +241,30 @@ export default function ConsejoWorkspacePage() {
   const permissions = user?.permissions ?? [];
   const canManageTemario = hasPermission(permissions, 'UPDATE:CONSEJO');
   const canRead = hasPermission(permissions, 'READ:CONSEJO');
+  const currentMemberId = user?.memberId ?? null;
+
+  const {
+    state: realtimeState,
+    error: realtimeError,
+    isConnected: realtimeConnected,
+    setError: setRealtimeError,
+    emit,
+  } = useConsejoRealtime({
+    consejoId,
+    token,
+    enabled: canRead && !!consejo,
+  });
+  const effectiveModeratorMemberId =
+    realtimeState.moderatorMemberId ?? consejo?.Moderador?.id ?? null;
+  const isModerator = !!(
+    currentMemberId &&
+    effectiveModeratorMemberId &&
+    effectiveModeratorMemberId === currentMemberId
+  );
+  const canRaiseHand = !!(
+    currentMemberId &&
+    asistencias.some((item) => item.Miembro.id === currentMemberId)
+  );
 
   const temas = consejo?.TemarioConsejo ?? [];
   const selectedTema =
@@ -269,6 +300,23 @@ export default function ConsejoWorkspacePage() {
 
     void loadConsejo();
   }, [canRead, loadConsejo]);
+
+  useEffect(() => {
+    if (!canRead || !Number.isFinite(consejoId)) {
+      return;
+    }
+
+    const loadAsistenciasBase = async () => {
+      try {
+        const currentAsistencias = await getConsejoAsistenciasRequest(consejoId);
+        setAsistencias(currentAsistencias);
+      } catch {
+        // La carga principal del consejo no debe depender de este listado auxiliar.
+      }
+    };
+
+    void loadAsistenciasBase();
+  }, [canRead, consejoId]);
 
   useEffect(() => {
     if (!selectedTema) {
@@ -343,6 +391,38 @@ export default function ConsejoWorkspacePage() {
     setAsistenciaSuccessMessage('');
   };
 
+  const openModeradorDialog = async () => {
+    setModeradorDialogVisible(true);
+    setModeradorLoading(false);
+    setModeradorError('');
+
+    if (asistencias.length > 0 && asistenciaOptions.length > 0) {
+      return;
+    }
+
+    setAsistenciaLoading(true);
+
+    try {
+      const [currentAsistencias, currentOptions] = await Promise.all([
+        getConsejoAsistenciasRequest(consejoId),
+        getConsejoAsistenciaOptionsRequest(consejoId),
+      ]);
+      setAsistencias(currentAsistencias);
+      setAsistenciaOptions(currentOptions);
+    } catch (err: unknown) {
+      setModeradorError(
+        getErrorMessage(err, 'No se pudo cargar la lista de miembros.'),
+      );
+    } finally {
+      setAsistenciaLoading(false);
+    }
+  };
+
+  const closeModeradorDialog = () => {
+    setModeradorDialogVisible(false);
+    setModeradorError('');
+  };
+
   const handleAsistenciaSearch = async (value: string) => {
     setAsistenciaSearching(true);
 
@@ -379,6 +459,25 @@ export default function ConsejoWorkspacePage() {
       setAsistenciaError(
         getErrorMessage(err, 'No se pudo agregar la asistencia.'),
       );
+    }
+  };
+
+  const handleUpdateModerador = async (idModerador: number | null) => {
+    setModeradorLoading(true);
+    setModeradorError('');
+
+    try {
+      const response = await updateConsejoModeradorRequest(consejoId, {
+        idModerador,
+      });
+      setConsejo(response);
+      closeModeradorDialog();
+    } catch (err: unknown) {
+      setModeradorError(
+        getErrorMessage(err, 'No se pudo actualizar el moderador del consejo.'),
+      );
+    } finally {
+      setModeradorLoading(false);
     }
   };
 
@@ -485,6 +584,14 @@ export default function ConsejoWorkspacePage() {
     };
   }, [canManageTemario, handleSaveTema, saving, selectedTema]);
 
+  useEffect(() => {
+    if (!consejo) {
+      return;
+    }
+
+    setRealtimeError('');
+  }, [consejo, setRealtimeError]);
+
   if (loading) {
     return <div className="py-4">Cargando consejo...</div>;
   }
@@ -514,6 +621,17 @@ export default function ConsejoWorkspacePage() {
               size="small"
               onClick={() => void openAsistenciaDialog()}
             />
+            {canManageTemario ? (
+              <Button
+                type="button"
+                label="Asignar moderador"
+                icon="pi pi-user-plus"
+                iconPos="right"
+                outlined
+                size="small"
+                onClick={() => void openModeradorDialog()}
+              />
+            ) : null}
             <Button
               type="button"
               label="PDF completo"
@@ -537,9 +655,25 @@ export default function ConsejoWorkspacePage() {
           </div>
 
           {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
+          {realtimeError ? (
+            <Message severity="warn" text={realtimeError} className="mb-3 w-full" />
+          ) : null}
           {successMessage ? (
             <Message severity="success" text={successMessage} className="mb-3 w-full" />
           ) : null}
+
+          <div className="mb-4 flex flex-wrap items-center gap-2 text-sm text-color-secondary">
+            <span>
+              Moderador:{' '}
+              {consejo?.Moderador
+                ? `${consejo.Moderador.apellidos}, ${consejo.Moderador.nombre}`
+                : 'Sin asignar'}
+            </span>
+            <span>Asistencias: {consejo?._count.AsistenciaConsejo ?? 0}</span>
+            <span>
+              Tiempo real: {realtimeConnected ? 'Conectado' : 'Desconectado'}
+            </span>
+          </div>
 
           {!selectedTema ? (
             <Message severity="info" text="Este consejo todavía no tiene temas cargados." />
@@ -699,6 +833,15 @@ export default function ConsejoWorkspacePage() {
         onSearch={(value) => void handleAsistenciaSearch(value)}
         onAdd={(idMiembro) => void handleAddAsistencia(idMiembro)}
       />
+      <ConsejoModeradorDialog
+        visible={moderadorDialogVisible}
+        loading={moderadorLoading}
+        options={asistenciaOptions}
+        currentModerador={consejo?.Moderador ?? null}
+        error={moderadorError}
+        onHide={closeModeradorDialog}
+        onSubmit={(idModerador) => void handleUpdateModerador(idModerador)}
+      />
       <FilePreviewDialog
         visible={previewVisible}
         title={previewTitle}
@@ -713,6 +856,36 @@ export default function ConsejoWorkspacePage() {
           setPreviewError('');
         }}
       />
+      {consejo ? (
+        <ConsejoOradoresPanel
+          isConnected={realtimeConnected}
+          isModerator={isModerator}
+          canRaiseHand={canRaiseHand}
+          hasRaisedHand={
+            currentMemberId !== null &&
+            realtimeState.raisedHands.some(
+              (item) => item.memberId === currentMemberId,
+            )
+          }
+          speakers={realtimeState.speakers}
+          raisedHands={realtimeState.raisedHands}
+          currentModeradorName={
+            consejo.Moderador
+              ? `${consejo.Moderador.apellidos}, ${consejo.Moderador.nombre}`
+              : null
+          }
+          attendance={asistencias}
+          onRaiseHand={() => emit('consejo:hand:raise')}
+          onCancelRaiseHand={() => emit('consejo:hand:cancel')}
+          onAddSpeaker={(memberId) => emit('consejo:speaker:add', { memberId })}
+          onRemoveSpeaker={(memberId) =>
+            emit('consejo:speaker:remove', { memberId })
+          }
+          onReorderSpeakers={(memberIds) =>
+            emit('consejo:speakers:reorder', { memberIds })
+          }
+        />
+      ) : null}
     </div>
   );
 }
