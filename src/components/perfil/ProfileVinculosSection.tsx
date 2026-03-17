@@ -55,7 +55,8 @@ export function ProfileVinculosSection({ vinculos, loading }: Props) {
                 </strong>
                 <div>Relación: {item.Relacion.tipo}</div>
                 <div>
-                  Rama: {item.Protagonista.MiembroRama[0]?.Rama.nombre ?? 'Sin rama'}
+                  Rama:{' '}
+                  {item.Protagonista.Miembro.MiembroRama[0]?.Rama.nombre ?? 'Sin rama'}
                 </div>
               </div>
             ))}

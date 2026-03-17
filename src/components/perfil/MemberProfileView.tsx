@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { Message } from 'primereact/message';
 import { ProgressSpinner } from 'primereact/progressspinner';
@@ -44,6 +45,25 @@ export function MemberProfileView({ memberId }: Props) {
     updateCompetencia,
   } = usePlanFormacionPerfilHook(memberId);
 
+  const canShowAsignacionTab = Boolean(summary?.Adulto || summary?.Protagonista);
+  const canShowActividadTab = true;
+  const canShowVinculosTab = Boolean(summary?.Responsable || summary?.Protagonista);
+  const canShowFormacionTab = Boolean(summary?.Adulto);
+  const tabKeys = [
+    ...(canShowAsignacionTab ? ['asignacion'] : []),
+    ...(canShowFormacionTab ? ['formacion'] : []),
+    ...(canShowActividadTab ? ['actividad'] : []),
+    ...(canShowVinculosTab ? ['vinculos'] : []),
+  ];
+
+  useEffect(() => {
+    if (!summary || !canShowVinculosTab) {
+      return;
+    }
+
+    void loadVinculos();
+  }, [canShowVinculosTab, loadVinculos, memberId, summary]);
+
   if (loading) {
     return (
       <div className="flex justify-center py-6">
@@ -58,19 +78,6 @@ export function MemberProfileView({ memberId }: Props) {
   if (!summary) {
     return <Message severity="error" text={error || 'No se pudo cargar el perfil.'} />;
   }
-
-  const canShowAsignacionTab =
-    summary.Adulto !== null || summary.Protagonista !== null;
-  const canShowActividadTab = true;
-  const canShowVinculosTab =
-    summary.Responsable !== null || summary.Protagonista !== null;
-  const canShowFormacionTab = summary.Adulto !== null;
-  const tabKeys = [
-    ...(canShowAsignacionTab ? ['asignacion'] : []),
-    ...(canShowFormacionTab ? ['formacion'] : []),
-    ...(canShowActividadTab ? ['actividad'] : []),
-    ...(canShowVinculosTab ? ['vinculos'] : []),
-  ];
 
   return (
     <div className="flex flex-col gap-4">

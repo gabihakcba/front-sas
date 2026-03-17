@@ -88,15 +88,15 @@ export default function EventosPage() {
     });
   };
 
-  const dateRangeValue =
+  const dateRangeValue: [Date | null, Date | null] | null =
     filters.fechaDesde || filters.fechaHasta
       ? [
           filters.fechaDesde
             ? dayjs(filters.fechaDesde, 'YYYY-MM-DD').toDate()
-            : undefined,
+            : null,
           filters.fechaHasta
             ? dayjs(filters.fechaHasta, 'YYYY-MM-DD').toDate()
-            : undefined,
+            : null,
         ]
       : null;
 

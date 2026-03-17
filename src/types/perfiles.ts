@@ -127,13 +127,13 @@ export interface PerfilVinculos {
         nombre: string;
         apellidos: string;
         dni: string;
+        MiembroRama: Array<{
+          Rama: {
+            id: number;
+            nombre: string;
+          };
+        }>;
       };
-      MiembroRama: Array<{
-        Rama: {
-          id: number;
-          nombre: string;
-        };
-      }>;
     };
   }>;
 }
