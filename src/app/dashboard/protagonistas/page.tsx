@@ -7,11 +7,14 @@ import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
+import { IconField } from 'primereact/iconfield';
+import { InputIcon } from 'primereact/inputicon';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
 import { ProtagonistaFormDialog } from '@/components/protagonistas/ProtagonistaFormDialog';
 import { ProtagonistaPaseDialog } from '@/components/protagonistas/ProtagonistaPaseDialog';
+import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useProtagonistasHook } from '@/hooks/useProtagonistasHooks';
 import { Protagonista } from '@/types/protagonistas';
 
@@ -20,6 +23,7 @@ const getRamaActual = (protagonista: Protagonista) =>
 
 export default function ProtagonistasPage() {
   const router = useRouter();
+  const { confirmDelete, deleteConfirmDialog } = useDeleteConfirm();
   const {
     protagonistas,
     ramas,
@@ -61,14 +65,12 @@ export default function ProtagonistasPage() {
     if (!selectedProtagonista) {
       return;
     }
-
-    const confirmed = window.confirm(
-      `Se eliminará de forma lógica a ${selectedProtagonista.Miembro.nombre} ${selectedProtagonista.Miembro.apellidos}.`,
-    );
-
-    if (confirmed) {
-      void deleteSelected();
-    }
+    confirmDelete({
+      message: `Se eliminará de forma lógica a ${selectedProtagonista.Miembro.nombre} ${selectedProtagonista.Miembro.apellidos}.`,
+      impact:
+        'La persona protagonista dejará de aparecer en los listados operativos y esto puede afectar relaciones, pagos, asistencias e históricos visibles vinculados.',
+      onAccept: () => void deleteSelected(),
+    });
   };
 
   const header = (
@@ -86,8 +88,7 @@ export default function ProtagonistasPage() {
         />
       </div>
       <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-center">
-        <span className="p-input-icon-left">
-          <i className="pi pi-search" />
+        <IconField iconPosition="right">
           <InputText
             value={filters.q}
             onChange={(event) =>
@@ -98,7 +99,8 @@ export default function ProtagonistasPage() {
             }
             placeholder="Buscar protagonista"
           />
-        </span>
+          <InputIcon className="pi pi-search" />
+        </IconField>
       </div>
       <div className="flex flex-wrap justify-end gap-2">
         <Button
@@ -305,6 +307,7 @@ export default function ProtagonistasPage() {
         onSubmit={() => void submitPase()}
         onChange={setPaseValues}
       />
+      {deleteConfirmDialog}
     </div>
   );
 }

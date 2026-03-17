@@ -7,22 +7,17 @@ import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
+import { IconField } from 'primereact/iconfield';
+import { InputIcon } from 'primereact/inputicon';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
+import { hasPermissionAccess } from '@/lib/authorization';
 import { useAuth } from '@/context/AuthContext';
+import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useResponsablesHook } from '@/hooks/useResponsablesHooks';
 import { Responsable } from '@/types/responsables';
 import { ResponsableAsignacionDialog } from '@/components/responsables/ResponsableAsignacionDialog';
 import { ResponsableFormDialog } from '@/components/responsables/ResponsableFormDialog';
-
-const hasPermission = (permissions: string[], required: string) => {
-  if (permissions.includes(required)) {
-    return true;
-  }
-
-  const [, resource] = required.split(':');
-  return permissions.includes(`MANAGE:${resource}`);
-};
 
 const formatAssignedNames = (responsable: Responsable) =>
   responsable.Responsabilidad.map(
@@ -33,6 +28,7 @@ const formatAssignedNames = (responsable: Responsable) =>
 export default function ResponsablesPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const { confirmDelete, deleteConfirmDialog } = useDeleteConfirm();
   const {
     responsables,
     selectedResponsable,
@@ -66,11 +62,10 @@ export default function ResponsablesPage() {
     deleteSelected,
   } = useResponsablesHook();
 
-  const permissions = user?.permissions ?? [];
-  const canCreate = hasPermission(permissions, 'CREATE:RESPONSABLE');
-  const canEdit = hasPermission(permissions, 'UPDATE:RESPONSABLE');
-  const canDelete = hasPermission(permissions, 'DELETE:RESPONSABLE');
-  const canAssign = hasPermission(permissions, 'UPDATE:RESPONSABLE');
+  const canCreate = hasPermissionAccess(user, 'CREATE:RESPONSABLE');
+  const canEdit = hasPermissionAccess(user, 'UPDATE:RESPONSABLE');
+  const canDelete = hasPermissionAccess(user, 'DELETE:RESPONSABLE');
+  const canAssign = hasPermissionAccess(user, 'UPDATE:RESPONSABLE');
 
   const handlePage = (event: DataTablePageEvent) => {
     const nextPage = Math.floor(event.first / event.rows) + 1;
@@ -81,14 +76,12 @@ export default function ResponsablesPage() {
     if (!selectedResponsable) {
       return;
     }
-
-    const confirmed = window.confirm(
-      `Se eliminará de forma lógica a ${selectedResponsable.Miembro.nombre} ${selectedResponsable.Miembro.apellidos}.`,
-    );
-
-    if (confirmed) {
-      void deleteSelected();
-    }
+    confirmDelete({
+      message: `Se eliminará de forma lógica a ${selectedResponsable.Miembro.nombre} ${selectedResponsable.Miembro.apellidos}.`,
+      impact:
+        'El responsable dejará de estar disponible en listados operativos y puede impactar asignaciones, pagos asociados y referencias visibles sobre protagonistas a cargo.',
+      onAccept: () => void deleteSelected(),
+    });
   };
 
   const header = (
@@ -115,8 +108,7 @@ export default function ResponsablesPage() {
         />
       </div>
       <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-center">
-        <span className="p-input-icon-left">
-          <i className="pi pi-search" />
+        <IconField iconPosition="right">
           <InputText
             value={filters.q}
             onChange={(event) =>
@@ -126,7 +118,8 @@ export default function ResponsablesPage() {
             }
             placeholder="Buscar responsable"
           />
-        </span>
+          <InputIcon className="pi pi-search" />
+        </IconField>
       </div>
       <div className="flex flex-wrap justify-end gap-2">
         <Button
@@ -273,6 +266,7 @@ export default function ResponsablesPage() {
         onChange={setAssignmentValues}
         onSubmit={() => void submitAssignments()}
       />
+      {deleteConfirmDialog}
     </Card>
   );
 }

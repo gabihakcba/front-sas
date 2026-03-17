@@ -8,12 +8,16 @@ import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
+import { IconField } from 'primereact/iconfield';
+import { InputIcon } from 'primereact/inputicon';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { FilePreviewDialog } from '@/components/common/FilePreviewDialog';
 import { useAuth } from '@/context/AuthContext';
 import { PagoFormDialog } from '@/components/pagos/PagoFormDialog';
+import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { usePagosHook } from '@/hooks/usePagosHooks';
+import { hasPermissionAccess } from '@/lib/authorization';
 import {
   exportPagoReceiptRequest,
   getPagoAttachmentRequest,
@@ -21,18 +25,10 @@ import {
 } from '@/queries/pagos';
 import { Pago } from '@/types/pagos';
 
-const hasPermission = (permissions: string[], required: string) => {
-  if (permissions.includes(required)) {
-    return true;
-  }
-
-  const [, resource] = required.split(':');
-  return permissions.includes(`MANAGE:${resource}`);
-};
-
 export default function PagosPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const { confirmDelete, deleteConfirmDialog } = useDeleteConfirm();
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewBlob, setPreviewBlob] = useState<Blob | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
@@ -67,10 +63,9 @@ export default function PagosPage() {
     deleteSelected,
   } = usePagosHook();
 
-  const permissions = user?.permissions ?? [];
-  const canCreate = hasPermission(permissions, 'CREATE:PAGO');
-  const canEdit = hasPermission(permissions, 'UPDATE:PAGO');
-  const canDelete = hasPermission(permissions, 'DELETE:PAGO');
+  const canCreate = hasPermissionAccess(user, 'CREATE:PAGO');
+  const canEdit = hasPermissionAccess(user, 'UPDATE:PAGO');
+  const canDelete = hasPermissionAccess(user, 'DELETE:PAGO');
 
   const handlePage = (event: DataTablePageEvent) => {
     const nextPage = Math.floor(event.first / event.rows) + 1;
@@ -81,14 +76,12 @@ export default function PagosPage() {
     if (!selectedPago) {
       return;
     }
-
-    const confirmed = window.confirm(
-      `Se eliminará de forma lógica el pago ${selectedPago.codigo_validacion}.`,
-    );
-
-    if (confirmed) {
-      void deleteSelected();
-    }
+    confirmDelete({
+      message: `Se eliminará de forma lógica el pago ${selectedPago.codigo_validacion}.`,
+      impact:
+        'El pago dejará de contarse en los listados operativos y puede afectar saldos, comprobantes y trazabilidad visible de movimientos asociados.',
+      onAccept: () => void deleteSelected(),
+    });
   };
 
   const handleDownloadReceipt = async () => {
@@ -261,8 +254,7 @@ export default function PagosPage() {
         />
       </div>
       <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-center">
-        <span className="p-input-icon-left">
-          <i className="pi pi-search" />
+        <IconField iconPosition="right">
           <InputText
             value={filters.q}
             onChange={(event) =>
@@ -273,7 +265,8 @@ export default function PagosPage() {
             }
             placeholder="Buscar pago"
           />
-        </span>
+          <InputIcon className="pi pi-search" />
+        </IconField>
       </div>
       <div className="flex flex-wrap gap-2">
         {canCreate ? (
@@ -420,6 +413,10 @@ export default function PagosPage() {
             header="Fecha"
             body={(pago: Pago) => dayjs(pago.fecha_pago).format('DD/MM/YYYY')}
           />
+          <Column
+            header="Creado"
+            body={(pago: Pago) => dayjs(pago.createdAt).format('DD/MM/YYYY')}
+          />
           <Column field="monto" header="Monto" />
           <Column
             header="Miembro"
@@ -472,6 +469,7 @@ export default function PagosPage() {
           setPreviewTitle('Preview');
         }}
       />
+      {deleteConfirmDialog}
     </div>
   );
 }

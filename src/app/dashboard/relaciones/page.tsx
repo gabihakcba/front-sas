@@ -6,10 +6,12 @@ import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { Message } from 'primereact/message';
 import { RelacionFormDialog } from '@/components/relaciones/RelacionFormDialog';
+import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useRelacionesHook } from '@/hooks/useRelacionesHooks';
 import { Relacion } from '@/types/relaciones';
 
 export default function RelacionesPage() {
+  const { confirmDelete, deleteConfirmDialog } = useDeleteConfirm();
   const {
     relaciones,
     selectedRelacion,
@@ -42,14 +44,12 @@ export default function RelacionesPage() {
     if (!selectedRelacion) {
       return;
     }
-
-    const confirmed = window.confirm(
-      `Se eliminará la relación "${selectedRelacion.tipo}".`,
-    );
-
-    if (confirmed) {
-      void deleteSelected();
-    }
+    confirmDelete({
+      message: `Se eliminará de forma lógica la relación "${selectedRelacion.tipo}".`,
+      impact:
+        'La relación dejará de poder usarse en nuevas asignaciones y puede afectar la lectura de responsabilidades asociadas en pantallas operativas.',
+      onAccept: () => void deleteSelected(),
+    });
   };
 
   const header = (
@@ -142,6 +142,7 @@ export default function RelacionesPage() {
         onHide={closeDialog}
         onSubmit={(values) => void submitForm(values)}
       />
+      {deleteConfirmDialog}
     </div>
   );
 }

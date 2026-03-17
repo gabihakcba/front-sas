@@ -13,6 +13,365 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.8.8',
+    date: '2026-03-17',
+    title: 'Filtro de cumpleaños por tipo de miembro en calendario',
+    summary:
+      'La sidebar de filtros del calendario suma una selección específica para cumpleaños, permitiendo alternar entre protagonistas, responsables y adultos.',
+    sections: [
+      {
+        title: 'Cumpleaños',
+        items: [
+          'Los cumpleaños pueden filtrarse por protagonistas, responsables o adultos.',
+          'La clasificación de responsables queda normalizada desde backend para que el filtro funcione de forma exacta.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.7',
+    date: '2026-03-17',
+    title: 'Calendario abierto para todos y filtros laterales simplificados',
+    summary:
+      'El calendario queda disponible para cualquier miembro autenticado y la interfaz unifica sus filtros en una sola sidebar desplegable.',
+    sections: [
+      {
+        title: 'Acceso general',
+        items: [
+          'Adultos, responsables y protagonistas pueden ingresar al calendario desde la sidebar o por URL directa.',
+          'El calendario sigue mostrando eventos y cumpleaños sin depender de posición, rama o área del usuario.',
+        ],
+      },
+      {
+        title: 'Filtros',
+        items: [
+          'Se elimina la duplicación entre sidebar fija y sidebar desplegable.',
+          'Los filtros quedan concentrados en un único panel lateral desplegable para todos los tamaños de pantalla.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.6',
+    date: '2026-03-17',
+    title: 'Filtro para asistencias actuales en consejos',
+    summary:
+      'El diálogo de asistencia de consejos incorpora una búsqueda local adicional para encontrar más rápido miembros ya cargados en la asistencia actual.',
+    sections: [
+      {
+        title: 'Asistencia de consejos',
+        items: [
+          'Las asistencias actuales pueden filtrarse por nombre, apellido, DNI o descripción.',
+          'El filtro usa el mismo patrón visual de búsqueda con lupa integrada que el resto de las tablas del dashboard.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.5',
+    date: '2026-03-17',
+    title: 'Permisos afinados dentro del consejo iniciado',
+    summary:
+      'El workspace de consejos abiertos separa mejor las acciones de adultos, moderador y secretaría para reflejar el funcionamiento operativo esperado.',
+    sections: [
+      {
+        title: 'Gestion general del consejo',
+        items: [
+          'Los perfiles adultos pueden administrar asistencia, moderador, secretaría y la estructura de temas dentro del consejo.',
+          'La lista de oradores sigue visible para todos los participantes con acceso al consejo.',
+        ],
+      },
+      {
+        title: 'Moderacion y acta',
+        items: [
+          'Solo el moderador asignado puede incorporar oradores desde manos levantadas o desde la asistencia.',
+          'Solo secretario y prosecretario pueden modificar debate, acuerdo y estado del tema, y esa regla queda validada también en backend.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.4',
+    date: '2026-03-17',
+    title: 'Consejos visible para todos con acciones diferenciadas para adultos',
+    summary:
+      'La sección Consejos queda disponible para cualquier miembro autenticado, mientras que la edición del consejo y del temario se separa para dejarla solo en manos de perfiles adultos.',
+    sections: [
+      {
+        title: 'Acceso general',
+        items: [
+          'Todos los miembros pueden ver el listado completo de consejos y abrir cualquier consejo existente.',
+          'La acción Iniciar consejo queda disponible para cualquier miembro autenticado, aunque no forme parte de la asistencia.',
+        ],
+      },
+      {
+        title: 'Acciones de adultos',
+        items: [
+          'Crear, editar y eliminar consejos queda visible solo para perfiles adultos con permisos operativos sobre el recurso.',
+          'El temario puede consultarse por cualquier usuario, pero agregar, editar y eliminar temas queda restringido a adultos.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.3',
+    date: '2026-03-17',
+    title: 'Confirmacion unificada de eliminacion y apertura de Consejos para roles de rama',
+    summary:
+      'Las tablas principales del dashboard reemplazan los confirm nativos por un diálogo consistente, y la sección Consejos queda habilitada también para jefatura y ayudantía de rama.',
+    sections: [
+      {
+        title: 'Eliminaciones',
+        items: [
+          'Las acciones de borrado ahora muestran un diálogo reutilizable con mensaje de impacto antes de confirmar.',
+          'La experiencia de eliminación queda alineada entre Consejos, Eventos, Pagos, Comisiones, Responsables y catálogos asociados.',
+        ],
+      },
+      {
+        title: 'Consejos',
+        items: [
+          'JEFATURA_RAMA y AYUDANTE_RAMA pueden abrir la sección desde la sidebar y también por acceso directo por URL.',
+          'La pantalla principal y el workspace de consejos aprovechan los permisos CRUD ya resueltos por backend para esos roles.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.2',
+    date: '2026-03-17',
+    title: 'Iconos de busqueda integrados correctamente en los inputs',
+    summary:
+      'Los filtros globales del dashboard migran a los componentes nativos de PrimeReact para garantizar que la lupa quede embebida dentro del input.',
+    sections: [
+      {
+        title: 'Busquedas globales',
+        items: [
+          'Se reemplaza el wrapper manual por IconField e InputIcon en las tablas principales.',
+          'La lupa ahora queda correctamente dentro del campo de búsqueda y alineada al borde derecho.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.1',
+    date: '2026-03-17',
+    title: 'Buscadores de tablas con icono alineado a la derecha',
+    summary:
+      'Los filtros globales del dashboard ajustan la posición de la lupa para mostrarla dentro del input y alineada al borde derecho.',
+    sections: [
+      {
+        title: 'Busquedas globales',
+        items: [
+          'Se corrige la posición del icono de búsqueda en las tablas principales del dashboard.',
+          'La lupa ahora queda dentro del recuadro del input y alineada a la derecha en lugar de a la izquierda.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.0',
+    date: '2026-03-17',
+    title: 'Comisiones con participantes adultos y filtros server-side en tablas',
+    summary:
+      'Las secciones Eventos y Comisiones ahora filtran contra backend, y Comisiones suma la gestión de adultos participantes junto con la asociación opcional a un evento.',
+    sections: [
+      {
+        title: 'Eventos',
+        items: [
+          'La grilla incorpora búsqueda global por nombre, descripción y lugar.',
+          'Se puede filtrar por tipo y por rango de fechas sin descargar toda la colección al cliente.',
+        ],
+      },
+      {
+        title: 'Comisiones',
+        items: [
+          'Cada comisión puede vincularse a un evento y administrar adultos participantes.',
+          'La tabla suma búsqueda global y filtro por evento, ambos ejecutados del lado del servidor.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.7.10',
+    date: '2026-03-17',
+    title: 'Comisiones habilitado para roles de rama',
+    summary:
+      'La sección Comisiones queda accesible para jefatura y ayudantía de rama, y su UI respeta los permisos CRUD reales del usuario autenticado.',
+    sections: [
+      {
+        title: 'Comisiones',
+        items: [
+          'JEFATURA_RAMA y AYUDANTE_RAMA pueden abrir la sección desde sidebar y por URL manual.',
+          'Los botones de crear, editar y eliminar se muestran sólo si el usuario tiene los permisos funcionales correspondientes.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.7.9',
+    date: '2026-03-17',
+    title: 'APFs habilitados mas compacto en Formaciones',
+    summary:
+      'La gestión de APFs dentro de Formaciones pasa a mostrarse en un bloque desplegable y simplifica la acción de cierre con un botón sólo de icono.',
+    sections: [
+      {
+        title: 'UX de APFs',
+        items: [
+          'El bloque APFs habilitados ahora puede expandirse o colapsarse para ocupar menos espacio en la pantalla.',
+          'La acción de cierre de una asignación APF usa únicamente el icono X para mantener una interfaz más compacta.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.7.8',
+    date: '2026-03-17',
+    title: 'Modo edicion modular en Formaciones',
+    summary:
+      'La sección Formaciones deja de depender de un modo edición global y pasa a manejar toggles independientes para APFs y para cada template.',
+    sections: [
+      {
+        title: 'Edicion segmentada',
+        items: [
+          'APFs habilitados ahora tiene un modo de edición propio, separado del resto de la pantalla.',
+          'Cada template puede activarse en edición de forma individual sin afectar los demás templates.',
+          'La vista general de formación mantiene lectura estable mientras sólo se habilita edición donde el usuario la necesita.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.7.7',
+    date: '2026-03-17',
+    title: 'Formaciones abierto a lectura general con gestión adulta y APFs restringidos',
+    summary:
+      'La sección Formaciones pasa a estar disponible para toda cuenta autenticada, mientras la edición e inscripción quedan reservadas a adultos y la habilitación de APFs sólo a jefatura o APFs activos.',
+    sections: [
+      {
+        title: 'Permisos en formacion',
+        items: [
+          'Cualquier miembro autenticado puede entrar a la sección y consultar templates de formación.',
+          'Solo las personas adultas ven el botón Modo edición, el botón Usar para inscribirme y la sección de inscripción al plan.',
+          'La gestión de APFs habilitados queda disponible únicamente para JEFATURA y para adultos con una asignación APF activa.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.7.6',
+    date: '2026-03-17',
+    title: 'Eventos alineado con roles de rama y afectaciones automáticas',
+    summary:
+      'La sección Eventos queda habilitada para jefatura y ayudantía de rama, y la creación de eventos fija automáticamente las afectaciones válidas según el rol autenticado.',
+    sections: [
+      {
+        title: 'Eventos por rama',
+        items: [
+          'JEFATURA_RAMA y AYUDANTE_RAMA pueden abrir Eventos y Tipos de Evento desde la interfaz o ingresando por URL.',
+          'La API ahora limita listados y operaciones a eventos que involucren la rama afectada del usuario cuando se trata de roles scoped por rama.',
+          'Las altas y actualizaciones de afectaciones para roles de rama quedan normalizadas para impedir asignaciones fuera de scope.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.7.5',
+    date: '2026-03-17',
+    title: 'Subsecciones de pagos habilitadas para roles de rama',
+    summary:
+      'Las subsecciones Conceptos y Métodos de pagos ahora pueden abrirse también con jefatura y ayudantía de rama, tanto desde la UI como por acceso directo.',
+    sections: [
+      {
+        title: 'Pagos y catálogos',
+        items: [
+          'JEFATURA_RAMA y AYUDANTE_RAMA pueden ingresar a Conceptos de Pago y Métodos de Pago.',
+          'Las rutas protegidas manuales quedan alineadas con el acceso funcional esperado desde la pantalla de pagos.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.7.4',
+    date: '2026-03-17',
+    title: 'Pagos habilitado para roles de rama con fecha de alta visible',
+    summary:
+      'La sección Pagos queda disponible para jefatura y ayudantía de rama, y la tabla muestra también cuándo se creó cada registro.',
+    sections: [
+      {
+        title: 'Pagos por rama',
+        items: [
+          'JEFATURA_RAMA y AYUDANTE_RAMA pueden entrar a Pagos desde el menú y por URL.',
+          'La grilla ahora muestra la fecha de creación de cada pago además de la fecha de pago.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.7.3',
+    date: '2026-03-17',
+    title: 'Responsables habilitado para roles de rama',
+    summary:
+      'La sección Responsables del frontend ahora puede probarse con jefatura y ayudantía de rama, en línea con el filtrado backend por protagonistas dentro de la rama.',
+    sections: [
+      {
+        title: 'Acceso a responsables',
+        items: [
+          'JEFATURA_RAMA y AYUDANTE_RAMA pueden ver el item de Responsables e ingresar por URL a la sección.',
+          'La API mantiene el recorte por responsables vinculados a protagonistas de la rama permitida.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.7.2',
+    date: '2026-03-17',
+    title: 'Adultos habilitado para ayudantía y jefatura de rama',
+    summary:
+      'La sección Adultos del frontend queda accesible para los roles de rama definidos, mientras el backend mantiene el recorte de resultados según el scope asociado.',
+    sections: [
+      {
+        title: 'Adultos por rama',
+        items: [
+          'AYUDANTE_RAMA con scope RAMA ahora puede ver el item de Adultos y entrar a la ruta protegida.',
+          'JEFATURA_RAMA y AYUDANTE_RAMA dependen del backend para recibir solo adultos de la rama permitida por su scope.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.7.1',
+    date: '2026-03-17',
+    title: 'Jefatura de rama habilitada en todo el dashboard',
+    summary:
+      'La matriz de acceso visual del frontend ahora permite que Jefatura de Rama navegue todas las secciones, mientras la API sigue filtrando los registros por rama donde corresponde.',
+    sections: [
+      {
+        title: 'Acceso por rol y scope',
+        items: [
+          'JEFATURA_RAMA con scope RAMA ahora visualiza todos los items del dashboard y puede ingresar por URL a las secciones protegidas.',
+          'La seccion Protagonistas conserva el filtrado de datos en backend para devolver solo registros de las ramas habilitadas al usuario.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.7.0',
+    date: '2026-03-17',
+    title: 'Acceso centralizado por rol y scope en el dashboard',
+    summary:
+      'El frontend suma una capa comun de autorizacion por rol y scope para gobernar la sidebar, el acceso por URL y las acciones principales del dashboard.',
+    sections: [
+      {
+        title: 'Acceso al dashboard',
+        items: [
+          'Se centraliza una matriz de acceso por ruta para mantener consistente la visibilidad de la sidebar y el ingreso manual por URL.',
+          'Las rutas no habilitadas ahora muestran una pantalla de acceso denegado en lugar de dejar visible la seccion.',
+          'La jefatura con scope de grupo obtiene acceso completo sobre las secciones y acciones CRUD protegidas en esta primera etapa.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.6.2',
     date: '2026-03-16',
     title: 'Adjuntos de formacion con límite local ampliado',

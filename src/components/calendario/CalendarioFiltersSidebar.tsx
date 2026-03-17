@@ -3,7 +3,10 @@
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
-import { CalendarSource } from '@/hooks/useCalendarioHooks';
+import {
+  CalendarBirthdayMemberType,
+  CalendarSource,
+} from '@/hooks/useCalendarioHooks';
 import { EventoOption, EventoRamaOption } from '@/types/eventos';
 
 interface CalendarioFiltersSidebarProps {
@@ -12,13 +15,19 @@ interface CalendarioFiltersSidebarProps {
   tipoEventoOptions: EventoOption[];
   areaOptions: EventoOption[];
   ramaOptions: EventoRamaOption[];
+  birthdayMemberTypeOptions: Array<{
+    label: string;
+    value: CalendarBirthdayMemberType;
+  }>;
   selectedTipoEventoId: number | null;
   selectedAreaId: number | null;
   selectedRamaId: number | null;
+  selectedBirthdayMemberType: CalendarBirthdayMemberType;
   onSourcesChange: (value: CalendarSource[]) => void;
   onTipoEventoChange: (value: number | null) => void;
   onAreaChange: (value: number | null) => void;
   onRamaChange: (value: number | null) => void;
+  onBirthdayMemberTypeChange: (value: CalendarBirthdayMemberType) => void;
   onClose?: () => void;
 }
 
@@ -51,6 +60,7 @@ export default function CalendarioFiltersSidebar(
       })),
   ];
   const eventosDisabled = !props.selectedSources.includes('eventos');
+  const birthdaysDisabled = !props.selectedSources.includes('cumpleanios');
 
   return (
     <div className="flex flex-col gap-4 p-3">
@@ -82,6 +92,28 @@ export default function CalendarioFiltersSidebar(
           onChange={(event: MultiSelectChangeEvent) =>
             props.onSourcesChange((event.value as CalendarSource[]) ?? [])
           }
+        />
+      </div>
+
+      <div>
+        <label htmlFor="calendar-birthday-member-type-filter" className="mb-2 block">
+          Tipo de cumpleaños
+        </label>
+        <Dropdown
+          id="calendar-birthday-member-type-filter"
+          value={props.selectedBirthdayMemberType}
+          onChange={(event) =>
+            props.onBirthdayMemberTypeChange(
+              (event.value as CalendarBirthdayMemberType) ?? null,
+            )
+          }
+          options={props.birthdayMemberTypeOptions}
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Todos"
+          disabled={birthdaysDisabled}
+          showClear
+          className="w-full"
         />
       </div>
 

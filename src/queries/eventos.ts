@@ -4,6 +4,7 @@ import {
   CalendarEvento,
   CreateEventoPayload,
   Evento,
+  EventoFilters,
   EventoInscripcion,
   EventosOptionsResponse,
   PaginatedEventosResponse,
@@ -13,6 +14,7 @@ import {
 interface GetEventosParams {
   page?: number;
   limit?: number;
+  filters?: EventoFilters;
 }
 
 interface GetCalendarEventosParams {
@@ -26,9 +28,17 @@ interface GetCalendarEventosParams {
 export const getEventosRequest = async ({
   page = 1,
   limit = 10,
+  filters,
 }: GetEventosParams = {}): Promise<PaginatedEventosResponse> => {
   const response = await api.get<PaginatedEventosResponse>('/eventos', {
-    params: { page, limit },
+    params: {
+      page,
+      limit,
+      ...(filters?.q ? { q: filters.q } : {}),
+      ...(filters?.idTipo ? { idTipo: filters.idTipo } : {}),
+      ...(filters?.fechaDesde ? { fechaDesde: filters.fechaDesde } : {}),
+      ...(filters?.fechaHasta ? { fechaHasta: filters.fechaHasta } : {}),
+    },
   });
   return response.data;
 };

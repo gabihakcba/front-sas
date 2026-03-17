@@ -4,6 +4,9 @@ export interface RoleScope {
   scopeId: number | null;
 }
 
+export type UserRole = string;
+export type AllowedRoles = UserRole[];
+
 export interface User {
   id: number;
   user: string;

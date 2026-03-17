@@ -81,7 +81,7 @@ export interface CalendarBirthday {
   nombreCompleto: string;
   dni: string;
   fecha: string;
-  tipoMiembro: 'protagonista' | 'adulto' | 'otro';
+  tipoMiembro: 'protagonista' | 'responsable' | 'adulto' | 'otro';
   ramaNombre: string | null;
   areaNombre: string | null;
 }
@@ -99,6 +99,13 @@ export interface EventosOptionsResponse {
   comisiones: EventoComisionOption[];
 }
 
+export interface EventoFilters {
+  q: string;
+  idTipo: number | null;
+  fechaDesde: string;
+  fechaHasta: string;
+}
+
 export interface EventoFormValues {
   nombre: string;
   descripcion: string;
@@ -110,6 +117,8 @@ export interface EventoFormValues {
   costoMa: string;
   costoAyudante: string;
   idTipo: number | null;
+  areaIds: number[];
+  ramaIds: number[];
 }
 
 export interface CreateEventoPayload {
@@ -123,6 +132,8 @@ export interface CreateEventoPayload {
   costoMa: number;
   costoAyudante: number;
   idTipo: number;
+  areaIds?: number[];
+  ramaIds?: number[];
 }
 
 export interface UpdateEventoPayload {
@@ -136,4 +147,6 @@ export interface UpdateEventoPayload {
   costoMa?: number;
   costoAyudante?: number;
   idTipo?: number;
+  areaIds?: number[];
+  ramaIds?: number[];
 }

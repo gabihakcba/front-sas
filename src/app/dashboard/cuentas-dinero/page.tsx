@@ -5,6 +5,8 @@ import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
+import { IconField } from 'primereact/iconfield';
+import { InputIcon } from 'primereact/inputicon';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { CuentaDineroFormDialog } from '@/components/cuentas-dinero/CuentaDineroFormDialog';
@@ -44,8 +46,7 @@ export default function CuentasDineroPage() {
   const header = (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-center">
-        <span className="p-input-icon-left">
-          <i className="pi pi-search" />
+        <IconField iconPosition="right">
           <InputText
             value={filters.q}
             onChange={(event) =>
@@ -56,7 +57,8 @@ export default function CuentasDineroPage() {
             }
             placeholder="Buscar cuenta"
           />
-        </span>
+          <InputIcon className="pi pi-search" />
+        </IconField>
       </div>
       <div className="flex flex-wrap justify-end gap-2">
         <Button

@@ -31,6 +31,7 @@ export interface Pago {
   comprobante_pago_mime: string | null;
   comprobante_pago_nombre: string | null;
   fecha_pago: string;
+  createdAt: string;
   codigo_validacion: string;
   Miembro: PagoMiembroOption;
   Responsable: PagoMiembroOption | null;

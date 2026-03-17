@@ -2,7 +2,8 @@
 
 import dayjs from 'dayjs';
 import { AxiosError } from 'axios';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
 import {
   assignEventoComisionRequest,
   createEventoRequest,
@@ -18,6 +19,7 @@ import {
 import {
   CreateEventoPayload,
   Evento,
+  EventoFilters,
   EventoFormValues,
   EventoInscripcion,
   EventosOptionsResponse,
@@ -27,6 +29,13 @@ import { PaginatedResponseMeta } from '@/types/pagination';
 
 const DEFAULT_LIMIT = 10;
 type DialogMode = 'create' | 'edit';
+
+const createEmptyFilters = (): EventoFilters => ({
+  q: '',
+  idTipo: null,
+  fechaDesde: '',
+  fechaHasta: '',
+});
 
 const createEmptyFormValues = (): EventoFormValues => ({
   nombre: '',
@@ -39,6 +48,8 @@ const createEmptyFormValues = (): EventoFormValues => ({
   costoMa: '0',
   costoAyudante: '0',
   idTipo: null,
+  areaIds: [],
+  ramaIds: [],
 });
 
 const getErrorMessage = (err: unknown, fallback: string) => {
@@ -61,9 +72,50 @@ const buildPayload = (values: EventoFormValues): CreateEventoPayload => ({
   costoMa: Number(values.costoMa),
   costoAyudante: Number(values.costoAyudante),
   idTipo: values.idTipo!,
+  areaIds: values.areaIds,
+  ramaIds: values.ramaIds,
 });
 
+const buildScopedAffectaciones = (
+  roles: string[],
+  scopes: Array<{ role: string; scopeType: string; scopeId: number | null }>,
+  options: EventosOptionsResponse,
+): { areaIds: number[]; ramaIds: number[] } => {
+  if (roles.includes('JEFATURA')) {
+    const areaJefatura = options.areas.find((area) => area.nombre === 'Jefatura');
+
+    return {
+      areaIds: areaJefatura ? [areaJefatura.id] : [],
+      ramaIds: [],
+    };
+  }
+
+  const ramaScopeIds = scopes
+    .filter(
+      (scope) =>
+        (scope.role === 'JEFATURA_RAMA' || scope.role === 'AYUDANTE_RAMA') &&
+        scope.scopeType === 'RAMA' &&
+        scope.scopeId !== null,
+    )
+    .map((scope) => scope.scopeId as number);
+
+  if (ramaScopeIds.length > 0) {
+    const areaRama = options.areas.find((area) => area.nombre === 'Rama');
+
+    return {
+      areaIds: areaRama ? [areaRama.id] : [],
+      ramaIds: Array.from(new Set(ramaScopeIds)),
+    };
+  }
+
+  return {
+    areaIds: [],
+    ramaIds: [],
+  };
+};
+
 export const useEventosHook = () => {
+  const { user } = useAuth();
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [selectedEvento, setSelectedEvento] = useState<Evento | null>(null);
   const [formValues, setFormValuesState] = useState<EventoFormValues>(
@@ -93,6 +145,7 @@ export const useEventosHook = () => {
   const [submitting, setSubmitting] = useState(false);
   const [auxSubmitting, setAuxSubmitting] = useState(false);
   const [page, setPage] = useState(1);
+  const [filters, setFiltersState] = useState<EventoFilters>(createEmptyFilters());
   const [meta, setMeta] = useState<PaginatedResponseMeta>({
     page: 1,
     limit: DEFAULT_LIMIT,
@@ -105,11 +158,19 @@ export const useEventosHook = () => {
     setOptions(response);
   };
 
-  const fetchEventos = async (nextPage = 1) => {
+  const setFilters = (nextFilters: EventoFilters) => {
+    setFiltersState(nextFilters);
+  };
+
+  const fetchEventos = useCallback(async (nextPage = 1) => {
     setLoading(true);
     setError('');
     try {
-      const response = await getEventosRequest({ page: nextPage, limit: DEFAULT_LIMIT });
+      const response = await getEventosRequest({
+        page: nextPage,
+        limit: DEFAULT_LIMIT,
+        filters,
+      });
       setEventos(response.data);
       setMeta(response.meta);
       setPage(response.meta.page);
@@ -121,12 +182,15 @@ export const useEventosHook = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
   useEffect(() => {
     void fetchOptions();
-    void fetchEventos();
   }, []);
+
+  useEffect(() => {
+    void fetchEventos(1);
+  }, [fetchEventos]);
 
   const openCreateDialog = async () => {
     setDialogMode('create');
@@ -134,8 +198,17 @@ export const useEventosHook = () => {
     setError('');
     setSuccessMessage('');
     try {
-      await fetchOptions();
-      setFormValuesState(createEmptyFormValues());
+      const response = await getEventosOptionsRequest();
+      setOptions(response);
+      const scopedAffectaciones = buildScopedAffectaciones(
+        user?.roles ?? [],
+        user?.scopes ?? [],
+        response,
+      );
+      setFormValuesState({
+        ...createEmptyFormValues(),
+        ...scopedAffectaciones,
+      });
       setDialogVisible(true);
     } catch (err: unknown) {
       setError(getErrorMessage(err, 'No se pudieron cargar las opciones.'));
@@ -163,6 +236,8 @@ export const useEventosHook = () => {
         costoMa: evento.costo_ma,
         costoAyudante: evento.costo_ayudante,
         idTipo: evento.TipoEvento.id,
+        areaIds: evento.AreaAfectada.map((item) => item.Area.id),
+        ramaIds: evento.RamaAfectada.map((item) => item.Rama.id),
       });
       setDialogVisible(true);
     } catch (err: unknown) {
@@ -337,6 +412,8 @@ export const useEventosHook = () => {
     page,
     total: meta.total,
     limit: meta.limit,
+    filters,
+    setFilters,
     refetch: fetchEventos,
     openCreateDialog,
     openEditDialog,

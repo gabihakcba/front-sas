@@ -50,15 +50,18 @@ export default function CalendarioPage() {
     tipoEventoOptions,
     areaOptions,
     ramaOptions,
+    birthdayMemberTypeOptions,
     selectedSources,
     selectedTipoEventoId,
     selectedAreaId,
     selectedRamaId,
+    selectedBirthdayMemberType,
     filtersVisible,
     setSelectedSources,
     setSelectedTipoEventoId,
     setSelectedAreaId,
     setSelectedRamaId,
+    setSelectedBirthdayMemberType,
     setFiltersVisible,
     handleDatesSet,
   } = useCalendarioHook();
@@ -77,19 +80,22 @@ export default function CalendarioPage() {
           tipoEventoOptions={tipoEventoOptions}
           areaOptions={areaOptions}
           ramaOptions={ramaOptions}
+          birthdayMemberTypeOptions={birthdayMemberTypeOptions}
           selectedTipoEventoId={selectedTipoEventoId}
           selectedAreaId={selectedAreaId}
           selectedRamaId={selectedRamaId}
+          selectedBirthdayMemberType={selectedBirthdayMemberType}
           onSourcesChange={setSelectedSources}
           onTipoEventoChange={setSelectedTipoEventoId}
           onAreaChange={setSelectedAreaId}
           onRamaChange={setSelectedRamaId}
+          onBirthdayMemberTypeChange={setSelectedBirthdayMemberType}
           onClose={() => setFiltersVisible(false)}
         />
       </Sidebar>
 
-      <div className="flex flex-col gap-4 xl:flex-row">
-        <div className="min-w-0 flex-1">
+      <div className="flex flex-col gap-4">
+        <div className="min-w-0">
           <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
               <h1 className="m-0 text-2xl font-semibold">Calendario</h1>
@@ -106,7 +112,6 @@ export default function CalendarioPage() {
                 outlined
                 size="small"
                 onClick={() => setFiltersVisible(true)}
-                className="xl:hidden"
               />
             </div>
           </div>
@@ -167,23 +172,6 @@ export default function CalendarioPage() {
             eventContent={renderCalendarEventContent}
           />
         </div>
-
-        <aside className="hidden xl:block xl:w-[320px] xl:flex-shrink-0">
-          <CalendarioFiltersSidebar
-            selectedSources={selectedSources}
-            sourceOptions={sourceOptions}
-            tipoEventoOptions={tipoEventoOptions}
-            areaOptions={areaOptions}
-            ramaOptions={ramaOptions}
-            selectedTipoEventoId={selectedTipoEventoId}
-            selectedAreaId={selectedAreaId}
-            selectedRamaId={selectedRamaId}
-            onSourcesChange={setSelectedSources}
-            onTipoEventoChange={setSelectedTipoEventoId}
-            onAreaChange={setSelectedAreaId}
-            onRamaChange={setSelectedRamaId}
-          />
-        </aside>
       </div>
     </>
   );

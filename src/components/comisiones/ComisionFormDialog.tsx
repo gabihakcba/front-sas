@@ -3,10 +3,11 @@
 import { useEffect } from 'react';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
+import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Controller, useForm } from 'react-hook-form';
-import { ComisionFormValues } from '@/types/comisiones';
+import { ComisionFormValues, ComisionOption } from '@/types/comisiones';
 
 interface Props {
   visible: boolean;
@@ -14,6 +15,7 @@ interface Props {
   loading: boolean;
   submitting: boolean;
   values: ComisionFormValues;
+  eventos: ComisionOption[];
   error: string;
   onHide: () => void;
   onSubmit: (values: ComisionFormValues) => void;
@@ -25,6 +27,7 @@ export function ComisionFormDialog({
   loading,
   submitting,
   values,
+  eventos,
   error,
   onHide,
   onSubmit,
@@ -59,6 +62,28 @@ export function ComisionFormDialog({
           <div className="flex flex-col gap-2">
             <label htmlFor="comision-descripcion">Descripción</label>
             <Controller name="descripcion" control={control} render={({ field }) => <InputText id="comision-descripcion" {...field} className="w-full" />} />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="comision-evento">Evento</label>
+            <Controller
+              name="idEvento"
+              control={control}
+              render={({ field }) => (
+                <Dropdown
+                  id="comision-evento"
+                  value={field.value}
+                  options={eventos}
+                  optionLabel="nombre"
+                  optionValue="id"
+                  onChange={(event) =>
+                    field.onChange((event.value as number | null) ?? null)
+                  }
+                  placeholder="Evento asociado"
+                  className="w-full"
+                  showClear
+                />
+              )}
+            />
           </div>
         </div>
       )}

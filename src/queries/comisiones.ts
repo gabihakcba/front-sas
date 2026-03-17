@@ -1,6 +1,9 @@
 import api from '@/lib/axios';
 import {
   Comision,
+  ComisionFilters,
+  ComisionParticipante,
+  ComisionesOptionsResponse,
   CreateComisionPayload,
   PaginatedComisionesResponse,
   UpdateComisionPayload,
@@ -9,20 +12,52 @@ import {
 interface GetComisionesParams {
   page?: number;
   limit?: number;
+  filters?: ComisionFilters;
 }
 
 export const getComisionesRequest = async ({
   page = 1,
   limit = 10,
+  filters,
 }: GetComisionesParams = {}): Promise<PaginatedComisionesResponse> => {
   const response = await api.get<PaginatedComisionesResponse>('/comisiones', {
-    params: { page, limit },
+    params: {
+      page,
+      limit,
+      ...(filters?.q ? { q: filters.q } : {}),
+      ...(filters?.idEvento ? { idEvento: filters.idEvento } : {}),
+    },
   });
   return response.data;
 };
 
 export const getComisionRequest = async (id: number): Promise<Comision> => {
   const response = await api.get<Comision>(`/comisiones/${id}`);
+  return response.data;
+};
+
+export const getComisionesOptionsRequest = async (): Promise<ComisionesOptionsResponse> => {
+  const response = await api.get<ComisionesOptionsResponse>('/comisiones/options');
+  return response.data;
+};
+
+export const getComisionParticipantesRequest = async (
+  id: number,
+): Promise<ComisionParticipante[]> => {
+  const response = await api.get<ComisionParticipante[]>(
+    `/comisiones/${id}/participantes`,
+  );
+  return response.data;
+};
+
+export const updateComisionParticipantesRequest = async (
+  id: number,
+  miembroIds: number[],
+): Promise<ComisionParticipante[]> => {
+  const response = await api.patch<ComisionParticipante[]>(
+    `/comisiones/${id}/participantes`,
+    { miembroIds },
+  );
   return response.data;
 };
 

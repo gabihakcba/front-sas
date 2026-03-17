@@ -18,7 +18,9 @@ export interface PlanFormacionOptionsResponse {
 }
 
 export interface FormacionAdminWorkspace {
-  canManage: boolean;
+  canEdit: boolean;
+  canCreatePlan: boolean;
+  canManageApf: boolean;
   templates: PlanFormacionTemplateAdmin[];
   areas: Array<{
     id: number;

@@ -18,6 +18,10 @@ import { ConsejoTemarioFormDialog } from '@/components/consejos/ConsejoTemarioFo
 import { useAuth } from '@/context/AuthContext';
 import { useConsejoRealtime } from '@/hooks/useConsejoRealtime';
 import {
+  hasAdultMemberAccess,
+  hasPermissionAccess,
+} from '@/lib/authorization';
+import {
   createConsejoAsistenciaRequest,
   getConsejoAsistenciaOptionsRequest,
   getConsejoAsistenciasRequest,
@@ -57,15 +61,6 @@ const getEstadoColorClass = (value: string) => {
 
 const getSinMpColorClass = (sinMp: boolean) =>
   sinMp ? 'text-red-500' : 'text-green-500';
-
-const hasPermission = (permissions: string[], required: string) => {
-  if (permissions.includes(required)) {
-    return true;
-  }
-
-  const [, resource] = required.split(':');
-  return permissions.includes(`MANAGE:${resource}`);
-};
 
 const getErrorMessage = (err: unknown, fallback: string): string => {
   if (err instanceof AxiosError) {
@@ -243,10 +238,10 @@ export default function ConsejoWorkspacePage() {
   const [previewFileName, setPreviewFileName] = useState('archivo.pdf');
   const [previewError, setPreviewError] = useState('');
 
-  const permissions = user?.permissions ?? [];
-  const canManageConsejo = hasPermission(permissions, 'UPDATE:CONSEJO');
-  const canAssignSecretaria = hasPermission(permissions, 'READ:CONSEJO');
-  const canRead = hasPermission(permissions, 'READ:CONSEJO');
+  const canManageConsejo =
+    hasAdultMemberAccess(user) && hasPermissionAccess(user, 'UPDATE:CONSEJO');
+  const canManageAssignments = hasAdultMemberAccess(user);
+  const canRead = hasPermissionAccess(user, 'READ:CONSEJO');
   const currentMemberId = user?.memberId ?? null;
 
   const {
@@ -662,7 +657,7 @@ export default function ConsejoWorkspacePage() {
   }, [canEditActa, handleSaveTema, saving, selectedTema]);
 
   useEffect(() => {
-    if (!canManageConsejo || !selectedTema) {
+    if (!canEditActa || !selectedTema) {
       return;
     }
 
@@ -698,7 +693,7 @@ export default function ConsejoWorkspacePage() {
         window.clearTimeout(temarioSyncTimeoutRef.current);
       }
     };
-  }, [acuerdo, canEditActa, canManageConsejo, debate, emit, estado, selectedTema]);
+  }, [acuerdo, canEditActa, debate, emit, estado, selectedTema]);
 
   useEffect(() => {
     if (!lastTemarioUpdate) {
@@ -768,7 +763,7 @@ export default function ConsejoWorkspacePage() {
               size="small"
               onClick={() => void openAsistenciaDialog()}
             />
-            {canAssignSecretaria ? (
+            {canManageAssignments ? (
               <Button
                 type="button"
                 label="Asignar secretaria"
@@ -779,7 +774,7 @@ export default function ConsejoWorkspacePage() {
                 onClick={() => void openSecretariaDialog()}
               />
             ) : null}
-            {canAssignSecretaria ? (
+            {canManageAssignments ? (
               <Button
                 type="button"
                 label="Asignar moderador"
@@ -868,7 +863,7 @@ export default function ConsejoWorkspacePage() {
                       setEstado(event.value as string)
                     }
                     className="w-full"
-                    disabled={!canManageConsejo}
+                    disabled={!canEditActa}
                   />
                 </div>
               </div>
@@ -913,7 +908,7 @@ export default function ConsejoWorkspacePage() {
                 />
               </div>
 
-              {canManageConsejo ? (
+              {canEditActa ? (
                 <div className="flex justify-end">
                   <Button
                     type="button"
@@ -1003,7 +998,7 @@ export default function ConsejoWorkspacePage() {
       />
       <ConsejoAsistenciaDialog
         visible={asistenciaDialogVisible}
-        canManage={canAssignSecretaria}
+        canManage={canManageAssignments}
         loading={asistenciaLoading}
         searching={asistenciaSearching}
         error={asistenciaError}

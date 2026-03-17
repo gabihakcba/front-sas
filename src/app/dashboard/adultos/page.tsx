@@ -9,12 +9,15 @@ import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
+import { IconField } from 'primereact/iconfield';
+import { InputIcon } from 'primereact/inputicon';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
 import { AdultoFormDialog } from '@/components/adultos/AdultoFormDialog';
 import { AdultoFirmaDialog } from '@/components/adultos/AdultoFirmaDialog';
 import { useAuth } from '@/context/AuthContext';
+import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useAdultosHook } from '@/hooks/useAdultosHooks';
 import { Adulto } from '@/types/adultos';
 
@@ -28,6 +31,7 @@ const getRolesActuales = (adulto: Adulto) =>
 export default function AdultosPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const { confirmDelete, deleteConfirmDialog } = useDeleteConfirm();
   const [signatureDialogVisible, setSignatureDialogVisible] = useState(false);
   const [signatureLoading, setSignatureLoading] = useState(false);
   const [signatureSubmitting, setSignatureSubmitting] = useState(false);
@@ -70,14 +74,12 @@ export default function AdultosPage() {
     if (!selectedAdulto) {
       return;
     }
-
-    const confirmed = window.confirm(
-      `Se eliminará de forma lógica a ${selectedAdulto.Miembro.nombre} ${selectedAdulto.Miembro.apellidos}.`,
-    );
-
-    if (confirmed) {
-      void deleteSelected();
-    }
+    confirmDelete({
+      message: `Se eliminará de forma lógica a ${selectedAdulto.Miembro.nombre} ${selectedAdulto.Miembro.apellidos}.`,
+      impact:
+        'La persona adulta dejará de aparecer en los listados operativos y esto puede repercutir en equipos, formación, pagos, firmas y otros vínculos visibles.',
+      onAccept: () => void deleteSelected(),
+    });
   };
 
   const canEditSelectedSignature = Boolean(
@@ -147,12 +149,11 @@ export default function AdultosPage() {
           outlined
           size="small"
           onClick={() => void openSignatureDialog()}
-          disabled={!selectedAdulto}
+          disabled={!selectedAdulto || !canEditSelectedSignature}
         />
       </div>
       <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-center">
-        <span className="p-input-icon-left">
-          <i className="pi pi-search" />
+        <IconField iconPosition="right">
           <InputText
             value={filters.q}
             onChange={(event) =>
@@ -163,7 +164,8 @@ export default function AdultosPage() {
             }
             placeholder="Buscar adulto"
           />
-        </span>
+          <InputIcon className="pi pi-search" />
+        </IconField>
       </div>
       <div className="flex flex-wrap justify-end gap-2">
         <Button
@@ -423,6 +425,7 @@ export default function AdultosPage() {
         onHide={closeSignatureDialog}
         onSave={(firmaBase64) => void handleSaveSignature(firmaBase64)}
       />
+      {deleteConfirmDialog}
     </div>
   );
 }

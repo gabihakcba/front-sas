@@ -6,10 +6,12 @@ import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { Message } from 'primereact/message';
 import { MetodoPagoFormDialog } from '@/components/metodos-pago/MetodoPagoFormDialog';
+import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useMetodosPagoHook } from '@/hooks/useMetodosPagoHooks';
 import { MetodoPago } from '@/types/metodos-pago';
 
 export default function MetodosPagoPage() {
+  const { confirmDelete, deleteConfirmDialog } = useDeleteConfirm();
   const {
     metodosPago,
     selectedMetodoPago,
@@ -42,14 +44,12 @@ export default function MetodosPagoPage() {
     if (!selectedMetodoPago) {
       return;
     }
-
-    const confirmed = window.confirm(
-      `Se eliminará de forma lógica el método "${selectedMetodoPago.nombre}".`,
-    );
-
-    if (confirmed) {
-      void deleteSelected();
-    }
+    confirmDelete({
+      message: `Se eliminará de forma lógica el método "${selectedMetodoPago.nombre}".`,
+      impact:
+        'El método dejará de estar disponible en nuevos pagos y puede afectar formularios o referencias visibles de movimientos ya registrados.',
+      onAccept: () => void deleteSelected(),
+    });
   };
 
   const header = (
@@ -142,6 +142,7 @@ export default function MetodosPagoPage() {
         onHide={closeDialog}
         onSubmit={(values) => void submitForm(values)}
       />
+      {deleteConfirmDialog}
     </div>
   );
 }

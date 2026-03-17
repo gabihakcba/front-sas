@@ -9,9 +9,14 @@ import {
   getCalendarEventosRequest,
   getEventosOptionsRequest,
 } from '@/queries/eventos';
-import { EventoOption, EventoRamaOption } from '@/types/eventos';
+import { CalendarBirthday, EventoOption, EventoRamaOption } from '@/types/eventos';
 
 export type CalendarSource = 'eventos' | 'cumpleanios';
+export type CalendarBirthdayMemberType =
+  | 'protagonista'
+  | 'responsable'
+  | 'adulto'
+  | null;
 
 type CalendarSourceOption = {
   label: string;
@@ -23,6 +28,16 @@ const DEFAULT_CALENDAR_SOURCES: CalendarSource[] = ['eventos'];
 const calendarSourceOptions: CalendarSourceOption[] = [
   { label: 'Eventos', value: 'eventos' },
   { label: 'Cumpleaños', value: 'cumpleanios' },
+];
+
+const calendarBirthdayMemberTypeOptions: Array<{
+  label: string;
+  value: CalendarBirthdayMemberType;
+}> = [
+  { label: 'Todos', value: null },
+  { label: 'Protagonistas', value: 'protagonista' },
+  { label: 'Responsables', value: 'responsable' },
+  { label: 'Adultos', value: 'adulto' },
 ];
 
 const ramaBirthdayColors: Record<string, string> = {
@@ -64,6 +79,8 @@ export const useCalendarioHook = () => {
   const [selectedTipoEventoId, setSelectedTipoEventoId] = useState<number | null>(null);
   const [selectedAreaId, setSelectedAreaId] = useState<number | null>(null);
   const [selectedRamaId, setSelectedRamaId] = useState<number | null>(null);
+  const [selectedBirthdayMemberType, setSelectedBirthdayMemberType] =
+    useState<CalendarBirthdayMemberType>(null);
   const [visibleRange, setVisibleRange] = useState<{
     from: string;
     to: string;
@@ -77,6 +94,7 @@ export const useCalendarioHook = () => {
     idTipo: number | null,
     idArea: number | null,
     idRama: number | null,
+    birthdayMemberType: CalendarBirthdayMemberType,
   ) => {
     setLoading(true);
     setError('');
@@ -127,7 +145,13 @@ export const useCalendarioHook = () => {
       if (sources.includes('cumpleanios')) {
         requests.push(
           getCalendarCumpleaniosRequest({ from, to }).then((response) =>
-            response.map((item) => ({
+            response
+              .filter((item: CalendarBirthday) =>
+                birthdayMemberType === null
+                  ? true
+                  : item.tipoMiembro === birthdayMemberType,
+              )
+              .map((item) => ({
               ...(item.ramaNombre
                 ? {
                     classNames: ['calendar-birthday-with-rama'],
@@ -202,8 +226,16 @@ export const useCalendarioHook = () => {
       selectedTipoEventoId,
       selectedAreaId,
       selectedRamaId,
+      selectedBirthdayMemberType,
     );
-  }, [selectedAreaId, selectedRamaId, selectedSources, selectedTipoEventoId, visibleRange]);
+  }, [
+    selectedAreaId,
+    selectedBirthdayMemberType,
+    selectedRamaId,
+    selectedSources,
+    selectedTipoEventoId,
+    visibleRange,
+  ]);
 
   useEffect(() => {
     if (selectedRamaId === null) {
@@ -238,11 +270,14 @@ export const useCalendarioHook = () => {
     selectedTipoEventoId,
     selectedAreaId,
     selectedRamaId,
+    selectedBirthdayMemberType,
+    birthdayMemberTypeOptions: calendarBirthdayMemberTypeOptions,
     filtersVisible,
     setSelectedSources,
     setSelectedTipoEventoId,
     setSelectedAreaId,
     setSelectedRamaId,
+    setSelectedBirthdayMemberType,
     setFiltersVisible,
     handleDatesSet,
   };

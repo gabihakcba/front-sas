@@ -6,10 +6,12 @@ import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { Message } from 'primereact/message';
 import { ConceptoPagoFormDialog } from '@/components/conceptos-pago/ConceptoPagoFormDialog';
+import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useConceptosPagoHook } from '@/hooks/useConceptosPagoHooks';
 import { ConceptoPago } from '@/types/conceptos-pago';
 
 export default function ConceptosPagoPage() {
+  const { confirmDelete, deleteConfirmDialog } = useDeleteConfirm();
   const {
     conceptosPago,
     selectedConceptoPago,
@@ -42,14 +44,12 @@ export default function ConceptosPagoPage() {
     if (!selectedConceptoPago) {
       return;
     }
-
-    const confirmed = window.confirm(
-      `Se eliminará de forma lógica el concepto "${selectedConceptoPago.nombre}".`,
-    );
-
-    if (confirmed) {
-      void deleteSelected();
-    }
+    confirmDelete({
+      message: `Se eliminará de forma lógica el concepto "${selectedConceptoPago.nombre}".`,
+      impact:
+        'El concepto dejará de estar disponible en nuevos pagos y puede repercutir en filtros, formularios y referencias visibles de movimientos ya registrados.',
+      onAccept: () => void deleteSelected(),
+    });
   };
 
   const header = (
@@ -144,6 +144,7 @@ export default function ConceptosPagoPage() {
         onHide={closeDialog}
         onSubmit={(values) => void submitForm(values)}
       />
+      {deleteConfirmDialog}
     </div>
   );
 }

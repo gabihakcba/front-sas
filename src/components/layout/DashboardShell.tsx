@@ -5,24 +5,52 @@ import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { Sidebar } from "primereact/sidebar";
 import { Button } from "primereact/button";
+import DashboardAccessGate from "@/components/layout/DashboardAccessGate";
 import { useAuth } from "@/context/AuthContext";
+import { dashboardSidebarItems } from "@/data/access-control";
+import { hasAccessRule } from "@/lib/authorization";
 import packageJson from "../../../package.json";
-
-const sidebarItems = [
-  { label: "Perfil", icon: "pi pi-user", path: "/dashboard/perfil" },
-  { label: "Protagonistas", icon: "pi pi-id-card", path: "/dashboard/protagonistas" },
-  { label: "Adultos", icon: "pi pi-users", path: "/dashboard/adultos" },
-  { label: "Responsables", icon: "pi pi-user-edit", path: "/dashboard/responsables" },
-  { label: "Pagos", icon: "pi pi-wallet", path: "/dashboard/pagos" },
-  { label: "Eventos", icon: "pi pi-calendar", path: "/dashboard/eventos" },
-  { label: "Formaciones", icon: "pi pi-book", path: "/dashboard/formaciones" },
-  { label: "Comisiones", icon: "pi pi-briefcase", path: "/dashboard/comisiones" },
-  { label: "Consejos", icon: "pi pi-comments", path: "/dashboard/consejos" },
-  { label: "Calendario", icon: "pi pi-calendar-clock", path: "/dashboard/calendario" },
-];
 
 interface DashboardShellProps {
   children: React.ReactNode;
+}
+
+function SidebarNavigation({
+  pathname,
+  onNavigate,
+}: {
+  pathname: string;
+  onNavigate: (path: string) => void;
+}) {
+  const { user } = useAuth();
+
+  const navigationItems = useMemo(() => {
+    return dashboardSidebarItems
+      .filter((item) => hasAccessRule(user?.scopes, item.accessRules))
+      .map((item) => ({
+        ...item,
+        active: pathname.startsWith(item.path),
+      }));
+  }, [pathname, user]);
+
+  return (
+    <nav className="w-full p-2">
+      {navigationItems.map((item) => (
+        <Button
+          key={item.path}
+          type="button"
+          label={item.label}
+          icon={item.icon}
+          iconPos="left"
+          text
+          size="small"
+          onClick={() => onNavigate(item.path)}
+          className="w-full justify-content-start"
+          severity={item.active ? "contrast" : undefined}
+        />
+      ))}
+    </nav>
+  );
 }
 
 export default function DashboardShell({ children }: DashboardShellProps) {
@@ -45,13 +73,6 @@ export default function DashboardShell({ children }: DashboardShellProps) {
     setSidebarVisible(false);
     router.push("/");
   };
-
-  const navigationItems = useMemo(() => {
-    return sidebarItems.map((item) => ({
-      ...item,
-      active: pathname.startsWith(item.path),
-    }));
-  }, [pathname]);
 
   if (isLoading) {
     return <div className="min-h-screen" />;
@@ -86,25 +107,13 @@ export default function DashboardShell({ children }: DashboardShellProps) {
       >
         <div className="p-3">
           {sidebarHeader}
-          <nav className="w-full p-2">
-            {navigationItems.map((item) => (
-              <Button
-                key={item.path}
-                type="button"
-                label={item.label}
-                icon={item.icon}
-                iconPos="left"
-                text
-                size="small"
-                onClick={() => {
-                  router.push(item.path);
-                  setSidebarVisible(false);
-                }}
-                className="w-full justify-content-start"
-                severity={item.active ? "contrast" : undefined}
-              />
-            ))}
-          </nav>
+          <SidebarNavigation
+            pathname={pathname}
+            onNavigate={(path) => {
+              router.push(path);
+              setSidebarVisible(false);
+            }}
+          />
           <div className="mt-3">
             <Button
               type="button"
@@ -137,25 +146,13 @@ export default function DashboardShell({ children }: DashboardShellProps) {
         <aside className="hidden lg:block lg:fixed lg:top-0 lg:left-0 lg:h-screen lg:w-80">
           <div className="h-full flex flex-col p-3">
             {sidebarHeader}
-            <nav className="w-full p-2">
-              {navigationItems.map((item) => (
-                <Button
-                  key={item.path}
-                  type="button"
-                  label={item.label}
-                  icon={item.icon}
-                  iconPos="left"
-                  text
-                  size="small"
-                  onClick={() => {
-                    router.push(item.path);
-                    setSidebarVisible(false);
-                  }}
-                  className="w-full justify-content-start"
-                  severity={item.active ? "contrast" : undefined}
-                />
-              ))}
-            </nav>
+            <SidebarNavigation
+              pathname={pathname}
+              onNavigate={(path) => {
+                router.push(path);
+                setSidebarVisible(false);
+              }}
+            />
             <div className="mt-3">
               <Button
                 type="button"
@@ -195,7 +192,9 @@ export default function DashboardShell({ children }: DashboardShellProps) {
               onClick={() => setSidebarVisible(true)}
             />
           </div>
-          <div className="min-h-screen w-full">{children}</div>
+          <DashboardAccessGate>
+            <div className="min-h-screen w-full">{children}</div>
+          </DashboardAccessGate>
         </section>
       </div>
     </>

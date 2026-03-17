@@ -137,6 +137,7 @@ function FormacionTemplateEditor({
   draft,
   areaOptions,
   canManage,
+  canUseTemplate,
   submitting,
   setTemplateDrafts,
   onSave,
@@ -150,6 +151,7 @@ function FormacionTemplateEditor({
   draft: TemplateDraft;
   areaOptions: Array<{ label: string; value: number }>;
   canManage: boolean;
+  canUseTemplate: boolean;
   submitting: boolean;
   setTemplateDrafts: React.Dispatch<
     React.SetStateAction<Record<number, TemplateDraft>>
@@ -167,14 +169,16 @@ function FormacionTemplateEditor({
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
         <Tag value={template.activo ? 'Activo' : 'Inactivo'} />
-        <Button
-          label="Usar para inscribirme"
-          icon="pi pi-send"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={onUseTemplate}
-        />
+        {canUseTemplate ? (
+          <Button
+            label="Usar para inscribirme"
+            icon="pi pi-send"
+            iconPos="right"
+            outlined
+            size="small"
+            onClick={onUseTemplate}
+          />
+        ) : null}
       </div>
 
       {canManage ? (
@@ -531,7 +535,9 @@ export default function FormacionesPage() {
   const [apfAdultId, setApfAdultId] = useState<number | null>(null);
   const [apfConsejoId, setApfConsejoId] = useState<number | null>(null);
   const [apfObservacion, setApfObservacion] = useState('');
-  const [editMode, setEditMode] = useState(false);
+  const [apfEditMode, setApfEditMode] = useState(false);
+  const [apfSectionOpen, setApfSectionOpen] = useState<number[]>([]);
+  const [editingTemplateIds, setEditingTemplateIds] = useState<number[]>([]);
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewBlob, setPreviewBlob] = useState<Blob | null>(null);
   const [previewTitle, setPreviewTitle] = useState('Preview');
@@ -623,8 +629,17 @@ export default function FormacionesPage() {
     );
   }
 
-  const canManage = workspace?.canManage ?? false;
-  const effectiveCanManage = canManage && editMode;
+  const canEdit = workspace?.canEdit ?? false;
+  const canCreatePlan = workspace?.canCreatePlan ?? false;
+  const canManageApf = workspace?.canManageApf ?? false;
+
+  const toggleTemplateEditMode = (templateId: number) => {
+    setEditingTemplateIds((current) =>
+      current.includes(templateId)
+        ? current.filter((id) => id !== templateId)
+        : [...current, templateId],
+    );
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -632,22 +647,9 @@ export default function FormacionesPage() {
       {uploadError ? <Message severity="error" text={uploadError} /> : null}
       {successMessage ? <Message severity="success" text={successMessage} /> : null}
 
-      {canManage ? (
-        <div className="flex justify-end">
-          <Button
-            label={editMode ? 'Modo vista' : 'Modo edición'}
-            icon={editMode ? 'pi pi-eye' : 'pi pi-pencil'}
-            iconPos="right"
-            outlined
-            size="small"
-            onClick={() => setEditMode((current) => !current)}
-          />
-        </div>
-      ) : null}
-
       <Card title="Formaciones">
         <div className="flex flex-col gap-3">
-          {effectiveCanManage ? (
+          {canEdit ? (
             <div className="flex flex-col gap-2 md:flex-row">
               <InputText
                 value={newTemplateName}
@@ -676,163 +678,203 @@ export default function FormacionesPage() {
             />
           )}
 
-          <div className="flex flex-col gap-2 md:flex-row">
-            <Dropdown
-              value={selectedTemplateForInscription}
-              options={templateOptions}
-              onChange={(event) =>
-                setSelectedTemplateForInscription((event.value as number | null) ?? null)
-              }
-              placeholder="Template para inscribirme"
-            />
-            <Dropdown
-              value={selectedApfAdulto}
-              options={apfOptions}
-              onChange={(event) =>
-                setSelectedApfAdulto((event.value as number | null) ?? null)
-              }
-              placeholder="APF"
-            />
-            <InputNumber
-              value={inscriptionYear}
-              onValueChange={(event) => setInscriptionYear(event.value ?? null)}
-              useGrouping={false}
-              placeholder="Año"
-            />
-            <Button
-              label="Inscribirme"
-              icon="pi pi-send"
-              iconPos="right"
-              outlined
-              size="small"
-              loading={submitting}
-              disabled={
-                !selectedTemplateForInscription || !selectedApfAdulto || !inscriptionYear
-              }
-              onClick={() => {
-                if (
-                  !selectedTemplateForInscription ||
-                  !selectedApfAdulto ||
-                  !inscriptionYear
-                ) {
-                  return;
-                }
-
-                const payload: CreatePlanDesempenoPayload = {
-                  idPlanFormacionTemplate: selectedTemplateForInscription,
-                  idApfAdulto: selectedApfAdulto,
-                  anio: inscriptionYear,
-                };
-
-                void inscribirme(payload);
-              }}
-            />
-          </div>
-        </div>
-      </Card>
-
-      {effectiveCanManage ? (
-        <Card title="APFs habilitados">
-          <div className="flex flex-col gap-3">
+          {canCreatePlan ? (
             <div className="flex flex-col gap-2 md:flex-row">
               <Dropdown
-                value={apfAdultId}
-                options={adultOptions}
-                onChange={(event) => setApfAdultId((event.value as number | null) ?? null)}
-                placeholder="Adulto"
+                value={selectedTemplateForInscription}
+                options={templateOptions}
+                onChange={(event) =>
+                  setSelectedTemplateForInscription((event.value as number | null) ?? null)
+                }
+                placeholder="Template para inscribirme"
               />
               <Dropdown
-                value={apfConsejoId}
-                options={consejoOptions}
+                value={selectedApfAdulto}
+                options={apfOptions}
                 onChange={(event) =>
-                  setApfConsejoId((event.value as number | null) ?? null)
+                  setSelectedApfAdulto((event.value as number | null) ?? null)
                 }
-                placeholder="Consejo"
+                placeholder="APF"
               />
-              <InputText
-                value={apfObservacion}
-                onChange={(event) => setApfObservacion(event.target.value)}
-                placeholder="Observación"
+              <InputNumber
+                value={inscriptionYear}
+                onValueChange={(event) => setInscriptionYear(event.value ?? null)}
+                useGrouping={false}
+                placeholder="Año"
               />
               <Button
-                label="Habilitar APF"
-                icon="pi pi-check"
+                label="Inscribirme"
+                icon="pi pi-send"
                 iconPos="right"
                 outlined
                 size="small"
                 loading={submitting}
-                disabled={!apfAdultId || !apfConsejoId}
+                disabled={
+                  !selectedTemplateForInscription || !selectedApfAdulto || !inscriptionYear
+                }
                 onClick={() => {
-                  if (!apfAdultId || !apfConsejoId) {
+                  if (
+                    !selectedTemplateForInscription ||
+                    !selectedApfAdulto ||
+                    !inscriptionYear
+                  ) {
                     return;
                   }
 
-                  void createAsignacionApf({
-                    idAdulto: apfAdultId,
-                    idConsejo: apfConsejoId,
-                    observacion: apfObservacion || undefined,
-                  }).then(() => {
-                    setApfAdultId(null);
-                    setApfConsejoId(null);
-                    setApfObservacion('');
-                  });
+                  const payload: CreatePlanDesempenoPayload = {
+                    idPlanFormacionTemplate: selectedTemplateForInscription,
+                    idApfAdulto: selectedApfAdulto,
+                    anio: inscriptionYear,
+                  };
+
+                  void inscribirme(payload);
                 }}
               />
             </div>
+          ) : (
+            <Message
+              severity="info"
+              text="La inscripción a planes de formación está habilitada solo para personas adultas."
+            />
+          )}
+        </div>
+      </Card>
 
-            <div className="flex flex-col gap-2">
-              {(workspace?.apfAssignments ?? []).map((assignment) => (
-                <div
-                  key={assignment.id}
-                  className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
-                >
-                  <div className="flex flex-col gap-1">
-                    <strong>
-                      {assignment.Adulto.Miembro.nombre}{' '}
-                      {assignment.Adulto.Miembro.apellidos}
-                    </strong>
-                    <span>
-                      Consejo: {assignment.Consejo.nombre} (
-                      {dayjs(assignment.Consejo.fecha).format('DD/MM/YYYY')})
-                    </span>
-                    {assignment.observacion ? (
-                      <span>{assignment.observacion}</span>
-                    ) : null}
-                  </div>
+      {canManageApf ? (
+        <Accordion
+          multiple
+          activeIndex={apfSectionOpen}
+          onTabChange={(event) => setApfSectionOpen((event.index as number[]) ?? [])}
+        >
+          <AccordionTab header="APFs habilitados">
+            <div className="flex flex-col gap-3">
+              <div className="flex justify-end">
+                <Button
+                  label={apfEditMode ? 'Modo vista APFs' : 'Modo edición APFs'}
+                  icon={apfEditMode ? 'pi pi-eye' : 'pi pi-pencil'}
+                  iconPos="right"
+                  outlined
+                  size="small"
+                  onClick={() => setApfEditMode((current) => !current)}
+                />
+              </div>
+
+              {apfEditMode ? (
+                <div className="flex flex-col gap-2 md:flex-row">
+                  <Dropdown
+                    value={apfAdultId}
+                    options={adultOptions}
+                    onChange={(event) => setApfAdultId((event.value as number | null) ?? null)}
+                    placeholder="Adulto"
+                  />
+                  <Dropdown
+                    value={apfConsejoId}
+                    options={consejoOptions}
+                    onChange={(event) =>
+                      setApfConsejoId((event.value as number | null) ?? null)
+                    }
+                    placeholder="Consejo"
+                  />
+                  <InputText
+                    value={apfObservacion}
+                    onChange={(event) => setApfObservacion(event.target.value)}
+                    placeholder="Observación"
+                  />
                   <Button
-                    label="Cerrar"
-                    icon="pi pi-times"
+                    label="Habilitar APF"
+                    icon="pi pi-check"
                     iconPos="right"
                     outlined
                     size="small"
-                    severity="danger"
                     loading={submitting}
+                    disabled={!apfAdultId || !apfConsejoId}
                     onClick={() => {
-                      void closeAsignacionApf(assignment.id);
+                      if (!apfAdultId || !apfConsejoId) {
+                        return;
+                      }
+
+                      void createAsignacionApf({
+                        idAdulto: apfAdultId,
+                        idConsejo: apfConsejoId,
+                        observacion: apfObservacion || undefined,
+                      }).then(() => {
+                        setApfAdultId(null);
+                        setApfConsejoId(null);
+                        setApfObservacion('');
+                      });
                     }}
                   />
                 </div>
-              ))}
+              ) : null}
+
+              <div className="flex flex-col gap-2">
+                {(workspace?.apfAssignments ?? []).map((assignment) => (
+                  <div
+                    key={assignment.id}
+                    className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
+                  >
+                    <div className="flex flex-col gap-1">
+                      <strong>
+                        {assignment.Adulto.Miembro.nombre}{' '}
+                        {assignment.Adulto.Miembro.apellidos}
+                      </strong>
+                      <span>
+                        Consejo: {assignment.Consejo.nombre} (
+                        {dayjs(assignment.Consejo.fecha).format('DD/MM/YYYY')})
+                      </span>
+                      {assignment.observacion ? (
+                        <span>{assignment.observacion}</span>
+                      ) : null}
+                    </div>
+                    <Button
+                      icon="pi pi-times"
+                      iconPos="right"
+                      outlined
+                      size="small"
+                      severity="danger"
+                      loading={submitting}
+                      disabled={!apfEditMode}
+                      onClick={() => {
+                        void closeAsignacionApf(assignment.id);
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        </Card>
+          </AccordionTab>
+        </Accordion>
       ) : null}
 
       <Card title="Templates de formación">
         <Accordion multiple>
           {(workspace?.templates ?? []).map((template) => {
             const draft = templateDrafts[template.id] ?? buildTemplateDraft(template);
+            const templateEditMode = canEdit && editingTemplateIds.includes(template.id);
 
             return (
               <AccordionTab
                 key={template.id}
                 header={`${template.nombre} (${template.Area.nombre})`}
               >
+                {canEdit ? (
+                  <div className="mb-3 flex justify-end">
+                    <Button
+                      label={templateEditMode ? 'Modo vista template' : 'Modo edición template'}
+                      icon={templateEditMode ? 'pi pi-eye' : 'pi pi-pencil'}
+                      iconPos="right"
+                      outlined
+                      size="small"
+                      onClick={() => toggleTemplateEditMode(template.id)}
+                    />
+                  </div>
+                ) : null}
                 <FormacionTemplateEditor
                   template={template}
                   draft={draft}
                   areaOptions={areaOptions}
-                  canManage={effectiveCanManage}
+                  canManage={templateEditMode}
+                  canUseTemplate={canCreatePlan}
                   submitting={submitting}
                   setTemplateDrafts={setTemplateDrafts}
                   onSave={() => {

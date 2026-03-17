@@ -6,10 +6,12 @@ import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { Message } from 'primereact/message';
 import { TipoEventoFormDialog } from '@/components/tipos-evento/TipoEventoFormDialog';
+import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useTiposEventoHook } from '@/hooks/useTiposEventoHooks';
 import { TipoEvento } from '@/types/tipos-evento';
 
 export default function TiposEventoPage() {
+  const { confirmDelete, deleteConfirmDialog } = useDeleteConfirm();
   const {
     tiposEvento,
     selectedTipoEvento,
@@ -35,10 +37,12 @@ export default function TiposEventoPage() {
 
   const handleDelete = () => {
     if (!selectedTipoEvento) return;
-    const confirmed = window.confirm(
-      `Se eliminará el tipo de evento "${selectedTipoEvento.nombre}".`,
-    );
-    if (confirmed) void deleteSelected();
+    confirmDelete({
+      message: `Se eliminará de forma lógica el tipo de evento "${selectedTipoEvento.nombre}".`,
+      impact:
+        'El tipo dejará de estar disponible en altas y ediciones, y puede impactar eventos existentes que todavía lo referencien en la interfaz.',
+      onAccept: () => void deleteSelected(),
+    });
   };
 
   const header = (
@@ -66,6 +70,7 @@ export default function TiposEventoPage() {
         </DataTable>
       </Card>
       <TipoEventoFormDialog visible={dialogVisible} mode={dialogMode} loading={dialogLoading} submitting={submitting} values={formValues} error={error} onHide={closeDialog} onSubmit={(values) => void submitForm(values)} />
+      {deleteConfirmDialog}
     </div>
   );
 }

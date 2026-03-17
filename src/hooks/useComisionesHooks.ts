@@ -1,17 +1,22 @@
 'use client';
 
 import { AxiosError } from 'axios';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   createComisionRequest,
   deleteComisionRequest,
   getComisionRequest,
+  getComisionParticipantesRequest,
+  getComisionesOptionsRequest,
   getComisionesRequest,
+  updateComisionParticipantesRequest,
   updateComisionRequest,
 } from '@/queries/comisiones';
 import {
   Comision,
+  ComisionFilters,
   ComisionFormValues,
+  ComisionesOptionsResponse,
   CreateComisionPayload,
 } from '@/types/comisiones';
 import { PaginatedResponseMeta } from '@/types/pagination';
@@ -22,6 +27,12 @@ type DialogMode = 'create' | 'edit';
 const createEmptyFormValues = (): ComisionFormValues => ({
   nombre: '',
   descripcion: '',
+  idEvento: null,
+});
+
+const createEmptyFilters = (): ComisionFilters => ({
+  q: '',
+  idEvento: null,
 });
 
 const getErrorMessage = (err: unknown, fallback: string) => {
@@ -36,6 +47,7 @@ const getErrorMessage = (err: unknown, fallback: string) => {
 const buildPayload = (values: ComisionFormValues): CreateComisionPayload => ({
   nombre: values.nombre.trim(),
   ...(values.descripcion.trim() ? { descripcion: values.descripcion.trim() } : {}),
+  idEvento: values.idEvento,
 });
 
 export const useComisionesHook = () => {
@@ -46,6 +58,12 @@ export const useComisionesHook = () => {
   );
   const [dialogMode, setDialogMode] = useState<DialogMode>('create');
   const [dialogVisible, setDialogVisible] = useState(false);
+  const [participantesVisible, setParticipantesVisible] = useState(false);
+  const [participanteIds, setParticipanteIds] = useState<number[]>([]);
+  const [options, setOptions] = useState<ComisionesOptionsResponse>({
+    eventos: [],
+    adultos: [],
+  });
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(true);
@@ -58,12 +76,26 @@ export const useComisionesHook = () => {
     total: 0,
     totalPages: 0,
   });
+  const [filters, setFiltersState] = useState<ComisionFilters>(createEmptyFilters());
 
-  const fetchComisiones = async (nextPage = 1) => {
+  const setFilters = (nextFilters: ComisionFilters) => {
+    setFiltersState(nextFilters);
+  };
+
+  const fetchOptions = async () => {
+    const response = await getComisionesOptionsRequest();
+    setOptions(response);
+  };
+
+  const fetchComisiones = useCallback(async (nextPage = 1) => {
     setLoading(true);
     setError('');
     try {
-      const response = await getComisionesRequest({ page: nextPage, limit: DEFAULT_LIMIT });
+      const response = await getComisionesRequest({
+        page: nextPage,
+        limit: DEFAULT_LIMIT,
+        filters,
+      });
       setComisiones(response.data);
       setMeta(response.meta);
       setPage(response.meta.page);
@@ -75,11 +107,15 @@ export const useComisionesHook = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
+
+  useEffect(() => {
+    void fetchOptions();
+  }, []);
 
   useEffect(() => {
     void fetchComisiones();
-  }, []);
+  }, [fetchComisiones]);
 
   const openCreateDialog = () => {
     setDialogMode('create');
@@ -103,6 +139,7 @@ export const useComisionesHook = () => {
       setFormValuesState({
         nombre: comision.nombre,
         descripcion: comision.descripcion ?? '',
+        idEvento: comision.Evento?.id ?? null,
       });
       setDialogVisible(true);
     } catch (err: unknown) {
@@ -115,6 +152,35 @@ export const useComisionesHook = () => {
   const closeDialog = () => {
     setDialogVisible(false);
     setFormValuesState(createEmptyFormValues());
+  };
+
+  const openParticipantesDialog = async () => {
+    if (!selectedComision) {
+      setError('Seleccioná una comisión para administrar participantes.');
+      return;
+    }
+
+    setDialogLoading(true);
+    setError('');
+    setSuccessMessage('');
+
+    try {
+      const [participantes] = await Promise.all([
+        getComisionParticipantesRequest(selectedComision.id),
+        fetchOptions(),
+      ]);
+      setParticipanteIds(participantes.map((item) => item.Miembro.id));
+      setParticipantesVisible(true);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No se pudieron cargar los participantes.'));
+    } finally {
+      setDialogLoading(false);
+    }
+  };
+
+  const closeParticipantesDialog = () => {
+    setParticipantesVisible(false);
+    setParticipanteIds([]);
   };
 
   const submitForm = async (values: ComisionFormValues) => {
@@ -163,13 +229,38 @@ export const useComisionesHook = () => {
     }
   };
 
+  const submitParticipantes = async () => {
+    if (!selectedComision) {
+      return;
+    }
+
+    setSubmitting(true);
+    setError('');
+    setSuccessMessage('');
+
+    try {
+      await updateComisionParticipantesRequest(selectedComision.id, participanteIds);
+      setSuccessMessage('Participantes actualizados correctamente.');
+      closeParticipantesDialog();
+      await fetchComisiones(page);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No se pudieron guardar los participantes.'));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return {
     comisiones,
     selectedComision,
     setSelectedComision,
     formValues,
+    options,
     dialogMode,
     dialogVisible,
+    participantesVisible,
+    participanteIds,
+    setParticipanteIds,
     error,
     successMessage,
     loading,
@@ -178,11 +269,16 @@ export const useComisionesHook = () => {
     page,
     total: meta.total,
     limit: meta.limit,
+    filters,
+    setFilters,
     refetch: fetchComisiones,
     openCreateDialog,
     openEditDialog,
+    openParticipantesDialog,
     closeDialog,
+    closeParticipantesDialog,
     submitForm,
+    submitParticipantes,
     deleteSelected,
   };
 };

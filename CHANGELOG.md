@@ -2,6 +2,198 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.8.8
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- `Calendario` incorpora un filtro específico para cumpleaños por tipo de miembro: `Protagonistas`, `Responsables` o `Adultos`
+
+## 1.8.7
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- la sección `Calendario` pasa a estar visible para todos los miembros autenticados
+- el módulo de `Calendario` deja un único sistema de filtros mediante sidebar desplegable y elimina la duplicación del panel lateral fijo
+
+## 1.8.6
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- el diálogo de `Asistencia` dentro del consejo suma un filtro específico para el listado de asistencias actuales
+
+## 1.8.5
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- dentro de un consejo iniciado, la gestión de asistencia, secretaría, moderador y edición estructural del temario queda reservada a perfiles adultos
+- la lista de oradores sigue visible para todos, pero solo el moderador asignado puede sumar o quitar oradores
+- `debate`, `acuerdo` y `estado` del tema quedan restringidos a secretario y prosecretario tanto en frontend como en backend
+
+## 1.8.4
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- la sección `Consejos` pasa a estar visible para todos los miembros autenticados
+- dentro del listado de `Consejos`, cualquier miembro puede abrir e iniciar un consejo, pero solo adultos con permisos operativos pueden crear, editar y eliminar consejos
+- el `Temario` sigue siendo visible, pero las acciones para agregar, editar o eliminar temas quedan reservadas a adultos
+
+## 1.8.3
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- todos los botones `Eliminar` de las tablas principales del dashboard ahora muestran un diálogo de confirmación unificado con impacto de la acción
+- `JEFATURA_RAMA` y `AYUDANTE_RAMA` ahora pueden ingresar a `Consejos` tanto desde sidebar como por URL manual
+
+## 1.8.2
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- los buscadores globales de tablas pasan a usar los componentes nativos `IconField` e `InputIcon` de PrimeReact para asegurar que la lupa quede dentro del input
+
+## 1.8.1
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- los inputs de búsqueda global en las tablas del dashboard ahora muestran la lupa dentro del recuadro y alineada a la derecha
+
+## 1.8.0
+
+Fecha: 2026-03-17
+
+### Funcionalidades principales
+
+- gestión de adultos participantes dentro de cada `Comisión`
+- filtros server-side para `Eventos` y `Comisiones`
+
+### Ajustes funcionales relevantes
+
+- `Comisiones` ahora permite asociar evento y administrar participantes adultos desde la misma sección
+- `Eventos` incorpora búsqueda global, filtro por tipo y rango de fechas consumidos desde backend
+- `Comisiones` incorpora búsqueda global y filtro por evento, también resueltos desde backend
+
+## 1.7.10
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- `JEFATURA_RAMA` y `AYUDANTE_RAMA` ahora pueden ingresar a la sección `Comisiones`
+- la vista de `Comisiones` alinea sus botones de crear, editar y eliminar con los permisos reales del usuario autenticado
+
+## 1.7.9
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- la sección `APFs habilitados` dentro de `Formaciones` pasa a ser desplegable
+- el botón de cierre de asignaciones APF se simplifica y ahora muestra solo el icono `X`
+
+## 1.7.8
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- `Modo edición` en `Formaciones` deja de ser global y pasa a manejarse por bloques independientes
+- la gestión de `APFs habilitados` tiene su propio toggle de edición separado
+- cada template de formación puede entrar o salir de edición sin afectar a los demás templates
+
+## 1.7.7
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- la sección `Formaciones` ahora queda visible para todos los miembros autenticados, tanto desde sidebar como por URL manual
+- solo las personas adultas pueden usar `Modo edición` e iniciar la inscripción a planes de formación
+- la gestión de `APFs habilitados` queda restringida a `JEFATURA` y a adultos que ya tengan una asignación APF activa
+
+## 1.7.6
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- `JEFATURA_RAMA` y `AYUDANTE_RAMA` ahora pueden ingresar a `Eventos` y `Tipos de Evento` tanto desde sidebar como por URL manual
+- al crear un evento, las afectaciones se resuelven automaticamente segun el rol autenticado para evitar altas fuera de scope
+- en backend las operaciones sobre eventos quedan recortadas a eventos que afecten la rama del usuario cuando se trata de roles de rama
+
+## 1.7.5
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- `JEFATURA_RAMA` y `AYUDANTE_RAMA` ahora pueden ingresar tambien a las subsecciones `Conceptos` y `Métodos` de pagos
+- el acceso por URL manual a `/dashboard/conceptos-pago` y `/dashboard/metodos-pago` queda alineado con el acceso desde la interfaz
+
+## 1.7.4
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- la sección `Pagos` ahora queda visible para `JEFATURA_RAMA` y `AYUDANTE_RAMA` con scope `RAMA`
+- la tabla de pagos incorpora una columna adicional con la fecha de creación del registro
+- el frontend queda alineado con el filtrado backend de pagos por protagonistas, adultos y responsables de la rama
+
+## 1.7.3
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- la sección `Responsables` ahora queda visible para `JEFATURA_RAMA` y `AYUDANTE_RAMA` con scope `RAMA`
+- el acceso visual del frontend queda alineado con el filtrado backend de responsables por protagonistas de la rama
+- se preparan los datos de prueba para validar responsables y relaciones familiares por rama
+
+## 1.7.2
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- la sección `Adultos` ahora queda visible también para `AYUDANTE_RAMA` con scope `RAMA`
+- `JEFATURA_RAMA` y `AYUDANTE_RAMA` pueden ingresar por sidebar o URL manual a `Adultos`
+- el filtrado de adultos por rama sigue resuelto en backend según la entidad del scope del usuario
+
+## 1.7.1
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- jefatura de rama con scope `RAMA` ahora puede ver todas las secciones del dashboard desde el frontend
+- la visibilidad de sidebar y rutas protegidas se alinea para `JEFATURA_RAMA` igual que para jefatura general
+- protagonistas mantiene el filtrado backend por rama usando el scope del usuario autenticado
+
+## 1.7.0
+
+Fecha: 2026-03-17
+
+### Funcionalidades principales
+
+- se incorpora una matriz centralizada de acceso por rol y scope para rutas y sidebar del dashboard
+- el frontend ahora muestra una vista `NotAllowed` cuando se intenta acceder por URL a una seccion no habilitada
+- jefatura con scope grupo pasa a tener acceso total de lectura y CRUD en las secciones protegidas del dashboard
+
 ## 1.6.2
 
 Fecha: 2026-03-16

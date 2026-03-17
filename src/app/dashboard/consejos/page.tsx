@@ -13,20 +13,14 @@ import { ConsejoTemarioDialog } from '@/components/consejos/ConsejoTemarioDialog
 import { ConsejoTemarioFormDialog } from '@/components/consejos/ConsejoTemarioFormDialog';
 import { useAuth } from '@/context/AuthContext';
 import { useConsejosHook } from '@/hooks/useConsejosHooks';
+import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
+import { hasAdultMemberAccess, hasPermissionAccess } from '@/lib/authorization';
 import { Consejo } from '@/types/consejos';
-
-const hasPermission = (permissions: string[], required: string) => {
-  if (permissions.includes(required)) {
-    return true;
-  }
-
-  const [, resource] = required.split(':');
-  return permissions.includes(`MANAGE:${resource}`);
-};
 
 export default function ConsejosPage() {
   const { user } = useAuth();
   const router = useRouter();
+  const { confirmDelete, deleteConfirmDialog } = useDeleteConfirm();
   const {
     consejos,
     selectedConsejo,
@@ -68,11 +62,13 @@ export default function ConsejosPage() {
     deleteSelectedTemario,
   } = useConsejosHook();
 
-  const permissions = user?.permissions ?? [];
-  const canCreate = hasPermission(permissions, 'CREATE:CONSEJO');
-  const canEdit = hasPermission(permissions, 'UPDATE:CONSEJO');
-  const canDelete = hasPermission(permissions, 'DELETE:CONSEJO');
-  const canManageTemario = hasPermission(permissions, 'UPDATE:CONSEJO');
+  const canCreate =
+    hasAdultMemberAccess(user) && hasPermissionAccess(user, 'CREATE:CONSEJO');
+  const canEdit =
+    hasAdultMemberAccess(user) && hasPermissionAccess(user, 'UPDATE:CONSEJO');
+  const canDelete =
+    hasAdultMemberAccess(user) && hasPermissionAccess(user, 'DELETE:CONSEJO');
+  const canManageTemario = hasAdultMemberAccess(user);
 
   const handlePage = (event: DataTablePageEvent) => {
     const nextPage = Math.floor(event.first / event.rows) + 1;
@@ -83,14 +79,12 @@ export default function ConsejosPage() {
     if (!selectedConsejo) {
       return;
     }
-
-    const confirmed = window.confirm(
-      `Se eliminará de forma lógica el consejo ${selectedConsejo.nombre}.`,
-    );
-
-    if (confirmed) {
-      void deleteSelected();
-    }
+    confirmDelete({
+      message: `Se eliminará de forma lógica el consejo "${selectedConsejo.nombre}".`,
+      impact:
+        'El consejo dejará de estar disponible en listados operativos y puede afectar temario, asistencias y referencias históricas visibles en la interfaz.',
+      onAccept: () => void deleteSelected(),
+    });
   };
 
   const header = (
@@ -261,14 +255,13 @@ export default function ConsejosPage() {
           if (!selectedTemario) {
             return;
           }
-
-          const confirmed = window.confirm(
-            `Se eliminará de forma lógica el tema ${selectedTemario.titulo}.`,
-          );
-
-          if (confirmed) {
-            void deleteSelectedTemario();
-          }
+          confirmDelete({
+            title: 'Confirmar eliminación de tema',
+            message: `Se eliminará de forma lógica el tema "${selectedTemario.titulo}".`,
+            impact:
+              'El tema dejará de verse en el temario operativo del consejo y puede alterar el seguimiento visible de lo tratado en esa reunión.',
+            onAccept: () => void deleteSelectedTemario(),
+          });
         }}
       />
       <ConsejoTemarioFormDialog
@@ -280,6 +273,7 @@ export default function ConsejosPage() {
         onHide={closeTemarioFormDialog}
         onSubmit={(values) => void submitTemarioForm(values)}
       />
+      {deleteConfirmDialog}
     </div>
   );
 }
