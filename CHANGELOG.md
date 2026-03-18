@@ -2,6 +2,27 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.9.1
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- el perfil propio incorpora `Modo edición` para actualizar datos personales sin exponer rol, scope, entidad del scope, área, posición ni rama
+- la edición queda restringida al propio perfil y mantiene la firma como acción independiente dentro del mismo bloque de información
+- el backend suma `PATCH /perfiles/me` reutilizando la validación central de cuenta/miembro para conservar reglas de unicidad de DNI y email
+
+## 1.9.0
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- se incorpora la nueva sección `Ciclos de Programa` al dashboard con listado, filtros por rango de fechas y acciones responsivas alineadas al resto de las tablas
+- el módulo suma una página de detalle protegida por permisos, con modo vista y modo edición para la bitácora del ciclo organizada por etapas
+- la edición de rama queda reservada en interfaz a `JEFATURA`, `ADM` y `DEV` con scope de grupo, mientras los perfiles de rama trabajan sobre su propio alcance
+- el editor del detalle reutiliza el patrón enriquecido de consejos para `Diagnóstico`, `Planificación`, `Desarrollo` y `Evaluación`
+
 ## 1.8.47
 
 Fecha: 2026-03-18

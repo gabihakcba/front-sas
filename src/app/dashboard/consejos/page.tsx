@@ -296,6 +296,8 @@ export default function ConsejosPage() {
         loading={temarioSubmitting}
         values={temarioFormValues}
         error={temarioError}
+        showEstado={false}
+        showContentFields={false}
         onHide={closeTemarioFormDialog}
         onSubmit={(values) => void submitTemarioForm(values)}
       />

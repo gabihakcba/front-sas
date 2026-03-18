@@ -13,6 +13,47 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.9.1',
+    date: '2026-03-18',
+    title: 'Edición del perfil propio',
+    summary:
+      'Cada miembro puede editar sus propios datos personales desde Perfil sin tocar roles, scopes ni asignaciones estructurales.',
+    sections: [
+      {
+        title: 'Perfil',
+        items: [
+          'La card principal del perfil suma un modo edición exclusivo para el propio miembro autenticado.',
+          'Solo se habilitan datos personales: nombre, apellidos, DNI, fecha de nacimiento, dirección, email, teléfonos, totem y cualidad.',
+          'Usuario, rol, scope, entidad del scope, área, posición y rama permanecen fuera del modo edición.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.9.0',
+    date: '2026-03-18',
+    title: 'Ciclos de Programa',
+    summary:
+      'El dashboard suma el módulo Ciclos de Programa con listado operativo, filtros por fechas y una vista de detalle con bitácora editable por etapas.',
+    sections: [
+      {
+        title: 'Listado',
+        items: [
+          'La nueva sección Ciclos de Programa aparece en sidebar solo para perfiles habilitados y muestra nombre, fechas y estado.',
+          'El header agrega búsqueda global, filtro único de rango de fechas y acciones responsivas de crear, editar, eliminar y ver detalle.',
+        ],
+      },
+      {
+        title: 'Detalle',
+        items: [
+          'Cada ciclo tiene una página protegida propia con resumen, eventos vinculados y bitácora organizada por tabs de etapa.',
+          'Diagnóstico, Planificación, Desarrollo y Evaluación usan editor enriquecido con el mismo patrón operativo de consejos.',
+          'Solo JEFATURA, ADM y DEV con scope de grupo pueden ver y editar la rama del ciclo desde la interfaz.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.8.47',
     date: '2026-03-18',
     title: 'Consejos visibles en calendario',

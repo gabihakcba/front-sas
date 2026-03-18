@@ -106,6 +106,14 @@ export const LOG_ACCESS: AccessRule[] = [
   { role: "JEFATURA", scopeType: "GRUPO" },
 ];
 
+export const PROGRAM_CYCLE_ACCESS: AccessRule[] = [
+  { role: "ADM", scopeType: "GRUPO" },
+  { role: "DEV", scopeType: "GRUPO" },
+  { role: "JEFATURA", scopeType: "GRUPO" },
+  { role: "JEFATURA_RAMA", scopeType: "RAMA" },
+  { role: "AYUDANTE_RAMA", scopeType: "RAMA" },
+];
+
 export const dashboardSidebarItems: DashboardSidebarItem[] = [
   {
     label: "Perfil",
@@ -168,6 +176,12 @@ export const dashboardSidebarItems: DashboardSidebarItem[] = [
     accessRules: [],
   },
   {
+    label: "Ciclos de Programa",
+    icon: "pi pi-directions",
+    path: "/dashboard/ciclos-programa",
+    accessRules: PROGRAM_CYCLE_ACCESS,
+  },
+  {
     label: "Logs",
     icon: "pi pi-history",
     path: "/dashboard/logs",
@@ -205,6 +219,7 @@ export const dashboardRouteAccessList: DashboardRouteAccess[] = [
   },
   { pathPrefix: "/dashboard/consejos", accessRules: ADULT_COUNCIL_ACCESS },
   { pathPrefix: "/dashboard/calendario", accessRules: [] },
+  { pathPrefix: "/dashboard/ciclos-programa", accessRules: PROGRAM_CYCLE_ACCESS },
   { pathPrefix: "/dashboard/logs", accessRules: LOG_ACCESS },
   { pathPrefix: "/dashboard/relaciones", accessRules: RELATION_MANAGEMENT_ACCESS },
   { pathPrefix: "/dashboard/perfil", accessRules: [] },

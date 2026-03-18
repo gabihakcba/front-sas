@@ -33,6 +33,10 @@ export interface Evento {
   costo_ma: string;
   costo_ayudante: string;
   TipoEvento: EventoOption;
+  CicloPrograma?: {
+    id: number;
+    nombre: string;
+  } | null;
   Comision: EventoOption[];
   AreaAfectada: Array<{
     Area: EventoOption;
@@ -144,6 +148,7 @@ export interface CreateEventoPayload {
   costoMa: number;
   costoAyudante: number;
   idTipo: number;
+  idCicloPrograma?: number;
   areaIds?: number[];
   ramaIds?: number[];
 }
@@ -159,6 +164,7 @@ export interface UpdateEventoPayload {
   costoMa?: number;
   costoAyudante?: number;
   idTipo?: number;
+  idCicloPrograma?: number | null;
   areaIds?: number[];
   ramaIds?: number[];
 }

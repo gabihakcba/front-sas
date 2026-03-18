@@ -5,10 +5,18 @@ import {
   PerfilFirma,
   PerfilResumen,
   PerfilVinculos,
+  UpdatePerfilPersonalPayload,
 } from '@/types/perfiles';
 
 export const getMyProfileRequest = async () => {
   const response = await api.get<PerfilResumen>('/perfiles/me');
+  return response.data;
+};
+
+export const updateMyProfileRequest = async (
+  payload: UpdatePerfilPersonalPayload,
+) => {
+  const response = await api.patch<PerfilResumen>('/perfiles/me', payload);
   return response.data;
 };
 

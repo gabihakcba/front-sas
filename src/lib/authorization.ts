@@ -71,6 +71,12 @@ const SOFT_DELETE_AUDIT_ROLES = new Set<UserRole>([
   "SECRETARIA_TESORERIA",
 ]);
 
+const PROGRAM_CYCLE_GROUP_ROLES = new Set<UserRole>([
+  "ADM",
+  "DEV",
+  "JEFATURA",
+]);
+
 export const hasDeletedAuditAccess = (
   user: User | null | undefined,
 ): boolean =>
@@ -86,6 +92,15 @@ export const hasDeveloperAccess = (
   (user?.scopes ?? []).some(
     (scope) =>
       scope.role === "DEV" &&
+      (scope.scopeType === "GRUPO" || scope.scopeType === "GLOBAL"),
+  );
+
+export const hasProgramCycleGroupManagementAccess = (
+  user: User | null | undefined,
+): boolean =>
+  (user?.scopes ?? []).some(
+    (scope) =>
+      PROGRAM_CYCLE_GROUP_ROLES.has(scope.role) &&
       (scope.scopeType === "GRUPO" || scope.scopeType === "GLOBAL"),
   );
 

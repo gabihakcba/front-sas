@@ -12,12 +12,30 @@ import { usePlanFormacionPerfilHook } from '@/hooks/usePlanFormacionPerfilHook';
 import { ProfileActividadSection } from './ProfileActividadSection';
 import { ProfileAsignacionSection } from './ProfileAsignacionSection';
 import { ProfileFormacionSection } from './ProfileFormacionSection';
-import { ProfileInfoSection } from './ProfileInfoSection';
+import {
+  ProfileInfoSection,
+  ProfilePersonalFormValues,
+} from './ProfileInfoSection';
 import { ProfileVinculosSection } from './ProfileVinculosSection';
 
 interface Props {
   memberId?: number;
 }
+
+const buildProfileFormValues = (
+  summary: NonNullable<ReturnType<typeof usePerfilHook>['summary']>,
+): ProfilePersonalFormValues => ({
+  nombre: summary.nombre,
+  apellidos: summary.apellidos,
+  dni: summary.dni,
+  fechaNacimiento: summary.fecha_nacimiento.slice(0, 10),
+  direccion: summary.direccion,
+  email: summary.email ?? '',
+  telefono: summary.telefono ?? '',
+  telefonoEmergencia: summary.telefono_emergencia,
+  totem: summary.totem ?? '',
+  cualidad: summary.cualidad ?? '',
+});
 
 export function MemberProfileView({ memberId }: Props) {
   const { user } = useAuth();
@@ -33,6 +51,7 @@ export function MemberProfileView({ memberId }: Props) {
     loadingVinculos,
     loadingFirma,
     savingFirma,
+    savingProfile,
     error,
     firmaError,
     forbidden,
@@ -40,9 +59,13 @@ export function MemberProfileView({ memberId }: Props) {
     loadActividad,
     loadVinculos,
     loadFirma,
+    saveProfile,
     saveFirma,
   } = usePerfilHook(memberId);
   const [signatureDialogVisible, setSignatureDialogVisible] = useState(false);
+  const [profileEditMode, setProfileEditMode] = useState(false);
+  const [profileFormValues, setProfileFormValues] =
+    useState<ProfilePersonalFormValues | null>(null);
   const {
     data: formacion,
     options: formacionOptions,
@@ -66,6 +89,7 @@ export function MemberProfileView({ memberId }: Props) {
       user &&
       Number(summary.id) === Number(user.memberId),
   );
+  const canEditOwnProfile = canEditOwnSignature;
   const tabKeys = [
     ...(canShowAsignacionTab ? ['asignacion'] : []),
     ...(canShowFormacionTab ? ['formacion'] : []),
@@ -111,7 +135,48 @@ export function MemberProfileView({ memberId }: Props) {
 
       <ProfileInfoSection
         summary={summary}
+        canEditOwnProfile={canEditOwnProfile}
         canEditOwnSignature={canEditOwnSignature}
+        editing={profileEditMode}
+        savingProfile={savingProfile}
+        formValues={
+          profileFormValues ?? buildProfileFormValues(summary)
+        }
+        onToggleEdit={() => {
+          setProfileFormValues(buildProfileFormValues(summary));
+          setProfileEditMode(true);
+        }}
+        onCancelEdit={() => {
+          setProfileEditMode(false);
+          setProfileFormValues(null);
+        }}
+        onSaveProfile={() => {
+          if (!profileFormValues) {
+            return;
+          }
+
+          void (async () => {
+            await saveProfile({
+              nombre: profileFormValues.nombre.trim(),
+              apellidos: profileFormValues.apellidos.trim(),
+              dni: profileFormValues.dni.trim(),
+              fechaNacimiento: profileFormValues.fechaNacimiento,
+              direccion: profileFormValues.direccion.trim(),
+              email: profileFormValues.email.trim() || null,
+              telefono: profileFormValues.telefono.trim() || null,
+              telefonoEmergencia: profileFormValues.telefonoEmergencia.trim(),
+              totem: profileFormValues.totem.trim() || null,
+              cualidad: profileFormValues.cualidad.trim() || null,
+            });
+            setProfileEditMode(false);
+            setProfileFormValues(null);
+          })();
+        }}
+        onChange={(key, value) =>
+          setProfileFormValues((current) =>
+            current ? { ...current, [key]: value } : current,
+          )
+        }
         onEditSignature={() => {
           setSignatureDialogVisible(true);
           void loadFirma();

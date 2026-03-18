@@ -141,3 +141,16 @@ export interface PerfilVinculos {
 export interface PerfilFirma {
   firmaBase64: string | null;
 }
+
+export interface UpdatePerfilPersonalPayload {
+  nombre?: string;
+  apellidos?: string;
+  dni?: string;
+  fechaNacimiento?: string;
+  direccion?: string;
+  email?: string | null;
+  telefono?: string | null;
+  telefonoEmergencia?: string;
+  totem?: string | null;
+  cualidad?: string | null;
+}

@@ -21,6 +21,7 @@ interface Props {
   values: EventoFormValues;
   tipos: EventoOption[];
   error: string;
+  title?: string;
   onHide: () => void;
   onSubmit: (values: EventoFormValues) => void;
 }
@@ -33,6 +34,7 @@ export function EventoFormDialog({
   values,
   tipos,
   error,
+  title,
   onHide,
   onSubmit,
 }: Props) {
@@ -52,7 +54,7 @@ export function EventoFormDialog({
   );
 
   return (
-    <Dialog visible={visible} onHide={onHide} header={mode === 'create' ? 'Crear evento' : 'Editar evento'} footer={footer} {...getResponsiveDialogProps('64rem')}>
+    <Dialog visible={visible} onHide={onHide} header={title ?? (mode === 'create' ? 'Crear evento' : 'Editar evento')} footer={footer} {...getResponsiveDialogProps('64rem')}>
       {loading ? (
         <div className="py-4">Cargando formulario...</div>
       ) : (

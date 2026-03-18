@@ -13,6 +13,7 @@ import {
   getProfileFirmaRequest,
   getProfileRequest,
   getProfileVinculosRequest,
+  updateMyProfileRequest,
   updateMyProfileFirmaRequest,
   updateProfileFirmaRequest,
 } from '@/queries/perfiles';
@@ -22,6 +23,7 @@ import {
   PerfilFirma,
   PerfilResumen,
   PerfilVinculos,
+  UpdatePerfilPersonalPayload,
 } from '@/types/perfiles';
 
 export function usePerfilHook(memberId?: number) {
@@ -36,6 +38,7 @@ export function usePerfilHook(memberId?: number) {
   const [loadingVinculos, setLoadingVinculos] = useState(false);
   const [loadingFirma, setLoadingFirma] = useState(false);
   const [savingFirma, setSavingFirma] = useState(false);
+  const [savingProfile, setSavingProfile] = useState(false);
   const [error, setError] = useState('');
   const [firmaError, setFirmaError] = useState('');
   const [forbidden, setForbidden] = useState(false);
@@ -166,6 +169,22 @@ export function usePerfilHook(memberId?: number) {
     }
   };
 
+  const saveProfile = async (payload: UpdatePerfilPersonalPayload) => {
+    setSavingProfile(true);
+    setError('');
+
+    try {
+      const response = await updateMyProfileRequest(payload);
+      setSummary(response);
+      return response;
+    } catch {
+      setError('No se pudo guardar el perfil.');
+      throw new Error('No se pudo guardar el perfil.');
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
   return {
     summary,
     asignacion,
@@ -178,6 +197,7 @@ export function usePerfilHook(memberId?: number) {
     loadingVinculos,
     loadingFirma,
     savingFirma,
+    savingProfile,
     error,
     firmaError,
     forbidden,
@@ -185,6 +205,7 @@ export function usePerfilHook(memberId?: number) {
     loadActividad,
     loadVinculos,
     loadFirma,
+    saveProfile,
     saveFirma,
   };
 }
