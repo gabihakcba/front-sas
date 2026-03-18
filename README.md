@@ -40,7 +40,6 @@ Crear un archivo `.env.local` con al menos:
 
 ```env
 NEXT_PUBLIC_API_URL="http://localhost:3001"
-NEXT_PUBLIC_GRUPO_NOMBRE="Grupo Scout Adalberto O. Lopez 494"
 ```
 
 ## Estructura

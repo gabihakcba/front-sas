@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { Sidebar } from "primereact/sidebar";
 import { Button } from "primereact/button";
 import DashboardAccessGate from "@/components/layout/DashboardAccessGate";
 import { useAuth } from "@/context/AuthContext";
+import { resolveBrandingAssetUrl, useBranding } from "@/context/BrandingContext";
 import { dashboardSidebarItems } from "@/data/access-control";
 import { hasAccessRule } from "@/lib/authorization";
 import packageJson from "../../../package.json";
@@ -57,9 +57,10 @@ export default function DashboardShell({ children }: DashboardShellProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated, isLoading, logout } = useAuth();
+  const { branding } = useBranding();
   const [sidebarVisible, setSidebarVisible] = useState(false);
-  const groupName =
-    process.env.NEXT_PUBLIC_GRUPO_NOMBRE ?? "Grupo Scout Adalberto O. Lopez 494";
+  const groupName = branding.nombre_grupo;
+  const groupLogo = resolveBrandingAssetUrl(branding.url_logo, "/logo.png");
   const appVersion = packageJson.version;
 
   useEffect(() => {
@@ -82,13 +83,11 @@ export default function DashboardShell({ children }: DashboardShellProps) {
     <div className="w-full px-2 py-1">
       <div className="flex items-center gap-3">
         <div className="h-[44px] w-[44px] flex-shrink-0">
-          <Image
-            src="/scout_logo.png"
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={groupLogo}
             alt={`Logo de ${groupName}`}
-            width={480}
-            height={480}
             className="h-full w-full object-contain"
-            priority
           />
         </div>
         <span className="text-sm font-semibold">{groupName}</span>
@@ -104,6 +103,17 @@ export default function DashboardShell({ children }: DashboardShellProps) {
         position="left"
         className="w-full sm:w-80"
         header={sidebarHeader}
+        pt={{
+          root: {
+            style: { background: "var(--surface-section)" },
+          },
+          header: {
+            style: { background: "var(--surface-section)" },
+          },
+          content: {
+            style: { background: "var(--surface-section)" },
+          },
+        }}
       >
         <div className="p-3">
           <SidebarNavigation
@@ -141,8 +151,14 @@ export default function DashboardShell({ children }: DashboardShellProps) {
         </div>
       </Sidebar>
 
-      <div className="min-h-screen lg:pl-80">
-        <aside className="hidden lg:block lg:fixed lg:top-0 lg:left-0 lg:h-screen lg:w-80">
+      <div
+        className="min-h-screen lg:pl-80"
+        style={{ background: "var(--surface-ground)" }}
+      >
+        <aside
+          className="hidden lg:block lg:fixed lg:top-0 lg:left-0 lg:h-screen lg:w-80"
+          style={{ background: "var(--surface-section)" }}
+        >
           <div className="h-full flex flex-col p-3">
             {sidebarHeader}
             <div className="mt-3 border-b border-surface-300" />
@@ -180,7 +196,10 @@ export default function DashboardShell({ children }: DashboardShellProps) {
             </div>
           </div>
         </aside>
-        <section className="min-h-screen w-full p-4 lg:p-6">
+        <section
+          className="min-h-screen w-full p-4 lg:p-6"
+          style={{ background: "var(--surface-ground)" }}
+        >
           <div className="lg:hidden mb-4 flex justify-end">
             <Button
               type="button"
@@ -193,7 +212,12 @@ export default function DashboardShell({ children }: DashboardShellProps) {
             />
           </div>
           <DashboardAccessGate>
-            <div className="min-h-screen w-full">{children}</div>
+            <div
+              className="min-h-screen w-full"
+              style={{ background: "var(--surface-ground)" }}
+            >
+              {children}
+            </div>
           </DashboardAccessGate>
         </section>
       </div>

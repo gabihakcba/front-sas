@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import 'primereact/resources/themes/lara-light-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import { AuthProvider } from '@/context/AuthContext';
+import { BrandingProvider } from '@/context/BrandingContext';
 import { PrimeReactProvider } from 'primereact/api';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -21,11 +21,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
+      <head>
+        <link
+          id="sas-theme-link"
+          rel="stylesheet"
+          href="https://unpkg.com/primereact/resources/themes/lara-light-blue/theme.css"
+        />
+      </head>
       <body className={inter.className}>
         <PrimeReactProvider>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
+          <BrandingProvider>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+          </BrandingProvider>
         </PrimeReactProvider>
       </body>
     </html>

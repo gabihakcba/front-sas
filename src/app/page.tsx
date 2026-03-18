@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { Card } from "primereact/card";
 import { InputText } from "primereact/inputtext";
 import { IconField } from "primereact/iconfield";
@@ -10,8 +9,10 @@ import { Message } from "primereact/message";
 import { Password } from "primereact/password";
 import { Button } from "primereact/button";
 import { useLoginHook } from "@/hooks/useAuthHooks";
+import { resolveBrandingAssetUrl, useBranding } from "@/context/BrandingContext";
 
 export default function LoginPage() {
+  const { branding, loading: brandingLoading } = useBranding();
   const {
     username,
     setUsername,
@@ -21,20 +22,18 @@ export default function LoginPage() {
     loading,
     handleLogin,
   } = useLoginHook();
-  const groupName =
-    process.env.NEXT_PUBLIC_GRUPO_NOMBRE ?? "Grupo Scout Adalberto O. Lopez 494";
+  const groupName = branding.nombre_grupo;
+  const logoUrl = resolveBrandingAssetUrl(branding.url_logo, "/logo.png");
 
   const header = (
     <div className="flex flex-col gap-3 pt-4">
       <div className="flex items-center justify-center gap-3">
         <div className="h-[60px] w-[60px] flex-shrink-0">
-          <Image
-            src="/scout_logo.png"
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={logoUrl}
             alt={`Logo de ${groupName}`}
-            width={480}
-            height={480}
             className="h-full w-full object-contain"
-            priority
           />
         </div>
         <span className="text-lg font-semibold">{groupName}</span>
@@ -94,6 +93,9 @@ export default function LoginPage() {
             </div>
 
             {error && <Message severity="error" text={error} />}
+            {brandingLoading ? (
+              <Message severity="info" text="Cargando identidad del grupo..." />
+            ) : null}
 
             <Button
               type="submit"

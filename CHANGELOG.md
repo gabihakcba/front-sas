@@ -2,6 +2,65 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.10.5
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- la configuración institucional toma por defecto el nombre del grupo desde `GRUPO_NOMBRE` del backend
+- logo y favicon por defecto pasan a resolverse desde `api-sas/public/logo.png` y `api-sas/public/favicon.ico`
+- el frontend deja de depender de `NEXT_PUBLIC_GRUPO_NOMBRE` y usa únicamente la configuración pública servida por la API
+
+## 1.10.4
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- la configuración del grupo separa `Tema Web` y `Tema Mobile` para no mezclar PrimeReact con React Native Paper
+- el selector de `Tema Web` ahora expone todos los themes de PrimeReact disponibles en la instalación actual
+- `Tema Mobile` queda preparado con opciones base MD3 para la futura app React Native
+
+## 1.10.3
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- la sección de administración de branding pasa a llamarse `Configuración` en el sidebar y en la pantalla del dashboard
+- se corrige el arranque del backend para servir assets públicos de branding sin fallar por el import de `path`
+
+## 1.10.2
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- la administración de `Marca Blanca` reemplaza URLs manuales por carga real de archivos para logo y favicon
+- el backend publica los assets de branding desde almacenamiento local y conserva en base sólo la ruta resultante
+- login, favicon del documento y sidebar resuelven correctamente esos paths servidos por la API
+
+## 1.10.1
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- se agrega la sección `Marca Blanca` al final del sidebar del dashboard sólo para `JEFATURA`, `ADM` y `DEV` de grupo
+- la configuración del grupo deja de ser sólo pública y suma un endpoint protegido para editar nombre, logo, favicon y theme
+- el branding aplicado por el login y el layout ahora puede actualizarse desde la propia interfaz administrativa sin tocar código
+
+## 1.10.0
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- se incorpora la primera capa de marca blanca single-tenant con configuración pública del grupo
+- login y layout dejan de depender de nombre/logo/theme fijos y pasan a consumir la configuración remota antes de autenticar
+- el frontend aplica nombre del grupo, favicon y tema PrimeReact en tiempo de ejecución, con cache local para acelerar recargas
+
 ## 1.9.1
 
 Fecha: 2026-03-18

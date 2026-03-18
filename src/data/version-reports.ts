@@ -13,6 +13,127 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.10.5',
+    date: '2026-03-18',
+    title: 'Defaults institucionales desde backend',
+    summary:
+      'La identidad institucional por defecto pasa a depender del backend, usando GRUPO_NOMBRE y assets públicos estándar en api-sas/public.',
+    sections: [
+      {
+        title: 'Defaults',
+        items: [
+          'El nombre inicial del grupo ya no depende del frontend y se toma desde GRUPO_NOMBRE en el backend.',
+          'Logo y favicon por defecto pasan a salir de /logo.png y /favicon.ico servidos por la API.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.10.4',
+    date: '2026-03-18',
+    title: 'Temas separados para web y mobile',
+    summary:
+      'La configuración institucional separa los temas de PrimeReact y React Native Paper para preparar mejor la futura app mobile.',
+    sections: [
+      {
+        title: 'Configuración',
+        items: [
+          'El campo original de theme pasa a dividirse en Tema Web y Tema Mobile.',
+          'Tema Web ofrece el catálogo completo de themes de PrimeReact disponibles en esta instalación.',
+          'Tema Mobile queda preparado con variantes base MD3 para la futura integración con React Native Paper.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.10.3',
+    date: '2026-03-18',
+    title: 'Configuración y assets públicos',
+    summary:
+      'La administración de branding se integra mejor al dashboard bajo Configuración y el backend estabiliza el servido de assets públicos.',
+    sections: [
+      {
+        title: 'Dashboard',
+        items: [
+          'La sección antes llamada Marca Blanca pasa a mostrarse como Configuración en la navegación y en la card principal.',
+        ],
+      },
+      {
+        title: 'Backend',
+        items: [
+          'El arranque del servidor deja de fallar al montar la carpeta pública usada para logo y favicon del grupo.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.10.2',
+    date: '2026-03-18',
+    title: 'Uploads para marca blanca',
+    summary:
+      'La configuración de marca blanca deja de depender de URLs manuales y pasa a manejar uploads reales de logo y favicon.',
+    sections: [
+      {
+        title: 'Archivos',
+        items: [
+          'La pantalla Marca Blanca permite seleccionar archivos locales para logo y favicon en lugar de pegar URLs.',
+          'El branding resuelve correctamente los paths públicos servidos por la API para login, sidebar y favicon del documento.',
+        ],
+      },
+      {
+        title: 'Operación',
+        items: [
+          'La base conserva sólo la ruta del asset, mientras los archivos quedan almacenados localmente en el backend.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.10.1',
+    date: '2026-03-18',
+    title: 'Administración de marca blanca',
+    summary:
+      'La marca blanca deja de ser sólo bootstrap público y suma una pantalla protegida para administrar branding desde el dashboard.',
+    sections: [
+      {
+        title: 'Configuración',
+        items: [
+          'JEFATURA, ADM y DEV de grupo ven la nueva sección Marca Blanca al final del sidebar del dashboard.',
+          'La pantalla permite editar nombre del grupo, logo, favicon y theme con aplicación inmediata sobre el branding cargado.',
+        ],
+      },
+      {
+        title: 'Layout',
+        items: [
+          'El sidebar también pasa a usar el branding remoto actual para mostrar nombre y logo coherentes con la configuración guardada.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.10.0',
+    date: '2026-03-18',
+    title: 'Marca blanca inicial',
+    summary:
+      'La aplicación incorpora una configuración pública del grupo para personalizar branding, favicon y tema sin tocar código por instalación.',
+    sections: [
+      {
+        title: 'Login y bootstrap',
+        items: [
+          'El login ahora carga el nombre y logo del grupo desde un endpoint público antes de autenticar.',
+          'La configuración pública se cachea localmente para acelerar el arranque y soportar recargas rápidas.',
+        ],
+      },
+      {
+        title: 'Tema y branding',
+        items: [
+          'El layout aplica dinámicamente el tema de PrimeReact, el título del documento y el favicon según la configuración remota.',
+          'La solución queda alineada con un esquema single-tenant por despliegue, útil para el futuro flujo mobile por URL.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.9.1',
     date: '2026-03-18',
     title: 'Edición del perfil propio',
