@@ -100,6 +100,12 @@ export const RELATION_MANAGEMENT_ACCESS: AccessRule[] = [
   ...BRANCH_LEADERSHIP_ACCESS,
 ];
 
+export const LOG_ACCESS: AccessRule[] = [
+  { role: "ADM", scopeType: "GRUPO" },
+  { role: "DEV", scopeType: "GRUPO" },
+  { role: "JEFATURA", scopeType: "GRUPO" },
+];
+
 export const dashboardSidebarItems: DashboardSidebarItem[] = [
   {
     label: "Perfil",
@@ -161,6 +167,12 @@ export const dashboardSidebarItems: DashboardSidebarItem[] = [
     path: "/dashboard/calendario",
     accessRules: [],
   },
+  {
+    label: "Logs",
+    icon: "pi pi-history",
+    path: "/dashboard/logs",
+    accessRules: LOG_ACCESS,
+  },
 ];
 
 export const dashboardRouteAccessList: DashboardRouteAccess[] = [
@@ -193,6 +205,7 @@ export const dashboardRouteAccessList: DashboardRouteAccess[] = [
   },
   { pathPrefix: "/dashboard/consejos", accessRules: ADULT_COUNCIL_ACCESS },
   { pathPrefix: "/dashboard/calendario", accessRules: [] },
+  { pathPrefix: "/dashboard/logs", accessRules: LOG_ACCESS },
   { pathPrefix: "/dashboard/relaciones", accessRules: RELATION_MANAGEMENT_ACCESS },
   { pathPrefix: "/dashboard/perfil", accessRules: [] },
   { pathPrefix: "/dashboard/versiones", accessRules: [] },

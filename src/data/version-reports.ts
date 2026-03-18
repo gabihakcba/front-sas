@@ -13,6 +13,68 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.8.28',
+    date: '2026-03-18',
+    title: 'Visor inicial de logs',
+    summary:
+      'La sección Logs deja de ser un placeholder y pasa a mostrar el primer listado paginado de auditoría para revisar requests mutantes y sus acciones asociadas.',
+    sections: [
+      {
+        title: 'Listado',
+        items: [
+          'La tabla muestra fecha, endpoint, cuenta, miembro, IP, user-agent y cantidad de acciones registradas por cada log.',
+          'Cada fila resume además las tablas afectadas por la request para acelerar la lectura operativa de auditoría.',
+        ],
+      },
+      {
+        title: 'Búsqueda',
+        items: [
+          'El módulo permite buscar logs por endpoint, IP o user-agent sin salir del dashboard.',
+          'La navegación mantiene paginación backend fija en 10 registros por página.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.27',
+    date: '2026-03-18',
+    title: 'Entrada protegida para logs',
+    summary:
+      'El dashboard incorpora la sección Logs con acceso reservado a perfiles de grupo con responsabilidad de auditoría técnica u organizativa.',
+    sections: [
+      {
+        title: 'Acceso',
+        items: [
+          'La sidebar muestra Logs sólo para JEFATURA, DEV y ADM con scope GRUPO.',
+          'La ruta queda protegida con la misma matriz para evitar acceso manual por URL desde otros perfiles.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.26',
+    date: '2026-03-18',
+    title: 'Pagos sin edición y base de auditoría',
+    summary:
+      'La gestión de pagos pasa a trabajar sin edición directa y el sistema incorpora la primera base de auditoría para registrar operaciones mutantes.',
+    sections: [
+      {
+        title: 'Pagos',
+        items: [
+          'El frontend elimina la acción de editar pagos y deja el módulo alineado con una política de alta nueva más baja lógica ante errores.',
+          'La API deja de exponer edición de pagos para evitar cambios silenciosos sobre movimientos financieros ya registrados.',
+        ],
+      },
+      {
+        title: 'Auditoría',
+        items: [
+          'Se incorpora un interceptor global para crear logs de requests mutantes autenticadas.',
+          'Pago queda instrumentado como primer recurso auditado, registrando snapshots previos y posteriores en Action.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.8.25',
     date: '2026-03-18',
     title: 'Auditoría de borrados y soft delete unificado',

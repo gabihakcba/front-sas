@@ -6,7 +6,6 @@ import {
   PagoWhatsappShareData,
   PaginatedPagosResponse,
   PagosOptionsResponse,
-  UpdatePagoPayload,
 } from '@/types/pagos';
 
 interface GetPagosParams {
@@ -73,14 +72,6 @@ export const createPagoRequest = async (
   payload: CreatePagoPayload,
 ): Promise<Pago> => {
   const response = await api.post<Pago>('/pagos', payload);
-  return response.data;
-};
-
-export const updatePagoRequest = async (
-  id: number,
-  payload: UpdatePagoPayload,
-): Promise<Pago> => {
-  const response = await api.patch<Pago>(`/pagos/${id}`, payload);
   return response.data;
 };
 

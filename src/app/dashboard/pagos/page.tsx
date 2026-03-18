@@ -64,14 +64,12 @@ export default function PagosPage() {
     setFilters,
     refetch,
     openCreateDialog,
-    openEditDialog,
     closeDialog,
     submitForm,
     deleteSelected,
   } = usePagosHook();
 
   const canCreate = hasPermissionAccess(user, 'CREATE:PAGO');
-  const canEdit = hasPermissionAccess(user, 'UPDATE:PAGO');
   const canDelete = hasPermissionAccess(user, 'DELETE:PAGO');
   const canManagePaymentCatalogs = hasAccessRule(
     user?.scopes,
@@ -313,18 +311,6 @@ export default function PagosPage() {
             outlined
             size="small"
             onClick={() => void openCreateDialog()}
-          />
-        ) : null}
-        {canEdit ? (
-          <Button
-            type="button"
-            label="Editar"
-            icon="pi pi-pencil"
-            iconPos="right"
-            outlined
-            size="small"
-            onClick={() => void openEditDialog()}
-            disabled={!selectedPago || Boolean(selectedPago.borrado)}
           />
         ) : null}
         {canDelete ? (

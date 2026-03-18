@@ -97,17 +97,3 @@ export interface CreatePagoPayload {
   comprobantePagoMimeType?: string;
   comprobantePagoNombre?: string;
 }
-
-export interface UpdatePagoPayload {
-  monto?: number;
-  detalles?: string;
-  fechaPago?: string;
-  idCuentaDinero?: number;
-  idCuentaOrigen?: number | null;
-  idMetodoPago?: number;
-  idConceptoPago?: number;
-  idMiembro?: number;
-  comprobantePagoBase64?: string | null;
-  comprobantePagoMimeType?: string | null;
-  comprobantePagoNombre?: string | null;
-}

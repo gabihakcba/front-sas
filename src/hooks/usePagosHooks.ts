@@ -6,10 +6,8 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   createPagoRequest,
   deletePagoRequest,
-  getPagoRequest,
   getPagosOptionsRequest,
   getPagosRequest,
-  updatePagoRequest,
 } from '@/queries/pagos';
 import {
   CreatePagoPayload,
@@ -17,12 +15,11 @@ import {
   PagoFilters,
   PagoFormValues,
   PagosOptionsResponse,
-  UpdatePagoPayload,
 } from '@/types/pagos';
 import { PaginatedResponseMeta } from '@/types/pagination';
 
 const DEFAULT_LIMIT = 10;
-type DialogMode = 'create' | 'edit';
+type DialogMode = 'create';
 const createEmptyFilters = (): PagoFilters => ({
   q: '',
   idConceptoPago: null,
@@ -84,28 +81,6 @@ const buildCreatePayload = (
     : {}),
 });
 
-const buildUpdatePayload = (
-  values: PagoFormValues,
-): UpdatePagoPayload => ({
-  monto: Number(values.monto),
-  ...(values.detalles.trim() ? { detalles: values.detalles.trim() } : {}),
-  ...(values.fechaPago
-    ? { fechaPago: dayjs(values.fechaPago).toISOString() }
-    : {}),
-  idCuentaDinero: values.idCuentaDinero!,
-  idCuentaOrigen: values.idCuentaOrigen ?? null,
-  idMetodoPago: values.idMetodoPago!,
-  idConceptoPago: values.idConceptoPago!,
-  idMiembro: values.idMiembro!,
-  ...(values.comprobantePagoBase64 !== undefined
-    ? {
-        comprobantePagoBase64: values.comprobantePagoBase64,
-        comprobantePagoMimeType: values.comprobantePagoMimeType,
-        comprobantePagoNombre: values.comprobantePagoNombre,
-      }
-    : {}),
-});
-
 interface UsePagosHookResult {
   pagos: Pago[];
   selectedPago: Pago | null;
@@ -127,7 +102,6 @@ interface UsePagosHookResult {
   setFilters: (filters: PagoFilters) => void;
   refetch: (nextPage?: number) => Promise<void>;
   openCreateDialog: () => Promise<void>;
-  openEditDialog: () => Promise<void>;
   closeDialog: () => void;
   submitForm: (values: PagoFormValues) => Promise<void>;
   deleteSelected: () => Promise<void>;
@@ -226,43 +200,6 @@ export const usePagosHook = (): UsePagosHookResult => {
     }
   }, [fetchOptions]);
 
-  const openEditDialog = useCallback(async () => {
-    if (!selectedPago) {
-      setError('Seleccioná un pago para editar.');
-      return;
-    }
-
-    setDialogMode('edit');
-    setDialogLoading(true);
-    setError('');
-    setSuccessMessage('');
-
-    try {
-      const [, pagoResponse] = await Promise.all([
-        fetchOptions(),
-        getPagoRequest(selectedPago.id),
-      ]);
-      setFormValuesState({
-        monto: pagoResponse.monto,
-        detalles: pagoResponse.detalles ?? '',
-        fechaPago: dayjs(pagoResponse.fecha_pago).format('YYYY-MM-DD'),
-        idCuentaDinero: pagoResponse.CuentaDinero.id,
-        idCuentaOrigen: pagoResponse.CuentaOrigen?.id ?? null,
-        idMetodoPago: pagoResponse.MetodoPago.id,
-        idConceptoPago: pagoResponse.ConceptoPago.id,
-        idMiembro: pagoResponse.Miembro.id,
-        comprobantePagoBase64: undefined,
-        comprobantePagoMimeType: pagoResponse.comprobante_pago_mime,
-        comprobantePagoNombre: pagoResponse.comprobante_pago_nombre,
-      });
-      setDialogVisible(true);
-    } catch (err: unknown) {
-      setError(getErrorMessage(err, 'No se pudo cargar el pago.'));
-    } finally {
-      setDialogLoading(false);
-    }
-  }, [fetchOptions, selectedPago]);
-
   const closeDialog = () => {
     setDialogVisible(false);
     setFormValuesState(createEmptyFormValues());
@@ -274,18 +211,12 @@ export const usePagosHook = (): UsePagosHookResult => {
     setSuccessMessage('');
 
     try {
-      if (dialogMode === 'create') {
-        await createPagoRequest(buildCreatePayload(values));
-        setSuccessMessage('Pago creado correctamente.');
-      } else if (selectedPago) {
-        await updatePagoRequest(selectedPago.id, buildUpdatePayload(values));
-        setSuccessMessage('Pago actualizado correctamente.');
-      }
-
+      await createPagoRequest(buildCreatePayload(values));
+      setSuccessMessage('Pago creado correctamente.');
       closeDialog();
       await fetchPagos(page);
     } catch (err: unknown) {
-      setError(getErrorMessage(err, 'No se pudo guardar el pago.'));
+      setError(getErrorMessage(err, 'No se pudo crear el pago.'));
     } finally {
       setSubmitting(false);
     }
@@ -334,7 +265,6 @@ export const usePagosHook = (): UsePagosHookResult => {
     setFilters,
     refetch: fetchPagos,
     openCreateDialog,
-    openEditDialog,
     closeDialog,
     submitForm,
     deleteSelected,

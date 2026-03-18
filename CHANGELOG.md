@@ -2,6 +2,34 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.8.28
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- la sección `Logs` deja de ser placeholder y pasa a mostrar un listado paginado de auditoría con fecha, endpoint, cuenta, miembro, IP, user-agent y resumen de acciones
+- el visor agrega búsqueda por endpoint, IP o user-agent y mantiene paginación backend fija en 10 registros
+
+## 1.8.27
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- se agrega la sección `Logs` en sidebar y por ruta protegida únicamente para `JEFATURA`, `DEV` y `ADM` con scope `GRUPO`
+- la pantalla queda creada como placeholder para continuar luego con la implementación del visor de auditoría
+
+## 1.8.26
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- la sección `Pagos` deja de permitir edición; ante un error ahora corresponde eliminar el pago y registrarlo nuevamente
+- se prepara la infraestructura base de auditoría para requests mutantes y se instrumenta `Pago` como primer caso de prueba
+- el schema de auditoría corrige `post_resgistro` a `post_registro` y agrega `timestamp`, `ip` y `userAgent` en `Log`
+
 ## 1.8.25
 
 Fecha: 2026-03-18

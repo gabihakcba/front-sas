@@ -14,7 +14,7 @@ import { PagoFormValues, PagosOptionsResponse } from '@/types/pagos';
 
 interface PagoFormDialogProps {
   visible: boolean;
-  mode: 'create' | 'edit';
+  mode: 'create';
   loading: boolean;
   submitting: boolean;
   values: PagoFormValues;
@@ -26,7 +26,6 @@ interface PagoFormDialogProps {
 
 export function PagoFormDialog({
   visible,
-  mode,
   loading,
   submitting,
   values,
@@ -86,7 +85,7 @@ export function PagoFormDialog({
       />
       <Button
         type="button"
-        label={mode === 'create' ? 'Crear' : 'Guardar'}
+        label="Crear"
         icon={submitting ? 'pi pi-spin pi-spinner' : 'pi pi-check'}
         iconPos="right"
         outlined
@@ -132,7 +131,7 @@ export function PagoFormDialog({
     <Dialog
       visible={visible}
       onHide={onHide}
-      header={mode === 'create' ? 'Crear pago' : 'Editar pago'}
+      header="Crear pago"
       footer={footer}
       className="w-full max-w-3xl"
       modal
