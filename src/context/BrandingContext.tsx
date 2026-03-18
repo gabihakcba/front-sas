@@ -21,6 +21,7 @@ const DEFAULT_BRANDING: ConfiguracionGrupoPublica = {
 
 const STORAGE_KEY = 'sas_branding';
 const THEME_LINK_ID = 'sas-theme-link';
+const FAVICON_LINK_ID = 'sas-favicon-link';
 const DEFAULT_THEME_HREF =
   'https://unpkg.com/primereact/resources/themes/lara-light-blue/theme.css';
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001').replace(
@@ -51,9 +52,18 @@ const applyBrandingToDocument = (branding: ConfiguracionGrupoPublica) => {
   document.title = branding.nombre_grupo;
 
   const faviconHref = resolveBrandingAssetUrl(branding.url_favicon, '/favicon.ico');
-  let favicon = document.querySelector<HTMLLinkElement>("link[rel~='icon']");
+  document
+    .querySelectorAll<HTMLLinkElement>("link[rel='icon'], link[rel='shortcut icon']")
+    .forEach((link) => {
+      if (link.id !== FAVICON_LINK_ID) {
+        link.remove();
+      }
+    });
+
+  let favicon = document.getElementById(FAVICON_LINK_ID) as HTMLLinkElement | null;
   if (!favicon) {
     favicon = document.createElement('link');
+    favicon.id = FAVICON_LINK_ID;
     favicon.rel = 'icon';
     document.head.appendChild(favicon);
   }
