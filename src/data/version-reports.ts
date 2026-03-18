@@ -13,6 +13,70 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.8.47',
+    date: '2026-03-18',
+    title: 'Consejos visibles en calendario',
+    summary:
+      'El calendario incorpora los consejos como una tercera fuente visible para todos los usuarios autenticados, con detalle propio dentro del modal diario.',
+    sections: [
+      {
+        title: 'Calendario',
+        items: [
+          'Los consejos aparecen en el calendario como una fuente independiente junto a eventos y cumpleaños.',
+          'El detalle diario ahora distingue consejos con modalidad, fecha y horario dentro del mismo modal de agenda.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.46',
+    date: '2026-03-18',
+    title: 'Formaciones plegable en mobile',
+    summary:
+      'La sección principal de Formaciones adopta un AccordionTab en mobile para compactar mejor la interfaz, manteniendo la card tradicional en escritorio.',
+    sections: [
+      {
+        title: 'Formaciones',
+        items: [
+          'En mobile el bloque principal de Formaciones se pliega y despliega como accordion.',
+          'En escritorio sigue presentándose como card para sostener la estructura actual.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.45',
+    date: '2026-03-18',
+    title: 'Adjuntos de formaciones con descarga directa',
+    summary:
+      'La gestión de adjuntos en Formaciones desacopla preview y descarga para permitir bajar archivos apenas están disponibles y mostrar carga en el botón correspondiente.',
+    sections: [
+      {
+        title: 'Formaciones',
+        items: [
+          'Cada adjunto ahora ofrece acciones separadas de Preview y Descargar.',
+          'La descarga ya no espera a que exista preview y ambos botones informan carga mientras la solicitud está pendiente.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.44',
+    date: '2026-03-18',
+    title: 'Detalle diario en calendario',
+    summary:
+      'El calendario suma un modal por día para leer con claridad todos los eventos y cumpleaños listados en una fecha.',
+    sections: [
+      {
+        title: 'Calendario',
+        items: [
+          'Hacer click sobre una fecha o sobre un evento abre un modal con el listado completo del día.',
+          'El detalle diario evita depender de la legibilidad del contenido comprimido dentro de cada celda.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.8.43',
     date: '2026-03-18',
     title: 'Navegación por swipe en mobile',

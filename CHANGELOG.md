@@ -2,6 +2,15 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.8.47
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- el calendario suma `Consejos` como una fuente propia visible junto a eventos y cumpleaños
+- cualquier usuario autenticado puede ver los consejos del calendario aunque no tenga acceso operativo al módulo `Consejos`
+
 ## 1.8.36
 
 Fecha: 2026-03-18
@@ -74,6 +83,34 @@ Fecha: 2026-03-18
 
 - en desktop la navegación manual del calendario queda reducida a iconos
 - en mobile se eliminan esos controles y el cambio de rango queda exclusivamente por swipe horizontal
+
+## 1.8.44
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- al hacer click en un día o en un evento del calendario se abre un modal con el detalle de todo lo listado para esa fecha
+- esto mejora la lectura de días con múltiples elementos o celdas visualmente cargadas
+
+## 1.8.45
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- los adjuntos de Formaciones separan `Preview` y `Descargar` en acciones independientes
+- el botón de descarga queda disponible apenas el archivo puede solicitarse, sin depender de abrir primero el preview
+- ambos botones muestran estado de carga mientras la petición está en curso
+
+## 1.8.46
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- en mobile la sección principal `Formaciones` deja de renderizarse como card y pasa a un `AccordionTab`
+- en escritorio se conserva la card original para no cambiar el layout amplio
 
 ## 1.8.35
 

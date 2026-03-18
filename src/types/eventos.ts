@@ -76,6 +76,16 @@ export interface CalendarEvento {
   }>;
 }
 
+export interface CalendarConsejo {
+  id: number;
+  nombre: string;
+  descripcion: string | null;
+  fecha: string;
+  es_ordinario: boolean;
+  hora_inicio: string | null;
+  hora_fin: string | null;
+}
+
 export interface CalendarBirthday {
   id: string;
   miembroId: number;

@@ -145,7 +145,10 @@ function FormacionTemplateEditor({
   onUploadAdjunto,
   onReplaceAdjunto,
   onPreviewAdjunto,
+  onDownloadAdjunto,
   onDeleteAdjunto,
+  loadingAdjuntoId,
+  loadingAdjuntoAction,
 }: {
   template: PlanFormacionTemplateAdmin;
   draft: TemplateDraft;
@@ -161,7 +164,10 @@ function FormacionTemplateEditor({
   onUploadAdjunto: (file: File) => void;
   onReplaceAdjunto: (adjuntoId: number, file: File) => void;
   onPreviewAdjunto: (adjuntoId: number) => void;
+  onDownloadAdjunto: (adjuntoId: number) => void;
   onDeleteAdjunto: (adjuntoId: number) => void;
+  loadingAdjuntoId: number | null;
+  loadingAdjuntoAction: 'preview' | 'download' | null;
 }) {
   const addAdjuntoInputId = `add-adjunto-${template.id}`;
 
@@ -459,11 +465,29 @@ function FormacionTemplateEditor({
               <div className="flex items-center gap-2">
                 <Button
                   label="Preview"
-                  icon="pi pi-eye"
+                  icon={
+                    loadingAdjuntoId === adjunto.id && loadingAdjuntoAction === 'preview'
+                      ? 'pi pi-spin pi-spinner'
+                      : 'pi pi-eye'
+                  }
                   iconPos="right"
                   outlined
                   size="small"
+                  loading={loadingAdjuntoId === adjunto.id && loadingAdjuntoAction === 'preview'}
                   onClick={() => onPreviewAdjunto(adjunto.id)}
+                />
+                <Button
+                  label="Descargar"
+                  icon={
+                    loadingAdjuntoId === adjunto.id && loadingAdjuntoAction === 'download'
+                      ? 'pi pi-spin pi-spinner'
+                      : 'pi pi-download'
+                  }
+                  iconPos="right"
+                  outlined
+                  size="small"
+                  loading={loadingAdjuntoId === adjunto.id && loadingAdjuntoAction === 'download'}
+                  onClick={() => onDownloadAdjunto(adjunto.id)}
                 />
                 {canManage ? (
                   <>
@@ -535,6 +559,7 @@ export default function FormacionesPage() {
   const [apfAdultId, setApfAdultId] = useState<number | null>(null);
   const [apfConsejoId, setApfConsejoId] = useState<number | null>(null);
   const [apfObservacion, setApfObservacion] = useState('');
+  const [formacionesSectionOpen, setFormacionesSectionOpen] = useState<number[]>([0]);
   const [apfEditMode, setApfEditMode] = useState(false);
   const [apfSectionOpen, setApfSectionOpen] = useState<number[]>([]);
   const [editingTemplateIds, setEditingTemplateIds] = useState<number[]>([]);
@@ -546,6 +571,32 @@ export default function FormacionesPage() {
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState('');
   const [uploadError, setUploadError] = useState('');
+  const [loadingAdjuntoId, setLoadingAdjuntoId] = useState<number | null>(null);
+  const [loadingAdjuntoAction, setLoadingAdjuntoAction] = useState<'preview' | 'download' | null>(
+    null,
+  );
+
+  const buildAdjuntoBlob = (archivoBase64: string, archivoMime: string | null) => {
+    const byteCharacters = atob(archivoBase64);
+    const byteNumbers = new Array(byteCharacters.length);
+
+    for (let index = 0; index < byteCharacters.length; index += 1) {
+      byteNumbers[index] = byteCharacters.charCodeAt(index);
+    }
+
+    return new Blob([new Uint8Array(byteNumbers)], {
+      type: archivoMime ?? 'application/octet-stream',
+    });
+  };
+
+  const triggerBlobDownload = (blob: Blob, fileName: string) => {
+    const objectUrl = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = objectUrl;
+    anchor.download = fileName;
+    anchor.click();
+    URL.revokeObjectURL(objectUrl);
+  };
 
   const runAdjuntoUpload = async (
     templateId: number,
@@ -641,104 +692,120 @@ export default function FormacionesPage() {
     );
   };
 
+  const formacionesContent = (
+    <div className="flex flex-col gap-3">
+      {canEdit ? (
+        <div className="flex flex-col gap-2 md:flex-row">
+          <InputText
+            value={newTemplateName}
+            onChange={(event) => setNewTemplateName(event.target.value)}
+            placeholder="Nombre del nuevo template"
+          />
+          <Button
+            label="Crear template base"
+            icon="pi pi-plus"
+            iconPos="right"
+            outlined
+            size="small"
+            loading={submitting}
+            disabled={!newTemplateName.trim()}
+            onClick={() => {
+              void createDefaultTemplate(newTemplateName.trim()).then(() =>
+                setNewTemplateName(''),
+              );
+            }}
+          />
+        </div>
+      ) : (
+        <Message
+          severity="info"
+          text="Las plantillas de formación están disponibles para consulta. La gestión queda habilitada solo para personas adultas."
+        />
+      )}
+
+      {canCreatePlan ? (
+        <div className="flex flex-col gap-2 md:flex-row">
+          <Dropdown
+            value={selectedTemplateForInscription}
+            options={templateOptions}
+            onChange={(event) =>
+              setSelectedTemplateForInscription((event.value as number | null) ?? null)
+            }
+            placeholder="Template para inscribirme"
+          />
+          <Dropdown
+            value={selectedApfAdulto}
+            options={apfOptions}
+            onChange={(event) =>
+              setSelectedApfAdulto((event.value as number | null) ?? null)
+            }
+            placeholder="APF"
+          />
+          <InputNumber
+            value={inscriptionYear}
+            onValueChange={(event) => setInscriptionYear(event.value ?? null)}
+            useGrouping={false}
+            placeholder="Año"
+          />
+          <Button
+            label="Inscribirme"
+            icon="pi pi-send"
+            iconPos="right"
+            outlined
+            size="small"
+            loading={submitting}
+            disabled={
+              !selectedTemplateForInscription || !selectedApfAdulto || !inscriptionYear
+            }
+            onClick={() => {
+              if (
+                !selectedTemplateForInscription ||
+                !selectedApfAdulto ||
+                !inscriptionYear
+              ) {
+                return;
+              }
+
+              const payload: CreatePlanDesempenoPayload = {
+                idPlanFormacionTemplate: selectedTemplateForInscription,
+                idApfAdulto: selectedApfAdulto,
+                anio: inscriptionYear,
+              };
+
+              void inscribirme(payload);
+            }}
+          />
+        </div>
+      ) : (
+        <Message
+          severity="info"
+          text="La inscripción a planes de formación está habilitada solo para personas adultas."
+        />
+      )}
+    </div>
+  );
+
   return (
     <div className="flex flex-col gap-4">
       {error ? <Message severity="error" text={error} /> : null}
       {uploadError ? <Message severity="error" text={uploadError} /> : null}
       {successMessage ? <Message severity="success" text={successMessage} /> : null}
 
-      <Card title="Formaciones">
-        <div className="flex flex-col gap-3">
-          {canEdit ? (
-            <div className="flex flex-col gap-2 md:flex-row">
-              <InputText
-                value={newTemplateName}
-                onChange={(event) => setNewTemplateName(event.target.value)}
-                placeholder="Nombre del nuevo template"
-              />
-              <Button
-                label="Crear template base"
-                icon="pi pi-plus"
-                iconPos="right"
-                outlined
-                size="small"
-                loading={submitting}
-                disabled={!newTemplateName.trim()}
-                onClick={() => {
-                  void createDefaultTemplate(newTemplateName.trim()).then(() =>
-                    setNewTemplateName(''),
-                  );
-                }}
-              />
-            </div>
-          ) : (
-            <Message
-              severity="info"
-              text="Las plantillas de formación están disponibles para consulta. La gestión queda habilitada solo para personas adultas."
-            />
-          )}
+      <div className="md:hidden">
+        <Accordion
+          multiple
+          activeIndex={formacionesSectionOpen}
+          onTabChange={(event) =>
+            setFormacionesSectionOpen((event.index as number[]) ?? [])
+          }
+        >
+          <AccordionTab header="Formaciones">{formacionesContent}</AccordionTab>
+        </Accordion>
+      </div>
 
-          {canCreatePlan ? (
-            <div className="flex flex-col gap-2 md:flex-row">
-              <Dropdown
-                value={selectedTemplateForInscription}
-                options={templateOptions}
-                onChange={(event) =>
-                  setSelectedTemplateForInscription((event.value as number | null) ?? null)
-                }
-                placeholder="Template para inscribirme"
-              />
-              <Dropdown
-                value={selectedApfAdulto}
-                options={apfOptions}
-                onChange={(event) =>
-                  setSelectedApfAdulto((event.value as number | null) ?? null)
-                }
-                placeholder="APF"
-              />
-              <InputNumber
-                value={inscriptionYear}
-                onValueChange={(event) => setInscriptionYear(event.value ?? null)}
-                useGrouping={false}
-                placeholder="Año"
-              />
-              <Button
-                label="Inscribirme"
-                icon="pi pi-send"
-                iconPos="right"
-                outlined
-                size="small"
-                loading={submitting}
-                disabled={
-                  !selectedTemplateForInscription || !selectedApfAdulto || !inscriptionYear
-                }
-                onClick={() => {
-                  if (
-                    !selectedTemplateForInscription ||
-                    !selectedApfAdulto ||
-                    !inscriptionYear
-                  ) {
-                    return;
-                  }
-
-                  const payload: CreatePlanDesempenoPayload = {
-                    idPlanFormacionTemplate: selectedTemplateForInscription,
-                    idApfAdulto: selectedApfAdulto,
-                    anio: inscriptionYear,
-                  };
-
-                  void inscribirme(payload);
-                }}
-              />
-            </div>
-          ) : (
-            <Message
-              severity="info"
-              text="La inscripción a planes de formación está habilitada solo para personas adultas."
-            />
-          )}
-        </div>
-      </Card>
+      <div className="hidden md:block">
+        <Card title="Formaciones">{formacionesContent}</Card>
+      </div>
 
       {canManageApf ? (
         <Accordion
@@ -891,22 +958,17 @@ export default function FormacionesPage() {
                     setPreviewVisible(true);
                     setPreviewLoading(true);
                     setPreviewError('');
+                    setLoadingAdjuntoId(adjuntoId);
+                    setLoadingAdjuntoAction('preview');
 
                     void downloadAdjunto(adjuntoId)
                       .then((response) => {
-                        const byteCharacters = atob(response.archivoBase64);
-                        const byteNumbers = new Array(byteCharacters.length);
-
-                        for (let index = 0; index < byteCharacters.length; index += 1) {
-                          byteNumbers[index] = byteCharacters.charCodeAt(index);
-                        }
-
-                        const byteArray = new Uint8Array(byteNumbers);
+                        const blob = buildAdjuntoBlob(
+                          response.archivoBase64,
+                          response.archivo_mime ?? 'application/octet-stream',
+                        );
                         setPreviewBlob(
-                          new Blob([byteArray], {
-                            type:
-                              response.archivo_mime ?? 'application/octet-stream',
-                          }),
+                          blob,
                         );
                         setPreviewTitle(`Preview de ${response.titulo}`);
                         setPreviewFileName(response.archivo_nombre);
@@ -919,11 +981,32 @@ export default function FormacionesPage() {
                       })
                       .finally(() => {
                         setPreviewLoading(false);
+                        setLoadingAdjuntoId(null);
+                        setLoadingAdjuntoAction(null);
+                      });
+                  }}
+                  onDownloadAdjunto={(adjuntoId) => {
+                    setLoadingAdjuntoId(adjuntoId);
+                    setLoadingAdjuntoAction('download');
+
+                    void downloadAdjunto(adjuntoId)
+                      .then((response) => {
+                        const blob = buildAdjuntoBlob(
+                          response.archivoBase64,
+                          response.archivo_mime ?? 'application/octet-stream',
+                        );
+                        triggerBlobDownload(blob, response.archivo_nombre);
+                      })
+                      .finally(() => {
+                        setLoadingAdjuntoId(null);
+                        setLoadingAdjuntoAction(null);
                       });
                   }}
                   onDeleteAdjunto={(adjuntoId) => {
                     void deleteAdjunto(adjuntoId);
                   }}
+                  loadingAdjuntoId={loadingAdjuntoId}
+                  loadingAdjuntoAction={loadingAdjuntoAction}
                 />
               </AccordionTab>
             );

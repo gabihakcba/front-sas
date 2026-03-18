@@ -1,6 +1,7 @@
 import api from '@/lib/axios';
 import {
   CalendarBirthday,
+  CalendarConsejo,
   CalendarEvento,
   CreateEventoPayload,
   Evento,
@@ -81,6 +82,19 @@ export const getCalendarCumpleaniosRequest = async ({
   to: string;
 }): Promise<CalendarBirthday[]> => {
   const response = await api.get<CalendarBirthday[]>('/calendario/cumpleanios', {
+    params: { from, to },
+  });
+  return response.data;
+};
+
+export const getCalendarConsejosRequest = async ({
+  from,
+  to,
+}: {
+  from: string;
+  to: string;
+}): Promise<CalendarConsejo[]> => {
+  const response = await api.get<CalendarConsejo[]>('/calendario/consejos', {
     params: { from, to },
   });
   return response.data;

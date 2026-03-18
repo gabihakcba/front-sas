@@ -5,8 +5,8 @@ import esLocale from '@fullcalendar/core/locales/es';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import multiMonthPlugin from '@fullcalendar/multimonth';
 import FullCalendar from '@fullcalendar/react';
-import { DatesSetArg } from '@fullcalendar/core';
-import { useRef, useState } from 'react';
+import { DatesSetArg, EventClickArg } from '@fullcalendar/core';
+import { MouseEvent, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
 import { Calendar } from 'primereact/calendar';
 import { Dialog } from 'primereact/dialog';
@@ -58,6 +58,28 @@ type ViewOption = {
   value: 'dayGridMonth' | 'multiMonthSemester' | 'multiMonthYear';
 };
 
+interface CalendarExtendedProps {
+  source?: 'eventos' | 'consejos' | 'cumpleanios';
+  tipo?: string;
+  lugar?: string | null;
+  descripcion?: string | null;
+  esOrdinario?: boolean;
+  horaInicio?: string | null;
+  horaFin?: string | null;
+  tipoMiembro?: 'protagonista' | 'responsable' | 'adulto' | 'otro';
+  ramaNombre?: string | null;
+  areaNombre?: string | null;
+}
+
+interface CalendarDayListItem {
+  id: string;
+  title: string;
+  start: string;
+  end?: string;
+  allDay?: boolean;
+  extendedProps?: CalendarExtendedProps;
+}
+
 const navigationOptions: NavigationOption[] = [
   { value: 'prev', icon: 'pi pi-chevron-left' },
   { value: 'next', icon: 'pi pi-chevron-right' },
@@ -76,6 +98,8 @@ export default function CalendarioPage() {
   const [currentTitle, setCurrentTitle] = useState('');
   const [currentView, setCurrentView] = useState('dayGridMonth');
   const [pickerDate, setPickerDate] = useState<Date | null>(new Date());
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [selectedDayItems, setSelectedDayItems] = useState<CalendarDayListItem[]>([]);
   const {
     events,
     sourceOptions,
@@ -180,6 +204,60 @@ export default function CalendarioPage() {
     handleNavigate('prev');
   };
 
+  const openDayDialog = (date: Date) => {
+    const targetDay = dayjs(date).format('YYYY-MM-DD');
+    const items = events.filter((item) => {
+      const start = item.start ? dayjs(item.start as string) : null;
+      const end = item.end ? dayjs(item.end as string).subtract(1, 'day') : start;
+      const target = dayjs(targetDay);
+
+      if (!start || !end) {
+        return false;
+      }
+
+      return !target.isBefore(start.startOf('day')) && !target.isAfter(end.endOf('day'));
+    }) as CalendarDayListItem[];
+
+    setSelectedDay(targetDay);
+    setSelectedDayItems(items);
+  };
+
+  const handleEventClick = (arg: EventClickArg) => {
+    openDayDialog(arg.event.start ?? new Date());
+  };
+
+  const handleCalendarContainerClick = (event: MouseEvent<HTMLDivElement>) => {
+    const target = event.target;
+
+    if (!(target instanceof HTMLElement)) {
+      return;
+    }
+
+    if (target.closest('.fc-event')) {
+      return;
+    }
+
+    const dayCell = target.closest<HTMLElement>('[data-date]');
+
+    if (!dayCell) {
+      return;
+    }
+
+    const dateValue = dayCell.dataset.date;
+
+    if (!dateValue) {
+      return;
+    }
+
+    const parsedDate = dayjs(dateValue, 'YYYY-MM-DD', true);
+
+    if (!parsedDate.isValid()) {
+      return;
+    }
+
+    openDayDialog(parsedDate.toDate());
+  };
+
   return (
     <>
       <Sidebar
@@ -214,7 +292,7 @@ export default function CalendarioPage() {
             <div>
               <h1 className="m-0 text-2xl font-semibold">Calendario</h1>
               <p className="m-0">
-                Visualizá eventos y cumpleaños del grupo por mes, semestre o año.
+                Visualizá eventos, consejos y cumpleaños del grupo por mes, semestre o año.
               </p>
             </div>
             <div className="flex justify-end">
@@ -280,7 +358,11 @@ export default function CalendarioPage() {
             />
           </div>
 
-          <div onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+          <div
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            onClick={handleCalendarContainerClick}
+          >
             <FullCalendar
               ref={calendarRef}
               plugins={[dayGridPlugin, multiMonthPlugin]}
@@ -321,6 +403,7 @@ export default function CalendarioPage() {
               showNonCurrentDates={false}
               eventDisplay="block"
               eventContent={renderCalendarEventContent}
+              eventClick={handleEventClick}
             />
           </div>
         </div>
@@ -344,6 +427,77 @@ export default function CalendarioPage() {
           dateFormat="dd/mm/yy"
           className="w-full"
         />
+      </Dialog>
+
+      <Dialog
+        visible={selectedDay !== null}
+        onHide={() => {
+          setSelectedDay(null);
+          setSelectedDayItems([]);
+        }}
+        header={
+          selectedDay
+            ? `Agenda del ${dayjs(selectedDay).format('DD/MM/YYYY')}`
+            : 'Agenda del día'
+        }
+        {...getResponsiveDialogProps('36rem')}
+      >
+        <div className="flex flex-col gap-3 break-words">
+          {selectedDayItems.length === 0 ? (
+            <Message severity="info" text="No hay eventos ni cumpleaños cargados para este día." />
+          ) : (
+            selectedDayItems.map((item) => (
+              <div
+                key={item.id}
+                className="flex flex-col gap-2 rounded border border-surface-300 p-3 break-words"
+              >
+                <div className="font-semibold break-words whitespace-normal">
+                  {item.title}
+                </div>
+                {item.extendedProps?.source === 'eventos' ? (
+                  <div className="flex flex-col gap-1 text-sm break-words whitespace-normal">
+                    <span>Tipo: {item.extendedProps.tipo ?? '-'}</span>
+                    <span>Lugar: {item.extendedProps.lugar ?? '-'}</span>
+                    <span>
+                      Fecha: {dayjs(item.start).format('DD/MM/YYYY')} -{' '}
+                      {dayjs(item.end ?? item.start).subtract(1, 'day').format('DD/MM/YYYY')}
+                    </span>
+                    <span>Descripción: {item.extendedProps.descripcion ?? '-'}</span>
+                  </div>
+                ) : item.extendedProps?.source === 'consejos' ? (
+                  <div className="flex flex-col gap-1 text-sm break-words whitespace-normal">
+                    <span>Tipo: Consejo</span>
+                    <span>
+                      Modalidad:{' '}
+                      {item.extendedProps.esOrdinario ? 'Ordinario' : 'Extraordinario'}
+                    </span>
+                    <span>Fecha: {dayjs(item.start).format('DD/MM/YYYY')}</span>
+                    <span>
+                      Hora inicio:{' '}
+                      {item.extendedProps.horaInicio
+                        ? dayjs(item.extendedProps.horaInicio).format('HH:mm')
+                        : '-'}
+                    </span>
+                    <span>
+                      Hora fin:{' '}
+                      {item.extendedProps.horaFin
+                        ? dayjs(item.extendedProps.horaFin).format('HH:mm')
+                        : '-'}
+                    </span>
+                    <span>Descripción: {item.extendedProps.descripcion ?? '-'}</span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-1 text-sm break-words whitespace-normal">
+                    <span>Tipo: Cumpleaños</span>
+                    <span>Miembro: {item.extendedProps?.tipoMiembro ?? '-'}</span>
+                    <span>Rama: {item.extendedProps?.ramaNombre ?? '-'}</span>
+                    <span>Área: {item.extendedProps?.areaNombre ?? '-'}</span>
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
       </Dialog>
     </>
   );

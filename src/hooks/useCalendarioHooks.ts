@@ -6,12 +6,18 @@ import { useEffect, useState } from 'react';
 import { DatesSetArg, EventInput } from '@fullcalendar/core';
 import {
   getCalendarCumpleaniosRequest,
+  getCalendarConsejosRequest,
   getCalendarEventosRequest,
   getEventosOptionsRequest,
 } from '@/queries/eventos';
-import { CalendarBirthday, EventoOption, EventoRamaOption } from '@/types/eventos';
+import {
+  CalendarBirthday,
+  CalendarConsejo,
+  EventoOption,
+  EventoRamaOption,
+} from '@/types/eventos';
 
-export type CalendarSource = 'eventos' | 'cumpleanios';
+export type CalendarSource = 'eventos' | 'consejos' | 'cumpleanios';
 export type CalendarBirthdayMemberType =
   | 'protagonista'
   | 'responsable'
@@ -23,10 +29,11 @@ type CalendarSourceOption = {
   value: CalendarSource;
 };
 
-const DEFAULT_CALENDAR_SOURCES: CalendarSource[] = ['eventos'];
+const DEFAULT_CALENDAR_SOURCES: CalendarSource[] = ['eventos', 'consejos'];
 
 const calendarSourceOptions: CalendarSourceOption[] = [
   { label: 'Eventos', value: 'eventos' },
+  { label: 'Consejos', value: 'consejos' },
   { label: 'Cumpleaños', value: 'cumpleanios' },
 ];
 
@@ -50,6 +57,7 @@ const ramaBirthdayColors: Record<string, string> = {
 
 const ramaStripeOrder = ['Castores', 'Manada', 'Unidad', 'Caminantes', 'Rovers'];
 const eventCalendarColor = '#b8f2e6';
+const consejoCalendarColor = '#c7d2fe';
 const adultBirthdayColor = '#a855f7';
 const defaultBirthdayColor = 'var(--surface-500)';
 
@@ -138,6 +146,30 @@ export const useCalendarioHook = () => {
                 },
               };
             }),
+          ),
+        );
+      }
+
+      if (sources.includes('consejos')) {
+        requests.push(
+          getCalendarConsejosRequest({ from, to }).then((response) =>
+            response.map((item: CalendarConsejo) => ({
+              id: `consejo-${item.id}`,
+              title: item.nombre,
+              start: item.fecha,
+              end: dayjs(item.fecha).add(1, 'day').toISOString(),
+              allDay: true,
+              backgroundColor: consejoCalendarColor,
+              borderColor: consejoCalendarColor,
+              textColor: '#312e81',
+              extendedProps: {
+                source: 'consejos',
+                descripcion: item.descripcion,
+                esOrdinario: item.es_ordinario,
+                horaInicio: item.hora_inicio,
+                horaFin: item.hora_fin,
+              },
+            })),
           ),
         );
       }
