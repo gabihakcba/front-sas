@@ -46,12 +46,27 @@ export const hasAccessRule = (
   );
 };
 
-export const hasGroupLeadershipAccess = (
+const FULL_GROUP_ACCESS_ROLES = new Set<UserRole>([
+  "ADM",
+  "AYUDANTE",
+  "DEV",
+  "JEFATURA",
+  "INTENDENCIA",
+  "SECRETARIA_TESORERIA",
+]);
+
+export const hasFullGroupAccess = (
   user: User | null | undefined,
-): boolean => (user?.roles ?? []).includes("JEFATURA");
+): boolean =>
+  (user?.scopes ?? []).some(
+    (scope) =>
+      FULL_GROUP_ACCESS_ROLES.has(scope.role) &&
+      (scope.scopeType === "GRUPO" || scope.scopeType === "GLOBAL"),
+  );
 
 const ADULT_MEMBER_ROLES = new Set<UserRole>([
   "ADM",
+  "AYUDANTE",
   "OWN",
   "JEFATURA",
   "SECRETARIA_TESORERIA",
@@ -68,7 +83,7 @@ export const hasPermissionAccess = (
   user: User | null | undefined,
   requiredPermission: string,
 ): boolean => {
-  if (hasGroupLeadershipAccess(user)) {
+  if (hasFullGroupAccess(user)) {
     return true;
   }
 

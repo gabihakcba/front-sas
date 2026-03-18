@@ -1,6 +1,7 @@
 'use client';
 
 import dayjs from 'dayjs';
+import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Divider } from 'primereact/divider';
 import { Tag } from 'primereact/tag';
@@ -21,23 +22,44 @@ const InfoRow = ({
 
 interface Props {
   summary: PerfilResumen;
+  canEditOwnSignature: boolean;
+  onEditSignature: () => void;
 }
 
-export function ProfileInfoSection({ summary }: Props) {
+export function ProfileInfoSection({
+  summary,
+  canEditOwnSignature,
+  onEditSignature,
+}: Props) {
   return (
     <Card title={`${summary.nombre} ${summary.apellidos}`}>
-      <div className="flex flex-wrap gap-2">
-        {summary.Adulto ? <Tag value="Adulto" /> : null}
-        {summary.Protagonista ? <Tag value="Protagonista" /> : null}
-        {summary.Responsable ? <Tag value="Responsable" /> : null}
-        {summary.Adulto?.es_becado || summary.Protagonista?.es_becado ? (
-          <Tag value="Becado" severity="info" />
-        ) : null}
-        {summary.Adulto && !summary.Adulto.activo ? (
-          <Tag value="Adulto inactivo" severity="warning" />
-        ) : null}
-        {summary.Protagonista && !summary.Protagonista.activo ? (
-          <Tag value="Protagonista inactivo" severity="warning" />
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap gap-2">
+          {summary.Adulto ? <Tag value="Adulto" /> : null}
+          {summary.Protagonista ? <Tag value="Protagonista" /> : null}
+          {summary.Responsable ? <Tag value="Responsable" /> : null}
+          {summary.Adulto?.es_becado || summary.Protagonista?.es_becado ? (
+            <Tag value="Becado" severity="info" />
+          ) : null}
+          {summary.Adulto && !summary.Adulto.activo ? (
+            <Tag value="Adulto inactivo" severity="warning" />
+          ) : null}
+          {summary.Protagonista && !summary.Protagonista.activo ? (
+            <Tag value="Protagonista inactivo" severity="warning" />
+          ) : null}
+        </div>
+        {canEditOwnSignature ? (
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              label="Firma"
+              icon="pi pi-pencil"
+              iconPos="right"
+              outlined
+              size="small"
+              onClick={onEditSignature}
+            />
+          </div>
         ) : null}
       </div>
       <Divider />

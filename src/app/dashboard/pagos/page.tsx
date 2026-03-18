@@ -17,12 +17,13 @@ import { useAuth } from '@/context/AuthContext';
 import { PagoFormDialog } from '@/components/pagos/PagoFormDialog';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { usePagosHook } from '@/hooks/usePagosHooks';
-import { hasPermissionAccess } from '@/lib/authorization';
+import { hasAccessRule, hasPermissionAccess } from '@/lib/authorization';
 import {
   exportPagoReceiptRequest,
   getPagoAttachmentRequest,
   getPagoWhatsappShareRequest,
 } from '@/queries/pagos';
+import { PAYMENT_MANAGEMENT_ACCESS } from '@/data/access-control';
 import { Pago } from '@/types/pagos';
 
 export default function PagosPage() {
@@ -66,6 +67,10 @@ export default function PagosPage() {
   const canCreate = hasPermissionAccess(user, 'CREATE:PAGO');
   const canEdit = hasPermissionAccess(user, 'UPDATE:PAGO');
   const canDelete = hasPermissionAccess(user, 'DELETE:PAGO');
+  const canManagePaymentCatalogs = hasAccessRule(
+    user?.scopes,
+    PAYMENT_MANAGEMENT_ACCESS,
+  );
 
   const handlePage = (event: DataTablePageEvent) => {
     const nextPage = Math.floor(event.first / event.rows) + 1;
@@ -195,33 +200,37 @@ export default function PagosPage() {
   const header = (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div className="flex flex-wrap gap-2">
-        <Button
-          type="button"
-          label="Conceptos"
-          icon="pi pi-tags"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={() => router.push('/dashboard/conceptos-pago')}
-        />
-        <Button
-          type="button"
-          label="Métodos"
-          icon="pi pi-credit-card"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={() => router.push('/dashboard/metodos-pago')}
-        />
-        <Button
-          type="button"
-          label="Cuentas"
-          icon="pi pi-building-columns"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={() => router.push('/dashboard/cuentas-dinero')}
-        />
+        {canManagePaymentCatalogs ? (
+          <>
+            <Button
+              type="button"
+              label="Conceptos"
+              icon="pi pi-tags"
+              iconPos="right"
+              outlined
+              size="small"
+              onClick={() => router.push('/dashboard/conceptos-pago')}
+            />
+            <Button
+              type="button"
+              label="Métodos"
+              icon="pi pi-credit-card"
+              iconPos="right"
+              outlined
+              size="small"
+              onClick={() => router.push('/dashboard/metodos-pago')}
+            />
+            <Button
+              type="button"
+              label="Cuentas"
+              icon="pi pi-building-columns"
+              iconPos="right"
+              outlined
+              size="small"
+              onClick={() => router.push('/dashboard/cuentas-dinero')}
+            />
+          </>
+        ) : null}
         <Button
           type="button"
           label="Comprobante"
@@ -232,26 +241,30 @@ export default function PagosPage() {
           onClick={() => void handleDownloadReceipt()}
           disabled={!selectedPago}
         />
-        <Button
-          type="button"
-          label="Adjunto"
-          icon="pi pi-paperclip"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={() => void handlePreviewAttachment()}
-          disabled={!selectedPago?.comprobante_pago_mime}
-        />
-        <Button
-          type="button"
-          label="WhatsApp"
-          icon="pi pi-whatsapp"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={() => void handleWhatsappShare()}
-          disabled={!selectedPago}
-        />
+        {canManagePaymentCatalogs ? (
+          <>
+            <Button
+              type="button"
+              label="Adjunto"
+              icon="pi pi-paperclip"
+              iconPos="right"
+              outlined
+              size="small"
+              onClick={() => void handlePreviewAttachment()}
+              disabled={!selectedPago?.comprobante_pago_mime}
+            />
+            <Button
+              type="button"
+              label="WhatsApp"
+              icon="pi pi-whatsapp"
+              iconPos="right"
+              outlined
+              size="small"
+              onClick={() => void handleWhatsappShare()}
+              disabled={!selectedPago}
+            />
+          </>
+        ) : null}
       </div>
       <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-center">
         <IconField iconPosition="right">

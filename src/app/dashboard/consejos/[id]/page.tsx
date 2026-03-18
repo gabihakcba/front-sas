@@ -241,6 +241,9 @@ export default function ConsejoWorkspacePage() {
   const canManageConsejo =
     hasAdultMemberAccess(user) && hasPermissionAccess(user, 'UPDATE:CONSEJO');
   const canManageAssignments = hasAdultMemberAccess(user);
+  const canExportFullPdf = !(
+    user?.roles.includes('PROTAGONISTA') || user?.roles.includes('RESPONSABLE')
+  );
   const canRead = hasPermissionAccess(user, 'READ:CONSEJO');
   const currentMemberId = user?.memberId ?? null;
 
@@ -561,10 +564,10 @@ export default function ConsejoWorkspacePage() {
 
     try {
       const blob = await exportConsejoPdfRequest(consejoId, includePrivateTopics);
-      const suffix = includePrivateTopics ? 'completo' : 'publico';
+      const suffix = includePrivateTopics ? 'completo' : 'pdf';
       setPreviewBlob(blob);
       setPreviewTitle(
-        includePrivateTopics ? 'Preview PDF completo' : 'Preview PDF sin MP',
+        includePrivateTopics ? 'Preview PDF completo' : 'Preview PDF',
       );
       setPreviewFileName(`consejo-${consejoId}-${suffix}.pdf`);
     } catch (err: unknown) {
@@ -785,19 +788,21 @@ export default function ConsejoWorkspacePage() {
                 onClick={() => void openModeradorDialog()}
               />
             ) : null}
+            {canExportFullPdf ? (
+              <Button
+                type="button"
+                label="PDF completo"
+                icon={exportingAll ? 'pi pi-spin pi-spinner' : 'pi pi-download'}
+                iconPos="right"
+                outlined
+                size="small"
+                onClick={() => void handleExportPdf(true)}
+                loading={exportingAll}
+              />
+            ) : null}
             <Button
               type="button"
-              label="PDF completo"
-              icon={exportingAll ? 'pi pi-spin pi-spinner' : 'pi pi-download'}
-              iconPos="right"
-              outlined
-              size="small"
-              onClick={() => void handleExportPdf(true)}
-              loading={exportingAll}
-            />
-            <Button
-              type="button"
-              label="PDF sin MP"
+              label="PDF"
               icon={exportingPublic ? 'pi pi-spin pi-spinner' : 'pi pi-download'}
               iconPos="right"
               outlined

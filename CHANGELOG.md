@@ -2,6 +2,141 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.8.24
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- `PROTAGONISTA` y `RESPONSABLE` dejan de tener acceso al módulo `Consejos` desde sidebar y por URL
+
+## 1.8.23
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- `RESPONSABLE` ve en `Responsables` solo el listado de co-responsables vinculados a sus mismos protagonistas
+- la sección queda en modo consulta, sin acceso a `Relaciones`, `Responsabilidades`, `Crear`, `Editar` ni `Eliminar`
+
+## 1.8.22
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- `RESPONSABLE` deja de ver en `Adultos` las columnas `Roles`, `Beca` y `Estado`, manteniendo la sección completamente en modo consulta
+
+## 1.8.21
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- el canvas de `Firma` vuelve a dibujar la imagen al terminar la carga del diálogo, corrigiendo el caso donde se veía una sola vez y luego quedaba en blanco
+
+## 1.8.20
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- el diálogo de `Firma` en `Perfil` vuelve a consultar la firma cada vez que se abre, evitando mostrar un canvas vacío por estado cacheado
+
+## 1.8.19
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- la edición de `Firma` se mueve al `Perfil` propio del miembro
+- el botón de firma deja de mostrarse en `Adultos` y sólo aparece cuando la cuenta está viendo su propio perfil
+
+## 1.8.18
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- `RESPONSABLE` pasa a ver en `Adultos` solo los educadores de las ramas de sus protagonistas vinculados y a `Jefatura`
+- la sección `Adultos` queda en modo consulta para `RESPONSABLE`, sin acciones de crear, editar ni eliminar
+
+## 1.8.17
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- `RESPONSABLE` deja de ver en `Protagonistas` las columnas operativas `Beca` y `Estado`, manteniendo solo la información necesaria de consulta
+
+## 1.8.16
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- `RESPONSABLE` deja de ver en `Protagonistas` las acciones de `Crear`, `Editar`, `Eliminar` y `Pase`, quedando la sección en modo consulta
+
+## 1.8.15
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- se agrega un `not-found` global de Next para que cualquier ruta inexistente muestre una pantalla consistente con el resto de los estados de acceso y error del dashboard
+
+## 1.8.14
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- `RESPONSABLE` obtiene acceso grueso a `Perfil`, `Adultos`, `Protagonistas`, `Responsables`, `Pagos`, `Eventos`, `Formaciones`, `Comisiones`, `Consejos` y `Calendario`
+- las secciones no incluidas en esa lista permanecen bloqueadas para este rol
+
+## 1.8.13
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- la subsección `Comisión` dentro de `Eventos` agrega filtro de búsqueda en el selector de comisión
+
+## 1.8.12
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- `PROTAGONISTA` puede ingresar a `Comisiones` para consulta, pero mantiene ocultas las acciones de gestión como crear, editar, eliminar o administrar adultos
+
+## 1.8.11
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- `PROTAGONISTA` puede ingresar desde frontend a `Perfil`, `Pagos`, `Eventos`, `Formaciones`, `Consejos` y `Calendario`
+- las rutas de perfil por `id` dejan de depender de acceso de gestión para permitir navegación compatible con protagonistas
+
+## 1.8.10
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- se agrega el rol `AYUDANTE` con `scope GRUPO` para adultos comodín de grupo, alineado con los mismos permisos y accesos visibles de `JEFATURA`
+- la asignación automática de adultos en el área `Jefatura` ahora usa `scope GRUPO`, diferenciando `Jefe -> JEFATURA` y `Ayudante -> AYUDANTE`
+
+## 1.8.9
+
+Fecha: 2026-03-17
+
+### Ajustes funcionales relevantes
+
+- el acceso total del dashboard y los bypass de permisos visibles del frontend ahora dependen de `rol + scope GRUPO`, evitando que un rol fuerte mal scopiado herede acceso completo
+- `ADM`, `DEV`, `JEFATURA`, `INTENDENCIA` y `SECRETARIA_TESORERIA` con `scope GRUPO` pasan a compartir el mismo acceso total visible en el frontend
+
 ## 1.8.8
 
 Fecha: 2026-03-17

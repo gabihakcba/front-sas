@@ -137,3 +137,7 @@ export interface PerfilVinculos {
     };
   }>;
 }
+
+export interface PerfilFirma {
+  firmaBase64: string | null;
+}

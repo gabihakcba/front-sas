@@ -77,11 +77,16 @@ const buildPayload = (values: EventoFormValues): CreateEventoPayload => ({
 });
 
 const buildScopedAffectaciones = (
-  roles: string[],
   scopes: Array<{ role: string; scopeType: string; scopeId: number | null }>,
   options: EventosOptionsResponse,
 ): { areaIds: number[]; ramaIds: number[] } => {
-  if (roles.includes('JEFATURA')) {
+  const hasGroupJefatura = scopes.some(
+    (scope) =>
+      scope.role === 'JEFATURA' &&
+      (scope.scopeType === 'GRUPO' || scope.scopeType === 'GLOBAL'),
+  );
+
+  if (hasGroupJefatura) {
     const areaJefatura = options.areas.find((area) => area.nombre === 'Jefatura');
 
     return {
@@ -201,7 +206,6 @@ export const useEventosHook = () => {
       const response = await getEventosOptionsRequest();
       setOptions(response);
       const scopedAffectaciones = buildScopedAffectaciones(
-        user?.roles ?? [],
         user?.scopes ?? [],
         response,
       );

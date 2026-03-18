@@ -1,8 +1,6 @@
 'use client';
 
 import dayjs from 'dayjs';
-import { AxiosError } from 'axios';
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
@@ -15,10 +13,10 @@ import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
 import { AdultoFormDialog } from '@/components/adultos/AdultoFormDialog';
-import { AdultoFirmaDialog } from '@/components/adultos/AdultoFirmaDialog';
 import { useAuth } from '@/context/AuthContext';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useAdultosHook } from '@/hooks/useAdultosHooks';
+import { hasPermissionAccess } from '@/lib/authorization';
 import { Adulto } from '@/types/adultos';
 
 const getAsignacionActual = (adulto: Adulto) => adulto.EquipoArea[0] ?? null;
@@ -32,11 +30,6 @@ export default function AdultosPage() {
   const router = useRouter();
   const { user } = useAuth();
   const { confirmDelete, deleteConfirmDialog } = useDeleteConfirm();
-  const [signatureDialogVisible, setSignatureDialogVisible] = useState(false);
-  const [signatureLoading, setSignatureLoading] = useState(false);
-  const [signatureSubmitting, setSignatureSubmitting] = useState(false);
-  const [signatureError, setSignatureError] = useState('');
-  const [signatureValue, setSignatureValue] = useState<string | null>(null);
   const {
     adultos,
     selectedAdulto,
@@ -58,12 +51,14 @@ export default function AdultosPage() {
     refetch,
     openCreateDialog,
     openEditDialog,
-    getSignature,
-    saveSignature,
     closeDialog,
     submitForm,
     deleteSelected,
   } = useAdultosHook();
+  const canCreate = hasPermissionAccess(user, 'CREATE:ADULTO');
+  const canEdit = hasPermissionAccess(user, 'UPDATE:ADULTO');
+  const canDelete = hasPermissionAccess(user, 'DELETE:ADULTO');
+  const canSeeOperationalColumns = canEdit || canDelete;
 
   const handlePage = (event: DataTablePageEvent) => {
     const nextPage = Math.floor(event.first / event.rows) + 1;
@@ -82,76 +77,9 @@ export default function AdultosPage() {
     });
   };
 
-  const canEditSelectedSignature = Boolean(
-    selectedAdulto &&
-      user &&
-      Number(selectedAdulto.Miembro.Cuenta.id) === Number(user.id),
-  );
-
-  const openSignatureDialog = async () => {
-    if (!selectedAdulto) {
-      return;
-    }
-
-    setSignatureDialogVisible(true);
-    setSignatureLoading(true);
-    setSignatureError('');
-
-    try {
-      const firma = await getSignature(selectedAdulto.id);
-      setSignatureValue(firma);
-    } catch (err: unknown) {
-      if (err instanceof AxiosError) {
-        setSignatureError('No se pudo cargar la firma actual.');
-      } else {
-        setSignatureError('No se pudo cargar la firma actual.');
-      }
-    } finally {
-      setSignatureLoading(false);
-    }
-  };
-
-  const closeSignatureDialog = () => {
-    setSignatureDialogVisible(false);
-    setSignatureLoading(false);
-    setSignatureSubmitting(false);
-    setSignatureError('');
-    setSignatureValue(null);
-  };
-
-  const handleSaveSignature = async (firmaBase64: string | null) => {
-    if (!selectedAdulto) {
-      return;
-    }
-
-    setSignatureSubmitting(true);
-    setSignatureError('');
-
-    try {
-      const savedSignature = await saveSignature(selectedAdulto.id, firmaBase64);
-      setSignatureValue(savedSignature);
-      closeSignatureDialog();
-    } catch {
-      setSignatureError('No se pudo guardar la firma.');
-    } finally {
-      setSignatureSubmitting(false);
-    }
-  };
-
   const header = (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div className="flex flex-wrap gap-2">
-        <Button
-          type="button"
-          label="Firma"
-          icon="pi pi-pencil"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={() => void openSignatureDialog()}
-          disabled={!selectedAdulto || !canEditSelectedSignature}
-        />
-      </div>
+      <div />
       <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-center">
         <IconField iconPosition="right">
           <InputText
@@ -168,36 +96,42 @@ export default function AdultosPage() {
         </IconField>
       </div>
       <div className="flex flex-wrap justify-end gap-2">
-        <Button
-          type="button"
-          label="Crear"
-          icon="pi pi-plus"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={() => void openCreateDialog()}
-        />
-        <Button
-          type="button"
-          label="Editar"
-          icon="pi pi-pencil"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={() => void openEditDialog()}
-          disabled={!selectedAdulto}
-        />
-        <Button
-          type="button"
-          label="Eliminar"
-          icon="pi pi-trash"
-          iconPos="right"
-          outlined
-          size="small"
-          severity="danger"
-          onClick={handleDelete}
-          disabled={!selectedAdulto}
-        />
+        {canCreate ? (
+          <Button
+            type="button"
+            label="Crear"
+            icon="pi pi-plus"
+            iconPos="right"
+            outlined
+            size="small"
+            onClick={() => void openCreateDialog()}
+          />
+        ) : null}
+        {canEdit ? (
+          <Button
+            type="button"
+            label="Editar"
+            icon="pi pi-pencil"
+            iconPos="right"
+            outlined
+            size="small"
+            onClick={() => void openEditDialog()}
+            disabled={!selectedAdulto}
+          />
+        ) : null}
+        {canDelete ? (
+          <Button
+            type="button"
+            label="Eliminar"
+            icon="pi pi-trash"
+            iconPos="right"
+            outlined
+            size="small"
+            severity="danger"
+            onClick={handleDelete}
+            disabled={!selectedAdulto}
+          />
+        ) : null}
       </div>
     </div>
   );
@@ -373,28 +307,34 @@ export default function AdultosPage() {
                 : '-';
             }}
           />
-          <Column
-            header="Roles"
-            body={(adulto: Adulto) => getRolesActuales(adulto) || 'Sin roles'}
-          />
-          <Column
-            header={becaHeader}
-            body={(adulto: Adulto) => (
-              <Tag
-                value={adulto.es_becado ? 'Becado' : 'Sin beca'}
-                severity={adulto.es_becado ? 'success' : 'secondary'}
-              />
-            )}
-          />
-          <Column
-            header={estadoHeader}
-            body={(adulto: Adulto) => (
-              <Tag
-                value={adulto.activo ? 'Activo' : 'Inactivo'}
-                severity={adulto.activo ? 'info' : 'danger'}
-              />
-            )}
-          />
+          {canSeeOperationalColumns ? (
+            <Column
+              header="Roles"
+              body={(adulto: Adulto) => getRolesActuales(adulto) || 'Sin roles'}
+            />
+          ) : null}
+          {canSeeOperationalColumns ? (
+            <Column
+              header={becaHeader}
+              body={(adulto: Adulto) => (
+                <Tag
+                  value={adulto.es_becado ? 'Becado' : 'Sin beca'}
+                  severity={adulto.es_becado ? 'success' : 'secondary'}
+                />
+              )}
+            />
+          ) : null}
+          {canSeeOperationalColumns ? (
+            <Column
+              header={estadoHeader}
+              body={(adulto: Adulto) => (
+                <Tag
+                  value={adulto.activo ? 'Activo' : 'Inactivo'}
+                  severity={adulto.activo ? 'info' : 'danger'}
+                />
+              )}
+            />
+          ) : null}
         </DataTable>
       </Card>
 
@@ -408,22 +348,6 @@ export default function AdultosPage() {
         error={error}
         onHide={closeDialog}
         onSubmit={(values) => void submitForm(values)}
-      />
-
-      <AdultoFirmaDialog
-        visible={signatureDialogVisible}
-        adultoNombre={
-          selectedAdulto
-            ? `${selectedAdulto.Miembro.nombre} ${selectedAdulto.Miembro.apellidos}`
-            : 'adulto'
-        }
-        firmaBase64={signatureValue}
-        loading={signatureLoading}
-        submitting={signatureSubmitting}
-        editable={canEditSelectedSignature}
-        error={signatureError}
-        onHide={closeSignatureDialog}
-        onSave={(firmaBase64) => void handleSaveSignature(firmaBase64)}
       />
       {deleteConfirmDialog}
     </div>

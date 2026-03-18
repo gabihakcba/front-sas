@@ -92,7 +92,11 @@ export function ConsejoAsistenciaDialog({
         <Message severity="success" text={successMessage} className="mb-3" />
       ) : null}
 
-      <div className="grid max-h-[70vh] grid-cols-1 gap-4 lg:grid-cols-2">
+      <div
+        className={`grid max-h-[70vh] grid-cols-1 gap-4 ${
+          canManage ? 'lg:grid-cols-2' : ''
+        }`}
+      >
         <div className="flex min-h-0 flex-col gap-3">
           <div className="flex flex-col gap-3">
             <h3 className="text-lg font-semibold">Asistencias actuales</h3>
@@ -133,40 +137,40 @@ export function ConsejoAsistenciaDialog({
           </ScrollPanel>
         </div>
 
-        <div className="flex min-h-0 flex-col gap-3">
-          <div className="flex flex-col gap-3">
-            <h3 className="text-lg font-semibold">Agregar asistencia</h3>
-            <div className="flex flex-col gap-2">
-              <label htmlFor="consejo-asistencia-search">Buscar miembro</label>
-              <IconField iconPosition="right" className="w-full">
-                <InputText
-                  id="consejo-asistencia-search"
-                  value={search}
-                  onChange={(event) => {
-                    const value = event.target.value;
-                    setSearch(value);
-                    onSearch(value);
-                  }}
-                  placeholder="Nombre, apellido o DNI"
-                  className="w-full"
-                />
-                <InputIcon className="pi pi-search" />
-              </IconField>
+        {canManage ? (
+          <div className="flex min-h-0 flex-col gap-3">
+            <div className="flex flex-col gap-3">
+              <h3 className="text-lg font-semibold">Agregar asistencia</h3>
+              <div className="flex flex-col gap-2">
+                <label htmlFor="consejo-asistencia-search">Buscar miembro</label>
+                <IconField iconPosition="right" className="w-full">
+                  <InputText
+                    id="consejo-asistencia-search"
+                    value={search}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      setSearch(value);
+                      onSearch(value);
+                    }}
+                    placeholder="Nombre, apellido o DNI"
+                    className="w-full"
+                  />
+                  <InputIcon className="pi pi-search" />
+                </IconField>
+              </div>
             </div>
-          </div>
-          {searching ? <div>Buscando miembros...</div> : null}
-          <ScrollPanel className="h-96 w-full">
-            <div className="flex min-h-0 flex-col gap-2 pr-3">
-              {options.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-between gap-2 rounded border px-3 py-2"
-                >
-                  <div>
-                    <div className="font-medium">{item.displayLabel}</div>
-                    <div className="text-sm">{item.categoryLabel}</div>
-                  </div>
-                  {canManage ? (
+            {searching ? <div>Buscando miembros...</div> : null}
+            <ScrollPanel className="h-96 w-full">
+              <div className="flex min-h-0 flex-col gap-2 pr-3">
+                {options.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between gap-2 rounded border px-3 py-2"
+                  >
+                    <div>
+                      <div className="font-medium">{item.displayLabel}</div>
+                      <div className="text-sm">{item.categoryLabel}</div>
+                    </div>
                     <Button
                       type="button"
                       label="Agregar"
@@ -176,15 +180,15 @@ export function ConsejoAsistenciaDialog({
                       size="small"
                       onClick={() => onAdd(item.id)}
                     />
-                  ) : null}
-                </div>
-              ))}
-              {!searching && options.length === 0 ? (
-                <div>No se encontraron miembros para agregar.</div>
-              ) : null}
-            </div>
-          </ScrollPanel>
-        </div>
+                  </div>
+                ))}
+                {!searching && options.length === 0 ? (
+                  <div>No se encontraron miembros para agregar.</div>
+                ) : null}
+              </div>
+            </ScrollPanel>
+          </div>
+        ) : null}
       </div>
     </Dialog>
   );

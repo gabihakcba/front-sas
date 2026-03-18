@@ -2,6 +2,7 @@ import api from '@/lib/axios';
 import {
   PerfilActividad,
   PerfilAsignacion,
+  PerfilFirma,
   PerfilResumen,
   PerfilVinculos,
 } from '@/types/perfiles';
@@ -43,5 +44,32 @@ export const getMyProfileVinculosRequest = async () => {
 
 export const getProfileVinculosRequest = async (id: number) => {
   const response = await api.get<PerfilVinculos>(`/perfiles/${id}/vinculos`);
+  return response.data;
+};
+
+export const getMyProfileFirmaRequest = async () => {
+  const response = await api.get<PerfilFirma>('/perfiles/me/firma');
+  return response.data;
+};
+
+export const getProfileFirmaRequest = async (id: number) => {
+  const response = await api.get<PerfilFirma>(`/perfiles/${id}/firma`);
+  return response.data;
+};
+
+export const updateMyProfileFirmaRequest = async (firmaBase64: string | null) => {
+  const response = await api.patch<PerfilFirma>('/perfiles/me/firma', {
+    firmaBase64,
+  });
+  return response.data;
+};
+
+export const updateProfileFirmaRequest = async (
+  id: number,
+  firmaBase64: string | null,
+) => {
+  const response = await api.patch<PerfilFirma>(`/perfiles/${id}/firma`, {
+    firmaBase64,
+  });
   return response.data;
 };

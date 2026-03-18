@@ -1,9 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { Message } from 'primereact/message';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { AdultoFirmaDialog } from '@/components/adultos/AdultoFirmaDialog';
+import NotAllowed from '@/components/common/NotAllowed';
+import { useAuth } from '@/context/AuthContext';
 import { usePerfilHook } from '@/hooks/usePerfilHook';
 import { usePlanFormacionPerfilHook } from '@/hooks/usePlanFormacionPerfilHook';
 import { ProfileActividadSection } from './ProfileActividadSection';
@@ -17,20 +20,29 @@ interface Props {
 }
 
 export function MemberProfileView({ memberId }: Props) {
+  const { user } = useAuth();
   const {
     summary,
     asignacion,
     actividad,
     vinculos,
+    firma,
     loading,
     loadingAsignacion,
     loadingActividad,
     loadingVinculos,
+    loadingFirma,
+    savingFirma,
     error,
+    firmaError,
+    forbidden,
     loadAsignacion,
     loadActividad,
     loadVinculos,
+    loadFirma,
+    saveFirma,
   } = usePerfilHook(memberId);
+  const [signatureDialogVisible, setSignatureDialogVisible] = useState(false);
   const {
     data: formacion,
     options: formacionOptions,
@@ -49,6 +61,11 @@ export function MemberProfileView({ memberId }: Props) {
   const canShowActividadTab = true;
   const canShowVinculosTab = Boolean(summary?.Responsable || summary?.Protagonista);
   const canShowFormacionTab = Boolean(summary?.Adulto);
+  const canEditOwnSignature = Boolean(
+    summary &&
+      user &&
+      Number(summary.id) === Number(user.memberId),
+  );
   const tabKeys = [
     ...(canShowAsignacionTab ? ['asignacion'] : []),
     ...(canShowFormacionTab ? ['formacion'] : []),
@@ -76,6 +93,15 @@ export function MemberProfileView({ memberId }: Props) {
   }
 
   if (!summary) {
+    if (forbidden) {
+      return (
+        <NotAllowed
+          title="Perfil no disponible"
+          message={error || 'Tu cuenta no tiene permisos para ver este perfil.'}
+        />
+      );
+    }
+
     return <Message severity="error" text={error || 'No se pudo cargar el perfil.'} />;
   }
 
@@ -83,7 +109,14 @@ export function MemberProfileView({ memberId }: Props) {
     <div className="flex flex-col gap-4">
       {error ? <Message severity="error" text={error} /> : null}
 
-      <ProfileInfoSection summary={summary} />
+      <ProfileInfoSection
+        summary={summary}
+        canEditOwnSignature={canEditOwnSignature}
+        onEditSignature={() => {
+          setSignatureDialogVisible(true);
+          void loadFirma();
+        }}
+      />
 
       <Accordion
         multiple
@@ -151,6 +184,23 @@ export function MemberProfileView({ memberId }: Props) {
           </AccordionTab>
         ) : null}
       </Accordion>
+
+      <AdultoFirmaDialog
+        visible={signatureDialogVisible}
+        adultoNombre={`${summary.nombre} ${summary.apellidos}`}
+        firmaBase64={firma?.firmaBase64 ?? null}
+        loading={loadingFirma}
+        submitting={savingFirma}
+        editable={canEditOwnSignature}
+        error={firmaError}
+        onHide={() => setSignatureDialogVisible(false)}
+        onSave={(firmaBase64) => {
+          void (async () => {
+            await saveFirma(firmaBase64);
+            setSignatureDialogVisible(false);
+          })();
+        }}
+      />
     </div>
   );
 }

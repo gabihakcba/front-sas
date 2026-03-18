@@ -14,8 +14,10 @@ import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
 import { ProtagonistaFormDialog } from '@/components/protagonistas/ProtagonistaFormDialog';
 import { ProtagonistaPaseDialog } from '@/components/protagonistas/ProtagonistaPaseDialog';
+import { useAuth } from '@/context/AuthContext';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useProtagonistasHook } from '@/hooks/useProtagonistasHooks';
+import { hasPermissionAccess } from '@/lib/authorization';
 import { Protagonista } from '@/types/protagonistas';
 
 const getRamaActual = (protagonista: Protagonista) =>
@@ -23,6 +25,7 @@ const getRamaActual = (protagonista: Protagonista) =>
 
 export default function ProtagonistasPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const { confirmDelete, deleteConfirmDialog } = useDeleteConfirm();
   const {
     protagonistas,
@@ -55,6 +58,11 @@ export default function ProtagonistasPage() {
     submitPase,
     deleteSelected,
   } = useProtagonistasHook();
+  const canCreate = hasPermissionAccess(user, 'CREATE:PROTAGONISTA');
+  const canEdit = hasPermissionAccess(user, 'UPDATE:PROTAGONISTA');
+  const canDelete = hasPermissionAccess(user, 'DELETE:PROTAGONISTA');
+  const canRegisterPase = hasPermissionAccess(user, 'UPDATE:PROTAGONISTA');
+  const canSeeOperationalColumns = canEdit || canDelete;
 
   const handlePage = (event: DataTablePageEvent) => {
     const nextPage = Math.floor(event.first / event.rows) + 1;
@@ -76,16 +84,18 @@ export default function ProtagonistasPage() {
   const header = (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div className="flex flex-wrap gap-2">
-        <Button
-          type="button"
-          label="Pase"
-          icon="pi pi-arrow-right-arrow-left"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={() => void openPaseDialog()}
-          disabled={!selectedProtagonista}
-        />
+        {canRegisterPase ? (
+          <Button
+            type="button"
+            label="Pase"
+            icon="pi pi-arrow-right-arrow-left"
+            iconPos="right"
+            outlined
+            size="small"
+            onClick={() => void openPaseDialog()}
+            disabled={!selectedProtagonista}
+          />
+        ) : null}
       </div>
       <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-center">
         <IconField iconPosition="right">
@@ -103,36 +113,42 @@ export default function ProtagonistasPage() {
         </IconField>
       </div>
       <div className="flex flex-wrap justify-end gap-2">
-        <Button
-          type="button"
-          label="Crear"
-          icon="pi pi-plus"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={() => void openCreateDialog()}
-        />
-        <Button
-          type="button"
-          label="Editar"
-          icon="pi pi-pencil"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={() => void openEditDialog()}
-          disabled={!selectedProtagonista}
-        />
-        <Button
-          type="button"
-          label="Eliminar"
-          icon="pi pi-trash"
-          iconPos="right"
-          outlined
-          size="small"
-          severity="danger"
-          onClick={handleDelete}
-          disabled={!selectedProtagonista}
-        />
+        {canCreate ? (
+          <Button
+            type="button"
+            label="Crear"
+            icon="pi pi-plus"
+            iconPos="right"
+            outlined
+            size="small"
+            onClick={() => void openCreateDialog()}
+          />
+        ) : null}
+        {canEdit ? (
+          <Button
+            type="button"
+            label="Editar"
+            icon="pi pi-pencil"
+            iconPos="right"
+            outlined
+            size="small"
+            onClick={() => void openEditDialog()}
+            disabled={!selectedProtagonista}
+          />
+        ) : null}
+        {canDelete ? (
+          <Button
+            type="button"
+            label="Eliminar"
+            icon="pi pi-trash"
+            iconPos="right"
+            outlined
+            size="small"
+            severity="danger"
+            onClick={handleDelete}
+            disabled={!selectedProtagonista}
+          />
+        ) : null}
       </div>
     </div>
   );
@@ -264,24 +280,28 @@ export default function ProtagonistasPage() {
                 : '-';
             }}
           />
-          <Column
-            header={becaHeader}
-            body={(protagonista: Protagonista) => (
-              <Tag
-                value={protagonista.es_becado ? 'Becado' : 'Sin beca'}
-                severity={protagonista.es_becado ? 'success' : 'secondary'}
-              />
-            )}
-          />
-          <Column
-            header={estadoHeader}
-            body={(protagonista: Protagonista) => (
-              <Tag
-                value={protagonista.activo ? 'Activo' : 'Inactivo'}
-                severity={protagonista.activo ? 'info' : 'danger'}
-              />
-            )}
-          />
+          {canSeeOperationalColumns ? (
+            <Column
+              header={becaHeader}
+              body={(protagonista: Protagonista) => (
+                <Tag
+                  value={protagonista.es_becado ? 'Becado' : 'Sin beca'}
+                  severity={protagonista.es_becado ? 'success' : 'secondary'}
+                />
+              )}
+            />
+          ) : null}
+          {canSeeOperationalColumns ? (
+            <Column
+              header={estadoHeader}
+              body={(protagonista: Protagonista) => (
+                <Tag
+                  value={protagonista.activo ? 'Activo' : 'Inactivo'}
+                  severity={protagonista.activo ? 'info' : 'danger'}
+                />
+              )}
+            />
+          ) : null}
         </DataTable>
       </Card>
 

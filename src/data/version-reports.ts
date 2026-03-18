@@ -13,6 +13,279 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.8.24',
+    date: '2026-03-18',
+    title: 'Consejos restringido a perfiles adultos',
+    summary:
+      'El módulo operativo de Consejos deja de estar disponible para protagonistas y responsables, quedando reservado a perfiles adultos con acceso de gestión o acompañamiento.',
+    sections: [
+      {
+        title: 'Navegación',
+        items: [
+          'PROTAGONISTA y RESPONSABLE ya no ven Consejos en la sidebar ni pueden entrar por URL directa.',
+          'La lectura futura de actas públicas queda separada del workspace operativo de consejos.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.23',
+    date: '2026-03-18',
+    title: 'Responsables acotado para responsables',
+    summary:
+      'La sección Responsables para este rol pasa a mostrar solo co-responsables de los mismos protagonistas y queda completamente en modo consulta.',
+    sections: [
+      {
+        title: 'Listado y acciones',
+        items: [
+          'RESPONSABLE solo puede consultar responsables vinculados a protagonistas de los cuales también es responsable.',
+          'El módulo oculta Relaciones, Responsabilidades, Crear, Editar y Eliminar para este rol.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.22',
+    date: '2026-03-18',
+    title: 'Adultos más acotado para responsables',
+    summary:
+      'La tabla de Adultos para RESPONSABLE oculta columnas operativas y deja el módulo alineado con un acceso puramente de consulta.',
+    sections: [
+      {
+        title: 'Tabla de adultos',
+        items: [
+          'RESPONSABLE ya no ve las columnas Roles, Beca y Estado.',
+          'La vista mantiene sólo la información de identificación, asignación y navegación necesaria para este rol.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.21',
+    date: '2026-03-18',
+    title: 'Redibujo correcto de la firma en perfil',
+    summary:
+      'El diálogo de firma vuelve a renderizar la imagen persistida después de cada carga, evitando que el canvas quede vacío al reabrirlo.',
+    sections: [
+      {
+        title: 'Perfil',
+        items: [
+          'La firma ya no se muestra una sola vez por sesión de página.',
+          'Al cerrar y volver a abrir el diálogo, el canvas vuelve a dibujar la imagen cargada desde backend.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.20',
+    date: '2026-03-17',
+    title: 'Recarga de firma al abrir el perfil',
+    summary:
+      'La firma del perfil se vuelve a consultar cada vez que se abre el diálogo para evitar inconsistencias visuales después de cancelar o guardar.',
+    sections: [
+      {
+        title: 'Perfil',
+        items: [
+          'El diálogo de firma ya no reutiliza una versión cacheada entre aperturas.',
+          'Después de guardar o cancelar, al volver a abrir se muestra la firma persistida más reciente.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.19',
+    date: '2026-03-17',
+    title: 'Firma unificada en el perfil propio',
+    summary:
+      'La gestión de firma deja de vivir en la sección Adultos y pasa a estar disponible sólo dentro del perfil propio de cada miembro.',
+    sections: [
+      {
+        title: 'Perfil',
+        items: [
+          'Adultos, protagonistas y responsables pueden administrar su firma desde su propio perfil.',
+          'El botón de firma ya no aparece al navegar otros perfiles ni dentro del listado de Adultos.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.18',
+    date: '2026-03-17',
+    title: 'Adultos acotado para responsables',
+    summary:
+      'La sección Adultos para RESPONSABLE queda limitada a consulta y muestra solo jefatura de grupo más los educadores de las ramas donde participan sus protagonistas vinculados.',
+    sections: [
+      {
+        title: 'Acceso y filtros',
+        items: [
+          'RESPONSABLE ya no ve acciones de crear, editar ni eliminar dentro de Adultos.',
+          'El backend restringe el listado y el detalle a jefatura de grupo y a los adultos asignados en las ramas de sus protagonistas a cargo.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.17',
+    date: '2026-03-17',
+    title: 'Columnas operativas ocultas para responsables en protagonistas',
+    summary:
+      'La vista de Protagonistas para RESPONSABLE se simplifica y oculta datos operativos que no forman parte de su alcance de consulta.',
+    sections: [
+      {
+        title: 'Tabla de protagonistas',
+        items: [
+          'RESPONSABLE deja de ver las columnas Beca y Estado dentro del listado de protagonistas.',
+          'La tabla conserva solo la información de identificación y navegación relevante para este rol.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.16',
+    date: '2026-03-17',
+    title: 'Protagonistas en modo consulta para responsables',
+    summary:
+      'La sección Protagonistas oculta las acciones operativas para RESPONSABLE y queda alineada con un acceso de solo consulta sobre sus protagonistas vinculados.',
+    sections: [
+      {
+        title: 'Acciones bloqueadas',
+        items: [
+          'RESPONSABLE ya no ve los botones de crear, editar, eliminar ni pase dentro de la sección Protagonistas.',
+          'La interfaz queda consistente con la restricción de backend que evita escrituras sobre protagonistas desde ese rol.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.15',
+    date: '2026-03-17',
+    title: 'Pantalla global para rutas inexistentes',
+    summary:
+      'Las rutas no encontradas del frontend dejan de caer en la respuesta visual por defecto y pasan a mostrar una pantalla unificada con acciones claras para volver al sistema.',
+    sections: [
+      {
+        title: 'Navegación',
+        items: [
+          'Next carga automáticamente una pantalla global de página no encontrada para cualquier 404 del App Router.',
+          'La experiencia visual queda alineada con la pantalla de acceso denegado ya usada en perfiles y módulos protegidos.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.14',
+    date: '2026-03-17',
+    title: 'Acceso inicial de responsables a las secciones base',
+    summary:
+      'La matriz del dashboard habilita a RESPONSABLE las secciones de consulta principales mientras mantiene bloqueados los módulos fuera de ese alcance inicial.',
+    sections: [
+      {
+        title: 'Secciones visibles',
+        items: [
+          'RESPONSABLE puede ingresar a Perfil, Adultos, Protagonistas, Responsables, Pagos, Eventos, Formaciones, Comisiones, Consejos y Calendario.',
+          'Las rutas no incluidas en esa lista siguen protegidas tanto desde sidebar como por URL directa.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.13',
+    date: '2026-03-17',
+    title: 'Filtro en la asignación de comisión de eventos',
+    summary:
+      'El selector de comisión dentro de Eventos incorpora búsqueda para encontrar más rápido la comisión deseada.',
+    sections: [
+      {
+        title: 'Eventos',
+        items: [
+          'La subsección Comisión ahora permite filtrar comisiones por nombre desde el selector.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.12',
+    date: '2026-03-17',
+    title: 'Comisiones visible para protagonistas en modo consulta',
+    summary:
+      'La sección Comisiones queda accesible para protagonistas, mientras las acciones de gestión siguen reservadas a perfiles con permisos operativos.',
+    sections: [
+      {
+        title: 'Consulta',
+        items: [
+          'PROTAGONISTA puede abrir la sección Comisiones desde el dashboard y consultar el listado completo.',
+          'Los botones de crear, editar, eliminar y administrar adultos siguen ocultos si el usuario no tiene permisos de gestión.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.11',
+    date: '2026-03-17',
+    title: 'Acceso inicial de protagonistas a las secciones base',
+    summary:
+      'La matriz del dashboard abre para PROTAGONISTA las secciones base de consulta y permite navegar a perfiles por URL sin exigir permisos de gestión.',
+    sections: [
+      {
+        title: 'Secciones visibles',
+        items: [
+          'PROTAGONISTA puede ver Perfil, Pagos, Eventos, Formaciones, Consejos y Calendario desde la sidebar y por URL directa cuando corresponde.',
+          'Pagos y Eventos se suman a las secciones ya abiertas globalmente para este primer tramo de revisión del rol.',
+        ],
+      },
+      {
+        title: 'Perfiles',
+        items: [
+          'Las rutas /dashboard/perfil/[id] dejan de usar la misma barrera de acceso de los módulos de gestión.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.10',
+    date: '2026-03-17',
+    title: 'Nuevo rol AYUDANTE con alcance de grupo',
+    summary:
+      'Se incorpora el rol AYUDANTE como adulto comodin de grupo y se lo alinea con el acceso total visible de jefatura cuando su scope es GRUPO.',
+    sections: [
+      {
+        title: 'Acceso de grupo',
+        items: [
+          'AYUDANTE pasa a compartir el acceso total visible del dashboard junto con JEFATURA cuando su asignacion usa scope GRUPO.',
+          'Los checks visuales de permisos lo tratan como perfil adulto con acceso operativo completo.',
+        ],
+      },
+      {
+        title: 'Asignacion automatica',
+        items: [
+          'Los adultos creados en el area Jefatura quedan como JEFATURA o AYUDANTE segun su posicion, siempre con scope GRUPO.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.9',
+    date: '2026-03-17',
+    title: 'Acceso total del frontend atado a rol y scope de grupo',
+    summary:
+      'La visibilidad de secciones y los bypass visuales de permisos dejan de depender solo del rol y pasan a exigir un scope de grupo coherente para los perfiles de acceso total.',
+    sections: [
+      {
+        title: 'Acceso total',
+        items: [
+          'ADM, DEV, JEFATURA, INTENDENCIA y SECRETARIA_TESORERIA obtienen acceso total visible solo cuando su asignación usa scope GRUPO.',
+          'La sidebar, las rutas protegidas y los checks de permisos del frontend dejan de tratar a JEFATURA como bypass automático por rol.',
+        ],
+      },
+      {
+        title: 'Eventos',
+        items: [
+          'La afectación automática al crear eventos solo toma a JEFATURA como jefatura de grupo cuando el scope corresponde a GRUPO o GLOBAL.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.8.8',
     date: '2026-03-17',
     title: 'Filtro de cumpleaños por tipo de miembro en calendario',

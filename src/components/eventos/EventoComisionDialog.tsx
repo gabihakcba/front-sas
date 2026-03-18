@@ -32,7 +32,7 @@ export function EventoComisionDialog(props: Props) {
     <Dialog visible={props.visible} onHide={props.onHide} header="Asignar comisión" footer={footer} className="w-full max-w-xl" modal>
       <div className="flex flex-col gap-4">
         {props.error ? <Message severity="error" text={props.error} /> : null}
-        <Dropdown value={props.selectedId} options={props.comisiones} optionLabel="nombre" optionValue="id" placeholder="Seleccionar comisión" showClear className="w-full" onChange={(event: DropdownChangeEvent) => props.onChange((event.value as number | null) ?? null)} />
+        <Dropdown value={props.selectedId} options={props.comisiones} optionLabel="nombre" optionValue="id" placeholder="Seleccionar comisión" showClear filter className="w-full" onChange={(event: DropdownChangeEvent) => props.onChange((event.value as number | null) ?? null)} />
         <div className="flex flex-col gap-2">
           <label>Asignada</label>
           <div className="max-h-40 overflow-y-auto rounded border border-surface-300 p-2">

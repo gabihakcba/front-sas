@@ -68,6 +68,11 @@ export function ComisionFormDialog({
             <Controller
               name="idEvento"
               control={control}
+              rules={{
+                required: 'El evento es obligatorio.',
+                validate: (value) =>
+                  value !== null || 'El evento es obligatorio.',
+              }}
               render={({ field }) => (
                 <Dropdown
                   id="comision-evento"
@@ -80,10 +85,10 @@ export function ComisionFormDialog({
                   }
                   placeholder="Evento asociado"
                   className="w-full"
-                  showClear
                 />
               )}
             />
+            {errors.idEvento ? <small className="text-red-500">{errors.idEvento.message}</small> : null}
           </div>
         </div>
       )}

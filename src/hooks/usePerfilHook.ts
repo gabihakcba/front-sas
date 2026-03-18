@@ -1,19 +1,25 @@
 'use client';
 
+import { AxiosError } from 'axios';
 import { useEffect, useState } from 'react';
 import {
   getMyProfileActividadRequest,
   getMyProfileAsignacionRequest,
+  getMyProfileFirmaRequest,
   getMyProfileRequest,
   getMyProfileVinculosRequest,
   getProfileActividadRequest,
   getProfileAsignacionRequest,
+  getProfileFirmaRequest,
   getProfileRequest,
   getProfileVinculosRequest,
+  updateMyProfileFirmaRequest,
+  updateProfileFirmaRequest,
 } from '@/queries/perfiles';
 import {
   PerfilActividad,
   PerfilAsignacion,
+  PerfilFirma,
   PerfilResumen,
   PerfilVinculos,
 } from '@/types/perfiles';
@@ -23,23 +29,44 @@ export function usePerfilHook(memberId?: number) {
   const [asignacion, setAsignacion] = useState<PerfilAsignacion | null>(null);
   const [actividad, setActividad] = useState<PerfilActividad | null>(null);
   const [vinculos, setVinculos] = useState<PerfilVinculos | null>(null);
+  const [firma, setFirma] = useState<PerfilFirma | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingAsignacion, setLoadingAsignacion] = useState(false);
   const [loadingActividad, setLoadingActividad] = useState(false);
   const [loadingVinculos, setLoadingVinculos] = useState(false);
+  const [loadingFirma, setLoadingFirma] = useState(false);
+  const [savingFirma, setSavingFirma] = useState(false);
   const [error, setError] = useState('');
+  const [firmaError, setFirmaError] = useState('');
+  const [forbidden, setForbidden] = useState(false);
 
   useEffect(() => {
     const loadSummary = async () => {
       setLoading(true);
       setError('');
+      setForbidden(false);
 
       try {
         const response = memberId
           ? await getProfileRequest(memberId)
           : await getMyProfileRequest();
         setSummary(response);
-      } catch {
+      } catch (err: unknown) {
+        if (err instanceof AxiosError) {
+          const status = err.response?.status;
+          const message = String(err.response?.data?.message ?? '');
+
+          if (
+            status === 403 ||
+            (status === 404 &&
+              message.includes('no existe o no está disponible'))
+          ) {
+            setForbidden(true);
+            setError('Tu cuenta no tiene permisos para ver este perfil.');
+            return;
+          }
+        }
+
         setError('No se pudo cargar el perfil.');
       } finally {
         setLoading(false);
@@ -103,18 +130,61 @@ export function usePerfilHook(memberId?: number) {
     }
   };
 
+  const loadFirma = async () => {
+    if (loadingFirma) {
+      return;
+    }
+
+    setLoadingFirma(true);
+    setFirmaError('');
+    try {
+      const response = memberId
+        ? await getProfileFirmaRequest(memberId)
+        : await getMyProfileFirmaRequest();
+      setFirma(response);
+    } catch {
+      setFirmaError('No se pudo cargar la firma del perfil.');
+    } finally {
+      setLoadingFirma(false);
+    }
+  };
+
+  const saveFirma = async (firmaBase64: string | null) => {
+    setSavingFirma(true);
+    setFirmaError('');
+    try {
+      const response = memberId
+        ? await updateProfileFirmaRequest(memberId, firmaBase64)
+        : await updateMyProfileFirmaRequest(firmaBase64);
+      setFirma(response);
+      return response.firmaBase64;
+    } catch {
+      setFirmaError('No se pudo guardar la firma del perfil.');
+      throw new Error('No se pudo guardar la firma del perfil.');
+    } finally {
+      setSavingFirma(false);
+    }
+  };
+
   return {
     summary,
     asignacion,
     actividad,
     vinculos,
+    firma,
     loading,
     loadingAsignacion,
     loadingActividad,
     loadingVinculos,
+    loadingFirma,
+    savingFirma,
     error,
+    firmaError,
+    forbidden,
     loadAsignacion,
     loadActividad,
     loadVinculos,
+    loadFirma,
+    saveFirma,
   };
 }

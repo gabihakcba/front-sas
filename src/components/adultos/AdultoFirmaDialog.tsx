@@ -41,7 +41,7 @@ export function AdultoFirmaDialog({
   const hasStrokeRef = useRef(false);
 
   useEffect(() => {
-    if (!visible) {
+    if (!visible || loading) {
       return;
     }
 
@@ -53,7 +53,7 @@ export function AdultoFirmaDialog({
 
     const context = canvas.getContext('2d');
 
-    if (!context || !editable) {
+    if (!context) {
       return;
     }
 
@@ -74,7 +74,7 @@ export function AdultoFirmaDialog({
       context.drawImage(image, 0, 0, canvas.width, canvas.height);
     };
     image.src = firmaBase64;
-  }, [editable, firmaBase64, visible]);
+  }, [editable, firmaBase64, loading, visible]);
 
   const getPoint = (
     event: ReactMouseEvent<HTMLCanvasElement> | ReactTouchEvent<HTMLCanvasElement>,

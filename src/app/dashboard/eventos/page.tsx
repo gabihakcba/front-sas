@@ -17,9 +17,10 @@ import { EventoAfectacionesDialog } from '@/components/eventos/EventoAfectacione
 import { EventoComisionDialog } from '@/components/eventos/EventoComisionDialog';
 import { EventoFormDialog } from '@/components/eventos/EventoFormDialog';
 import { EventoInscripcionesDialog } from '@/components/eventos/EventoInscripcionesDialog';
+import { EVENT_MANAGEMENT_ACCESS } from '@/data/access-control';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useEventosHook } from '@/hooks/useEventosHooks';
-import { hasPermissionAccess } from '@/lib/authorization';
+import { hasAccessRule, hasPermissionAccess } from '@/lib/authorization';
 import { Evento } from '@/types/eventos';
 
 export default function EventosPage() {
@@ -77,6 +78,7 @@ export default function EventosPage() {
   const canEdit = hasPermissionAccess(user, 'UPDATE:EVENTO');
   const canDelete = hasPermissionAccess(user, 'DELETE:EVENTO');
   const canManageInscripciones = hasPermissionAccess(user, 'UPDATE:INSCRIPCION');
+  const canManageEventModules = hasAccessRule(user?.scopes, EVENT_MANAGEMENT_ACCESS);
 
   const handleDelete = () => {
     if (!selectedEvento) return;
@@ -139,10 +141,14 @@ export default function EventosPage() {
           />
         </div>
         <div className="flex flex-wrap gap-2">
-        <Button type="button" label="Inscripciones" icon="pi pi-users" iconPos="right" outlined size="small" onClick={() => void openInscripcionesDialog()} disabled={!selectedEvento || !canManageInscripciones} />
-        <Button type="button" label="Afectaciones" icon="pi pi-sitemap" iconPos="right" outlined size="small" onClick={() => void openAfectacionesDialog()} disabled={!selectedEvento || !canEdit} />
-        <Button type="button" label="Comisión" icon="pi pi-briefcase" iconPos="right" outlined size="small" onClick={() => void openComisionDialog()} disabled={!selectedEvento || !canEdit} />
-        <Button type="button" label="Tipos" icon="pi pi-tags" iconPos="right" outlined size="small" onClick={() => router.push('/dashboard/tipos-evento')} />
+          {canManageEventModules ? (
+            <>
+              <Button type="button" label="Inscripciones" icon="pi pi-users" iconPos="right" outlined size="small" onClick={() => void openInscripcionesDialog()} disabled={!selectedEvento || !canManageInscripciones} />
+              <Button type="button" label="Afectaciones" icon="pi pi-sitemap" iconPos="right" outlined size="small" onClick={() => void openAfectacionesDialog()} disabled={!selectedEvento || !canEdit} />
+              <Button type="button" label="Comisión" icon="pi pi-briefcase" iconPos="right" outlined size="small" onClick={() => void openComisionDialog()} disabled={!selectedEvento || !canEdit} />
+              <Button type="button" label="Tipos" icon="pi pi-tags" iconPos="right" outlined size="small" onClick={() => router.push('/dashboard/tipos-evento')} />
+            </>
+          ) : null}
         </div>
       </div>
       <div className="flex flex-wrap justify-end gap-2">

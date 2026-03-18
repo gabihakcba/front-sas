@@ -1,6 +1,6 @@
 {
   "name": "front-sas",
-  "version": "1.8.8",
+  "version": "1.8.24",
   "private": true,
   "scripts": {
     "dev": "next dev",

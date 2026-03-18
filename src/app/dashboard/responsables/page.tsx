@@ -87,25 +87,29 @@ export default function ResponsablesPage() {
   const header = (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div className="flex flex-wrap gap-2">
-        <Button
-          type="button"
-          label="Relaciones"
-          icon="pi pi-link"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={() => router.push('/dashboard/relaciones')}
-        />
-        <Button
-          type="button"
-          label="Responsabilidades"
-          icon="pi pi-sitemap"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={() => void openAssignmentDialog()}
-          disabled={!selectedResponsable || !canAssign}
-        />
+        {canAssign ? (
+          <Button
+            type="button"
+            label="Relaciones"
+            icon="pi pi-link"
+            iconPos="right"
+            outlined
+            size="small"
+            onClick={() => router.push('/dashboard/relaciones')}
+          />
+        ) : null}
+        {canAssign ? (
+          <Button
+            type="button"
+            label="Responsabilidades"
+            icon="pi pi-sitemap"
+            iconPos="right"
+            outlined
+            size="small"
+            onClick={() => void openAssignmentDialog()}
+            disabled={!selectedResponsable}
+          />
+        ) : null}
       </div>
       <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-center">
         <IconField iconPosition="right">
@@ -122,37 +126,42 @@ export default function ResponsablesPage() {
         </IconField>
       </div>
       <div className="flex flex-wrap justify-end gap-2">
-        <Button
-          type="button"
-          label="Crear"
-          icon="pi pi-plus"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={() => void openCreateDialog()}
-          disabled={!canCreate}
-        />
-        <Button
-          type="button"
-          label="Editar"
-          icon="pi pi-pencil"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={() => void openEditDialog()}
-          disabled={!selectedResponsable || !canEdit}
-        />
-        <Button
-          type="button"
-          label="Eliminar"
-          icon="pi pi-trash"
-          iconPos="right"
-          outlined
-          size="small"
-          severity="danger"
-          onClick={handleDelete}
-          disabled={!selectedResponsable || !canDelete}
-        />
+        {canCreate ? (
+          <Button
+            type="button"
+            label="Crear"
+            icon="pi pi-plus"
+            iconPos="right"
+            outlined
+            size="small"
+            onClick={() => void openCreateDialog()}
+          />
+        ) : null}
+        {canEdit ? (
+          <Button
+            type="button"
+            label="Editar"
+            icon="pi pi-pencil"
+            iconPos="right"
+            outlined
+            size="small"
+            onClick={() => void openEditDialog()}
+            disabled={!selectedResponsable}
+          />
+        ) : null}
+        {canDelete ? (
+          <Button
+            type="button"
+            label="Eliminar"
+            icon="pi pi-trash"
+            iconPos="right"
+            outlined
+            size="small"
+            severity="danger"
+            onClick={handleDelete}
+            disabled={!selectedResponsable}
+          />
+        ) : null}
       </div>
     </div>
   );
@@ -245,27 +254,31 @@ export default function ResponsablesPage() {
         </DataTable>
       </div>
 
-      <ResponsableFormDialog
-        visible={dialogVisible}
-        mode={dialogMode}
-        loading={dialogLoading}
-        submitting={submitting}
-        values={formValues}
-        error={error}
-        onHide={closeDialog}
-        onSubmit={(values) => void submitForm(values)}
-      />
+      {canCreate || canEdit ? (
+        <ResponsableFormDialog
+          visible={dialogVisible}
+          mode={dialogMode}
+          loading={dialogLoading}
+          submitting={submitting}
+          values={formValues}
+          error={error}
+          onHide={closeDialog}
+          onSubmit={(values) => void submitForm(values)}
+        />
+      ) : null}
 
-      <ResponsableAsignacionDialog
-        visible={assignmentDialogVisible}
-        submitting={assignmentSubmitting}
-        protagonistas={options.protagonistas}
-        values={assignmentValues}
-        error={error}
-        onHide={closeAssignmentDialog}
-        onChange={setAssignmentValues}
-        onSubmit={() => void submitAssignments()}
-      />
+      {canAssign ? (
+        <ResponsableAsignacionDialog
+          visible={assignmentDialogVisible}
+          submitting={assignmentSubmitting}
+          protagonistas={options.protagonistas}
+          values={assignmentValues}
+          error={error}
+          onHide={closeAssignmentDialog}
+          onChange={setAssignmentValues}
+          onSubmit={() => void submitAssignments()}
+        />
+      ) : null}
       {deleteConfirmDialog}
     </Card>
   );
