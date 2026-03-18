@@ -7,6 +7,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Controller, useForm } from 'react-hook-form';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 import { ComisionFormValues, ComisionOption } from '@/types/comisiones';
 
 interface Props {
@@ -48,7 +49,13 @@ export function ComisionFormDialog({
   );
 
   return (
-    <Dialog visible={visible} onHide={onHide} header={mode === 'create' ? 'Crear comisión' : 'Editar comisión'} footer={footer} className="w-full max-w-xl" modal>
+    <Dialog
+      visible={visible}
+      onHide={onHide}
+      header={mode === 'create' ? 'Crear comisión' : 'Editar comisión'}
+      footer={footer}
+      {...getResponsiveDialogProps('36rem')}
+    >
       {loading ? (
         <div className="py-4">Cargando formulario...</div>
       ) : (
@@ -85,6 +92,7 @@ export function ComisionFormDialog({
                   }
                   placeholder="Evento asociado"
                   className="w-full"
+                  appendTo="self"
                 />
               )}
             />

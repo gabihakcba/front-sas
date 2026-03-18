@@ -1,16 +1,19 @@
 'use client';
 
-import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { Message } from 'primereact/message';
+import { useAuth } from '@/context/AuthContext';
+import { ResponsiveTableActions } from '@/components/common/ResponsiveTableActions';
 import { RelacionFormDialog } from '@/components/relaciones/RelacionFormDialog';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useRelacionesHook } from '@/hooks/useRelacionesHooks';
+import { hasDeveloperAccess } from '@/lib/authorization';
 import { Relacion } from '@/types/relaciones';
 
 export default function RelacionesPage() {
+  const { user } = useAuth();
   const { confirmDelete, deleteConfirmDialog } = useDeleteConfirm();
   const {
     relaciones,
@@ -34,6 +37,7 @@ export default function RelacionesPage() {
     submitForm,
     deleteSelected,
   } = useRelacionesHook();
+  const canSeeId = hasDeveloperAccess(user);
 
   const handlePage = (event: DataTablePageEvent) => {
     const nextPage = Math.floor(event.first / event.rows) + 1;
@@ -55,38 +59,28 @@ export default function RelacionesPage() {
   const header = (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div />
-      <div className="flex flex-wrap justify-end gap-2">
-        <Button
-          type="button"
-          label="Crear"
-          icon="pi pi-plus"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={openCreateDialog}
-        />
-        <Button
-          type="button"
-          label="Editar"
-          icon="pi pi-pencil"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={() => void openEditDialog()}
-          disabled={!selectedRelacion}
-        />
-        <Button
-          type="button"
-          label="Eliminar"
-          icon="pi pi-trash"
-          iconPos="right"
-          outlined
-          size="small"
-          severity="danger"
-          onClick={handleDelete}
-          disabled={!selectedRelacion}
-        />
-      </div>
+      <ResponsiveTableActions
+        crudActions={[
+          {
+            label: 'Crear',
+            icon: 'pi pi-plus',
+            onClick: openCreateDialog,
+          },
+          {
+            label: 'Editar',
+            icon: 'pi pi-pencil',
+            onClick: () => void openEditDialog(),
+            disabled: !selectedRelacion,
+          },
+          {
+            label: 'Eliminar',
+            icon: 'pi pi-trash',
+            onClick: handleDelete,
+            disabled: !selectedRelacion,
+            severity: 'danger' as const,
+          },
+        ]}
+      />
     </div>
   );
 
@@ -116,9 +110,11 @@ export default function RelacionesPage() {
           onPage={handlePage}
           emptyMessage="No hay relaciones disponibles."
           tableStyle={{ minWidth: '42rem', width: '100%' }}
+          rowClassName={(data) =>
+            selectedRelacion?.id === data.id ? 'p-highlight' : ''
+          }
         >
-          <Column selectionMode="single" headerStyle={{ width: '3rem' }} />
-          <Column field="id" header="ID" />
+          {canSeeId ? <Column field="id" header="ID" /> : null}
           <Column field="tipo" header="Nombre" />
           <Column
             field="descripcion"

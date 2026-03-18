@@ -10,6 +10,7 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Controller, useForm } from 'react-hook-form';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 import { ConsejoFormValues } from '@/types/consejos';
 
 interface ConsejoFormDialogProps {
@@ -78,8 +79,7 @@ export function ConsejoFormDialog({
       onHide={onHide}
       header={mode === 'create' ? 'Crear consejo' : 'Editar consejo'}
       footer={footer}
-      className="w-full max-w-2xl"
-      modal
+      {...getResponsiveDialogProps('40rem')}
     >
       {loading ? (
         <div className="py-4">Cargando formulario...</div>

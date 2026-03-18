@@ -4,6 +4,7 @@ import { useEffect, useMemo } from 'react';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Message } from 'primereact/message';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 
 interface FilePreviewDialogProps {
   visible: boolean;
@@ -94,8 +95,7 @@ export function FilePreviewDialog({
       onHide={onHide}
       header={title}
       footer={footer}
-      className="w-full max-w-6xl"
-      modal
+      {...getResponsiveDialogProps('90rem')}
     >
       {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
       {loading ? (

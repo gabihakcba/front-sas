@@ -1,16 +1,19 @@
 'use client';
 
-import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { Message } from 'primereact/message';
+import { ResponsiveTableActions } from '@/components/common/ResponsiveTableActions';
+import { useAuth } from '@/context/AuthContext';
 import { TipoEventoFormDialog } from '@/components/tipos-evento/TipoEventoFormDialog';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useTiposEventoHook } from '@/hooks/useTiposEventoHooks';
+import { hasDeveloperAccess } from '@/lib/authorization';
 import { TipoEvento } from '@/types/tipos-evento';
 
 export default function TiposEventoPage() {
+  const { user } = useAuth();
   const { confirmDelete, deleteConfirmDialog } = useDeleteConfirm();
   const {
     tiposEvento,
@@ -34,6 +37,7 @@ export default function TiposEventoPage() {
     submitForm,
     deleteSelected,
   } = useTiposEventoHook();
+  const canSeeId = hasDeveloperAccess(user);
 
   const handleDelete = () => {
     if (!selectedTipoEvento) return;
@@ -48,11 +52,28 @@ export default function TiposEventoPage() {
   const header = (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div />
-      <div className="flex flex-wrap justify-end gap-2">
-        <Button type="button" label="Crear" icon="pi pi-plus" iconPos="right" outlined size="small" onClick={openCreateDialog} />
-        <Button type="button" label="Editar" icon="pi pi-pencil" iconPos="right" outlined size="small" onClick={() => void openEditDialog()} disabled={!selectedTipoEvento} />
-        <Button type="button" label="Eliminar" icon="pi pi-trash" iconPos="right" outlined size="small" severity="danger" onClick={handleDelete} disabled={!selectedTipoEvento} />
-      </div>
+      <ResponsiveTableActions
+        crudActions={[
+          {
+            label: 'Crear',
+            icon: 'pi pi-plus',
+            onClick: openCreateDialog,
+          },
+          {
+            label: 'Editar',
+            icon: 'pi pi-pencil',
+            onClick: () => void openEditDialog(),
+            disabled: !selectedTipoEvento,
+          },
+          {
+            label: 'Eliminar',
+            icon: 'pi pi-trash',
+            onClick: handleDelete,
+            disabled: !selectedTipoEvento,
+            severity: 'danger' as const,
+          },
+        ]}
+      />
     </div>
   );
 
@@ -62,8 +83,7 @@ export default function TiposEventoPage() {
         {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
         {successMessage ? <Message severity="success" text={successMessage} className="mb-3 w-full" /> : null}
         <DataTable value={tiposEvento} dataKey="id" loading={loading} lazy paginator header={header} selectionMode="single" selection={selectedTipoEvento} onSelectionChange={(event) => setSelectedTipoEvento((event.value as TipoEvento | null) ?? null)} first={(page - 1) * limit} rows={10} totalRecords={total} onPage={(event: DataTablePageEvent) => void refetch(Math.floor(event.first / event.rows) + 1)} emptyMessage="No hay tipos de evento disponibles." tableStyle={{ minWidth: '42rem', width: '100%' }}>
-          <Column selectionMode="single" headerStyle={{ width: '3rem' }} />
-          <Column field="id" header="ID" />
+          {canSeeId ? <Column field="id" header="ID" /> : null}
           <Column field="nombre" header="Nombre" />
           <Column header="Descripción" body={(tipoEvento: TipoEvento) => tipoEvento.descripcion ?? '-'} />
           <Column header="Eventos" body={(tipoEvento: TipoEvento) => tipoEvento._count.Evento} />

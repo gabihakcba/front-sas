@@ -1,7 +1,6 @@
 'use client';
 
 import { useAuth } from '@/context/AuthContext';
-import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Checkbox } from 'primereact/checkbox';
 import { Column } from 'primereact/column';
@@ -12,11 +11,16 @@ import { InputIcon } from 'primereact/inputicon';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
+import { ResponsiveTableActions } from '@/components/common/ResponsiveTableActions';
 import { ComisionFormDialog } from '@/components/comisiones/ComisionFormDialog';
 import { ComisionParticipantesDialog } from '@/components/comisiones/ComisionParticipantesDialog';
 import { useComisionesHook } from '@/hooks/useComisionesHooks';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
-import { hasDeletedAuditAccess, hasPermissionAccess } from '@/lib/authorization';
+import {
+  hasDeletedAuditAccess,
+  hasDeveloperAccess,
+  hasPermissionAccess,
+} from '@/lib/authorization';
 import { Comision } from '@/types/comisiones';
 
 export default function ComisionesPage() {
@@ -58,6 +62,7 @@ export default function ComisionesPage() {
   const canEdit = hasPermissionAccess(user, 'UPDATE:COMISION');
   const canDelete = hasPermissionAccess(user, 'DELETE:COMISION');
   const canAuditDeleted = hasDeletedAuditAccess(user);
+  const canSeeId = hasDeveloperAccess(user);
 
   const handleDelete = () => {
     if (!selectedComision) return;
@@ -69,44 +74,90 @@ export default function ComisionesPage() {
     });
   };
 
-  const header = (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center">
-        {canEdit ? <Button type="button" label="Adultos" icon="pi pi-users" iconPos="right" outlined size="small" onClick={() => void openParticipantesDialog()} disabled={!selectedComision || Boolean(selectedComision.borrado)} /> : null}
-        <IconField iconPosition="right">
-          <InputText
-            value={filters.q}
+  const filterControls = (
+    <>
+      <IconField iconPosition="right" className="w-full">
+        <InputText
+          className="w-full"
+          value={filters.q}
+          onChange={(event) =>
+            setFilters({
+              ...filters,
+              q: event.target.value,
+            })
+          }
+          placeholder="Buscar por nombre o descripción"
+        />
+        <InputIcon className="pi pi-search" />
+      </IconField>
+      {canAuditDeleted ? (
+        <div className="flex items-center gap-2">
+          <label htmlFor="comisiones-include-deleted">Incluir borrados</label>
+          <Checkbox
+            inputId="comisiones-include-deleted"
+            checked={filters.includeDeleted}
             onChange={(event) =>
               setFilters({
                 ...filters,
-                q: event.target.value,
+                includeDeleted: Boolean(event.checked),
               })
             }
-            placeholder="Buscar por nombre o descripción"
           />
-          <InputIcon className="pi pi-search" />
-        </IconField>
-        {canAuditDeleted ? (
-          <div className="flex items-center gap-2">
-            <label htmlFor="comisiones-include-deleted">Incluir borrados</label>
-            <Checkbox
-              inputId="comisiones-include-deleted"
-              checked={filters.includeDeleted}
-              onChange={(event) =>
-                setFilters({
-                  ...filters,
-                  includeDeleted: Boolean(event.checked),
-                })
-              }
-            />
-          </div>
-        ) : null}
-      </div>
-      <div className="flex flex-wrap justify-end gap-2">
-        {canCreate ? <Button type="button" label="Crear" icon="pi pi-plus" iconPos="right" outlined size="small" onClick={openCreateDialog} /> : null}
-        {canEdit ? <Button type="button" label="Editar" icon="pi pi-pencil" iconPos="right" outlined size="small" onClick={() => void openEditDialog()} disabled={!selectedComision || Boolean(selectedComision.borrado)} /> : null}
-        {canDelete ? <Button type="button" label="Eliminar" icon="pi pi-trash" iconPos="right" outlined size="small" severity="danger" onClick={handleDelete} disabled={!selectedComision || Boolean(selectedComision.borrado)} /> : null}
-      </div>
+        </div>
+      ) : null}
+    </>
+  );
+
+  const header = (
+    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="hidden md:flex md:flex-col md:gap-2">{filterControls}</div>
+      <ResponsiveTableActions
+        filtersContent={filterControls}
+        specialActions={
+          canEdit
+            ? [
+                {
+                  label: 'Adultos',
+                  icon: 'pi pi-users',
+                  onClick: () => void openParticipantesDialog(),
+                  disabled: !selectedComision || Boolean(selectedComision.borrado),
+                },
+              ]
+            : []
+        }
+        crudActions={[
+          ...(canCreate
+            ? [
+                {
+                  label: 'Crear',
+                  icon: 'pi pi-plus',
+                  onClick: openCreateDialog,
+                },
+              ]
+            : []),
+          ...(canEdit
+            ? [
+                {
+                  label: 'Editar',
+                  icon: 'pi pi-pencil',
+                  onClick: () => void openEditDialog(),
+                  disabled: !selectedComision || Boolean(selectedComision.borrado),
+                },
+              ]
+            : []),
+          ...(canDelete
+            ? [
+                {
+                  label: 'Eliminar',
+                  icon: 'pi pi-trash',
+                  onClick: handleDelete,
+                  disabled: !selectedComision || Boolean(selectedComision.borrado),
+                  severity: 'danger' as const,
+                },
+              ]
+            : []),
+        ]}
+      />
     </div>
   );
 
@@ -133,8 +184,7 @@ export default function ComisionesPage() {
         {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
         {successMessage ? <Message severity="success" text={successMessage} className="mb-3 w-full" /> : null}
         <DataTable value={comisiones} dataKey="id" loading={loading} lazy paginator header={header} selectionMode="single" selection={selectedComision} onSelectionChange={(event) => setSelectedComision((event.value as Comision | null) ?? null)} first={(page - 1) * limit} rows={10} totalRecords={total} onPage={(event: DataTablePageEvent) => void refetch(Math.floor(event.first / event.rows) + 1)} emptyMessage="No hay comisiones disponibles." tableStyle={{ minWidth: '48rem', width: '100%' }}>
-          <Column selectionMode="single" headerStyle={{ width: '3rem' }} />
-          <Column field="id" header="ID" />
+          {canSeeId ? <Column field="id" header="ID" /> : null}
           <Column field="nombre" header="Nombre" />
           <Column header="Descripción" body={(comision: Comision) => comision.descripcion ?? '-'} />
           <Column header={eventoHeader} body={(comision: Comision) => comision.Evento?.nombre ?? '-'} />

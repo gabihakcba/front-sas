@@ -2,6 +2,144 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.8.36
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- en el consejo iniciado, la sección `Temas` completa se comporta como acordeón en mobile, incluyendo acciones de `Agregar tema` y `Editar`
+- en escritorio la sección sigue expandida en forma permanente sin cambiar el flujo actual
+
+## 1.8.37
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- la sección `Temas` del consejo iniciado pasa a usar el componente `Accordion` real de PrimeReact en mobile
+- se elimina el comportamiento manual anterior para mantener consistencia con la librería usada en el resto de la interfaz
+
+## 1.8.38
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- en el consejo iniciado, las acciones de asistencia, asignación y exportación pasan a un modal `Opciones` en mobile
+- en escritorio las mismas acciones siguen visibles en el header para no alterar el flujo de trabajo amplio
+
+## 1.8.39
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- la gestión de temas del consejo iniciado pasa a una `Sidebar` derecha real, abierta por defecto en desktop y cerrada por defecto en mobile
+- el acceso a `Temas` queda en un botón fijo independiente del scroll para mantenerlo siempre disponible
+
+## 1.8.40
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- el calendario reemplaza la toolbar nativa por una barra propia donde el título actual es clickeable y abre un selector de fecha
+- desde ese selector se puede saltar a año, mes y día usando `Calendar` de PrimeReact en desktop y mobile
+
+## 1.8.41
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- la barra del calendario agrupa navegación y vistas en `ButtonGroup`
+- se elimina el botón `Hoy`
+- en mobile la navegación muestra solo iconos y el calendario acepta swipe horizontal para ir a anterior o siguiente
+
+## 1.8.42
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- la navegación y el cambio de vista del calendario pasan a usar `SelectButton` de PrimeReact en lugar de agrupaciones manuales
+- se mantiene el swipe horizontal para cambiar de rango y el selector de fecha clickeando el título actual
+
+## 1.8.43
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- en desktop la navegación manual del calendario queda reducida a iconos
+- en mobile se eliminan esos controles y el cambio de rango queda exclusivamente por swipe horizontal
+
+## 1.8.35
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- en el consejo iniciado, el listado lateral de temas pasa a ser desplegable en mobile y resoluciones chicas
+- al seleccionar un tema desde mobile, el panel de temas se vuelve a contraer para priorizar la lectura del contenido del acta
+
+## 1.8.34
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- se completa el ajuste de Relaciones ocultando el selector visual de fila y mostrando la columna `ID` solo para `DEV`
+- los dialogs operativos pendientes pasan a usar un patrón responsive común con ancho limitado al viewport, padding interno y scroll vertical
+- dropdowns y multiselects dentro de dialogs se adaptan mejor al viewport al renderizarse dentro del propio modal
+- el canvas de firma se ajusta al ancho disponible para no desbordar en mobile
+
+## 1.8.33
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- se corrige la duplicación de acciones visibles en mobile cuando una tabla ya migró a botones agrupados
+- las tablas con filtros ahora agregan un acceso `Filtros` que abre una sidebar lateral en pantallas chicas
+
+## 1.8.32
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- en mobile y resoluciones chicas las acciones de header de tablas se concentran en hasta 3 accesos agrupados: `CRUD`, `Especiales` y `Relacionadas`
+- el nuevo patrón responsive se aplica a Protagonistas, Adultos, Responsables, Pagos, Eventos, Comisiones, Consejos, Cuentas, Conceptos, Métodos y Tipos de Evento
+
+## 1.8.31
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- los buscadores globales de tablas se unifican para que la lupa vuelva a renderizarse dentro del input y no desalineada por fuera
+- el ajuste se aplica a Protagonistas, Adultos, Responsables, Pagos, Comisiones, Cuentas y Logs
+
+## 1.8.30
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- el logo y nombre institucional del dashboard pasan a renderizarse en el header nativo de la sidebar mobile
+- el bloque fijo de escritorio conserva el mismo branding arriba, alineado con la nueva estructura del encabezado lateral
+
+## 1.8.29
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- las tablas operativas del dashboard dejan de mostrar la columna visual de selección y mantienen la selección solo mediante cambio de color de fila
+- la columna `ID` queda reservada exclusivamente para perfiles `DEV`, unificando la visibilidad entre Protagonistas, Adultos, Responsables, Pagos, Conceptos, Métodos, Cuentas, Eventos, Tipos de Evento, Comisiones y Consejos
+
 ## 1.8.28
 
 Fecha: 2026-03-18

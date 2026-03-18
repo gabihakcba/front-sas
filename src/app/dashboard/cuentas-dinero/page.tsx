@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
@@ -9,11 +8,15 @@ import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
+import { ResponsiveTableActions } from '@/components/common/ResponsiveTableActions';
+import { useAuth } from '@/context/AuthContext';
 import { CuentaDineroFormDialog } from '@/components/cuentas-dinero/CuentaDineroFormDialog';
 import { useCuentasDineroHook } from '@/hooks/useCuentasDineroHooks';
+import { hasDeveloperAccess } from '@/lib/authorization';
 import { CuentaDinero } from '@/types/cuentas-dinero';
 
 export default function CuentasDineroPage() {
+  const { user } = useAuth();
   const {
     cuentasDinero,
     selectedCuentaDinero,
@@ -37,40 +40,43 @@ export default function CuentasDineroPage() {
     closeDialog,
     submitForm,
   } = useCuentasDineroHook();
+  const canSeeId = hasDeveloperAccess(user);
 
   const handlePage = (event: DataTablePageEvent) => {
     const nextPage = Math.floor(event.first / event.rows) + 1;
     void refetch(nextPage);
   };
 
+  const filterControls = (
+    <IconField iconPosition="right" className="w-full">
+      <InputText
+        className="w-full"
+        value={filters.q}
+        onChange={(event) =>
+          setFilters({
+            ...filters,
+            q: event.target.value,
+          })
+        }
+        placeholder="Buscar cuenta"
+      />
+      <InputIcon className="pi pi-search" />
+    </IconField>
+  );
+
   const header = (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-center">
-        <IconField iconPosition="right">
-          <InputText
-            value={filters.q}
-            onChange={(event) =>
-              setFilters({
-                ...filters,
-                q: event.target.value,
-              })
-            }
-            placeholder="Buscar cuenta"
-          />
-          <InputIcon className="pi pi-search" />
-        </IconField>
-      </div>
-      <div className="flex flex-wrap justify-end gap-2">
-        <Button
-          type="button"
-          label="Crear"
-          icon="pi pi-plus"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={() => void openCreateDialog()}
-        />
-      </div>
+      <div className="hidden md:flex md:flex-col md:gap-2">{filterControls}</div>
+      <ResponsiveTableActions
+        filtersContent={filterControls}
+        crudActions={[
+          {
+            label: 'Crear',
+            icon: 'pi pi-plus',
+            onClick: () => void openCreateDialog(),
+          },
+        ]}
+      />
     </div>
   );
 
@@ -162,8 +168,7 @@ export default function CuentasDineroPage() {
           emptyMessage="No hay cuentas de dinero disponibles para tu scope actual."
           tableStyle={{ minWidth: '52rem', width: '100%' }}
         >
-          <Column selectionMode="single" headerStyle={{ width: '3rem' }} />
-          <Column field="id" header="ID" />
+          {canSeeId ? <Column field="id" header="ID" /> : null}
           <Column field="nombre" header="Nombre" />
           <Column
             header="Descripción"

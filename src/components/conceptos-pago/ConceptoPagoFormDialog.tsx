@@ -6,6 +6,7 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Controller, useForm } from 'react-hook-form';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 import { ConceptoPagoFormValues } from '@/types/conceptos-pago';
 
 interface ConceptoPagoFormDialogProps {
@@ -77,8 +78,7 @@ export function ConceptoPagoFormDialog({
           : 'Editar concepto de pago'
       }
       footer={footer}
-      className="w-full max-w-xl"
-      modal
+      {...getResponsiveDialogProps('36rem')}
     >
       {loading ? (
         <div className="py-4">Cargando formulario...</div>

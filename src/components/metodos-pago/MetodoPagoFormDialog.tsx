@@ -6,6 +6,7 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Controller, useForm } from 'react-hook-form';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 import { MetodoPagoFormValues } from '@/types/metodos-pago';
 
 interface MetodoPagoFormDialogProps {
@@ -73,8 +74,7 @@ export function MetodoPagoFormDialog({
       onHide={onHide}
       header={mode === 'create' ? 'Crear metodo de pago' : 'Editar metodo de pago'}
       footer={footer}
-      className="w-full max-w-xl"
-      modal
+      {...getResponsiveDialogProps('36rem')}
     >
       {loading ? (
         <div className="py-4">Cargando formulario...</div>

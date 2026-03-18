@@ -79,7 +79,7 @@ export default function DashboardShell({ children }: DashboardShellProps) {
   }
 
   const sidebarHeader = (
-    <div className="px-2 py-3">
+    <div className="w-full px-2 py-1">
       <div className="flex items-center gap-3">
         <div className="h-[44px] w-[44px] flex-shrink-0">
           <Image
@@ -93,7 +93,6 @@ export default function DashboardShell({ children }: DashboardShellProps) {
         </div>
         <span className="text-sm font-semibold">{groupName}</span>
       </div>
-      <div className="mt-3 border-b border-surface-300" />
     </div>
   );
 
@@ -104,9 +103,9 @@ export default function DashboardShell({ children }: DashboardShellProps) {
         onHide={() => setSidebarVisible(false)}
         position="left"
         className="w-full sm:w-80"
+        header={sidebarHeader}
       >
         <div className="p-3">
-          {sidebarHeader}
           <SidebarNavigation
             pathname={pathname}
             onNavigate={(path) => {
@@ -146,6 +145,7 @@ export default function DashboardShell({ children }: DashboardShellProps) {
         <aside className="hidden lg:block lg:fixed lg:top-0 lg:left-0 lg:h-screen lg:w-80">
           <div className="h-full flex flex-col p-3">
             {sidebarHeader}
+            <div className="mt-3 border-b border-surface-300" />
             <SidebarNavigation
               pathname={pathname}
               onNavigate={(path) => {

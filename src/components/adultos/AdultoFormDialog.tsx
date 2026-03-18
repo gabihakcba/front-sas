@@ -11,6 +11,7 @@ import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Password } from 'primereact/password';
 import { Controller, useForm, useWatch } from 'react-hook-form';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 import { AdultoFormValues, AdultoOptionsResponse } from '@/types/adultos';
 
 interface AdultoFormDialogProps {
@@ -102,8 +103,7 @@ export function AdultoFormDialog({
       onHide={onHide}
       header={mode === 'create' ? 'Crear adulto' : 'Editar adulto'}
       footer={footer}
-      className="w-full max-w-5xl"
-      modal
+      {...getResponsiveDialogProps('72rem')}
     >
       {loading ? (
         <div className="py-4">Cargando formulario...</div>

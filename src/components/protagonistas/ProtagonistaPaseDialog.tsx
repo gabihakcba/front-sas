@@ -5,6 +5,7 @@ import { Button } from 'primereact/button';
 import { Calendar } from 'primereact/calendar';
 import { Dialog } from 'primereact/dialog';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 import {
   ProtagonistaPaseValues,
   RamaOption,
@@ -62,8 +63,7 @@ export function ProtagonistaPaseDialog({
       onHide={onHide}
       header="Registrar pase"
       footer={footer}
-      className="w-full max-w-md"
-      modal
+      {...getResponsiveDialogProps('28rem')}
     >
       {loading ? (
         <div className="py-4">Cargando formulario...</div>
@@ -85,6 +85,7 @@ export function ProtagonistaPaseDialog({
               }
               placeholder="Seleccioná una rama"
               className="w-full"
+              appendTo="self"
             />
           </div>
 

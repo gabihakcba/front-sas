@@ -8,6 +8,7 @@ import { InputIcon } from 'primereact/inputicon';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { ScrollPanel } from 'primereact/scrollpanel';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 import {
   ConsejoAsistenciaItem,
   ConsejoAsistenciaOption,
@@ -84,8 +85,7 @@ export function ConsejoAsistenciaDialog({
       onHide={onHide}
       header="Asistencia"
       footer={footer}
-      className="w-full max-w-5xl"
-      modal
+      {...getResponsiveDialogProps('72rem')}
     >
       {error ? <Message severity="error" text={error} className="mb-3" /> : null}
       {successMessage ? (

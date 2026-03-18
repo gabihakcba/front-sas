@@ -13,7 +13,12 @@ import { InputIcon } from 'primereact/inputicon';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
-import { hasDeletedAuditAccess, hasPermissionAccess } from '@/lib/authorization';
+import { ResponsiveTableActions } from '@/components/common/ResponsiveTableActions';
+import {
+  hasDeletedAuditAccess,
+  hasDeveloperAccess,
+  hasPermissionAccess,
+} from '@/lib/authorization';
 import { useAuth } from '@/context/AuthContext';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useResponsablesHook } from '@/hooks/useResponsablesHooks';
@@ -69,6 +74,7 @@ export default function ResponsablesPage() {
   const canDelete = hasPermissionAccess(user, 'DELETE:RESPONSABLE');
   const canAssign = hasPermissionAccess(user, 'UPDATE:RESPONSABLE');
   const canAuditDeleted = hasDeletedAuditAccess(user);
+  const canSeeId = hasDeveloperAccess(user);
 
   const handlePage = (event: DataTablePageEvent) => {
     const nextPage = Math.floor(event.first / event.rows) + 1;
@@ -87,101 +93,104 @@ export default function ResponsablesPage() {
     });
   };
 
-  const header = (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div className="flex flex-wrap gap-2">
-        {canAssign ? (
-          <Button
-            type="button"
-            label="Relaciones"
-            icon="pi pi-link"
-            iconPos="right"
-            outlined
-            size="small"
-            onClick={() => router.push('/dashboard/relaciones')}
-          />
-        ) : null}
-        {canAssign ? (
-          <Button
-            type="button"
-            label="Responsabilidades"
-            icon="pi pi-sitemap"
-            iconPos="right"
-            outlined
-            size="small"
-            onClick={() => void openAssignmentDialog()}
-            disabled={!selectedResponsable || Boolean(selectedResponsable.borrado)}
-          />
-        ) : null}
-      </div>
-      <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-center">
-        <IconField iconPosition="right">
-          <InputText
-            value={filters.q}
+  const filterControls = (
+    <>
+      <IconField iconPosition="right" className="w-full">
+        <InputText
+          className="w-full"
+          value={filters.q}
+          onChange={(event) =>
+            setFilters({
+              ...filters,
+              q: event.target.value,
+            })
+          }
+          placeholder="Buscar responsable"
+        />
+        <InputIcon className="pi pi-search" />
+      </IconField>
+      {canAuditDeleted ? (
+        <div className="flex items-center gap-2">
+          <label htmlFor="responsables-include-deleted">Incluir borrados</label>
+          <Checkbox
+            inputId="responsables-include-deleted"
+            checked={filters.includeDeleted}
             onChange={(event) =>
               setFilters({
                 ...filters,
-                q: event.target.value,
+                includeDeleted: Boolean(event.checked),
               })
             }
-            placeholder="Buscar responsable"
           />
-          <InputIcon className="pi pi-search" />
-        </IconField>
-        {canAuditDeleted ? (
-          <div className="flex items-center gap-2">
-            <label htmlFor="responsables-include-deleted">Incluir borrados</label>
-            <Checkbox
-              inputId="responsables-include-deleted"
-              checked={filters.includeDeleted}
-              onChange={(event) =>
-                setFilters({
-                  ...filters,
-                  includeDeleted: Boolean(event.checked),
-                })
-              }
-            />
-          </div>
-        ) : null}
-      </div>
-      <div className="flex flex-wrap justify-end gap-2">
-        {canCreate ? (
-          <Button
-            type="button"
-            label="Crear"
-            icon="pi pi-plus"
-            iconPos="right"
-            outlined
-            size="small"
-            onClick={() => void openCreateDialog()}
-          />
-        ) : null}
-        {canEdit ? (
-          <Button
-            type="button"
-            label="Editar"
-            icon="pi pi-pencil"
-            iconPos="right"
-            outlined
-            size="small"
-            onClick={() => void openEditDialog()}
-            disabled={!selectedResponsable || Boolean(selectedResponsable.borrado)}
-          />
-        ) : null}
-        {canDelete ? (
-          <Button
-            type="button"
-            label="Eliminar"
-            icon="pi pi-trash"
-            iconPos="right"
-            outlined
-            size="small"
-            severity="danger"
-            onClick={handleDelete}
-            disabled={!selectedResponsable || Boolean(selectedResponsable.borrado)}
-          />
-        ) : null}
-      </div>
+        </div>
+      ) : null}
+    </>
+  );
+
+  const header = (
+    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="hidden md:flex md:flex-col md:gap-2">{filterControls}</div>
+      <ResponsiveTableActions
+        filtersContent={filterControls}
+        relatedActions={
+          canAssign
+            ? [
+                {
+                  label: 'Relaciones',
+                  icon: 'pi pi-link',
+                  onClick: () => router.push('/dashboard/relaciones'),
+                },
+              ]
+            : []
+        }
+        specialActions={
+          canAssign
+            ? [
+                {
+                  label: 'Responsabilidades',
+                  icon: 'pi pi-sitemap',
+                  onClick: () => void openAssignmentDialog(),
+                  disabled:
+                    !selectedResponsable || Boolean(selectedResponsable.borrado),
+                },
+              ]
+            : []
+        }
+        crudActions={[
+          ...(canCreate
+            ? [
+                {
+                  label: 'Crear',
+                  icon: 'pi pi-plus',
+                  onClick: () => void openCreateDialog(),
+                },
+              ]
+            : []),
+          ...(canEdit
+            ? [
+                {
+                  label: 'Editar',
+                  icon: 'pi pi-pencil',
+                  onClick: () => void openEditDialog(),
+                  disabled:
+                    !selectedResponsable || Boolean(selectedResponsable.borrado),
+                },
+              ]
+            : []),
+          ...(canDelete
+            ? [
+                {
+                  label: 'Eliminar',
+                  icon: 'pi pi-trash',
+                  onClick: handleDelete,
+                  disabled:
+                    !selectedResponsable || Boolean(selectedResponsable.borrado),
+                  severity: 'danger' as const,
+                },
+              ]
+            : []),
+        ]}
+      />
     </div>
   );
 
@@ -212,6 +221,7 @@ export default function ResponsablesPage() {
           emptyMessage="No hay responsables para mostrar."
           className="p-datatable-sm"
         >
+          {canSeeId ? <Column field="id" header="ID" /> : null}
           <Column
             field="Miembro.Cuenta.user"
             header="Usuario"

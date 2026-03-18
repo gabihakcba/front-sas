@@ -13,6 +13,275 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.8.43',
+    date: '2026-03-18',
+    title: 'Navegación por swipe en mobile',
+    summary:
+      'El calendario ajusta la navegación para que mobile dependa del desplazamiento horizontal, mientras desktop conserva sólo iconos mínimos.',
+    sections: [
+      {
+        title: 'Calendario',
+        items: [
+          'Anterior y Siguiente desaparecen en mobile como controles visibles.',
+          'En desktop esos controles quedan reducidos a iconos, sin texto adicional.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.42',
+    date: '2026-03-18',
+    title: 'SelectButton en calendario',
+    summary:
+      'El calendario reemplaza agrupaciones manuales por SelectButton de PrimeReact para la navegación y el cambio de vista.',
+    sections: [
+      {
+        title: 'Calendario',
+        items: [
+          'Anterior y Siguiente pasan a un SelectButton con adaptación de texto en desktop e iconos en mobile.',
+          'Mes, Semestre y Año quedan unificados con SelectButton como selector de vista activo.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.41',
+    date: '2026-03-18',
+    title: 'Barra compacta en calendario',
+    summary:
+      'La navegación del calendario se compacta con ButtonGroup, elimina el acceso a Hoy y suma desplazamiento horizontal para avanzar o retroceder.',
+    sections: [
+      {
+        title: 'Calendario',
+        items: [
+          'Anterior y Siguiente pasan a un ButtonGroup; en mobile se muestran sólo con iconos.',
+          'Mes, Semestre y Año también se agrupan visualmente en un ButtonGroup.',
+          'Deslizar a izquierda o derecha sobre el calendario navega al rango siguiente o anterior.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.40',
+    date: '2026-03-18',
+    title: 'Navegación directa en calendario',
+    summary:
+      'El calendario suma un título clickeable que abre un selector de fecha para navegar directamente por año, mes y día.',
+    sections: [
+      {
+        title: 'Calendario',
+        items: [
+          'La navegación de prev, siguiente, hoy y cambio de vista pasa a una barra propia más controlable.',
+          'El título actual abre un selector de fecha basado en PrimeReact Calendar para saltar directamente a la fecha deseada.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.39',
+    date: '2026-03-18',
+    title: 'Sidebar fija para temas de consejo',
+    summary:
+      'La sección Temas del consejo iniciado deja de vivir en una columna y pasa a una sidebar derecha, con apertura fija en desktop y acceso persistente mediante botón flotante.',
+    sections: [
+      {
+        title: 'Consejo',
+        items: [
+          'En desktop la sidebar de temas se abre por defecto y el contenido principal reserva espacio para que no quede tapado.',
+          'En mobile la sidebar inicia cerrada y se abre desde un botón fijo que no se ve afectado por el scroll.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.38',
+    date: '2026-03-18',
+    title: 'Opciones compactas en consejo mobile',
+    summary:
+      'El consejo iniciado mueve sus acciones secundarias a un modal de opciones en mobile para liberar espacio en el encabezado.',
+    sections: [
+      {
+        title: 'Consejo',
+        items: [
+          'Asistencia, Asignar secretaria, Asignar moderador, PDF completo y PDF quedan agrupados detrás del botón Opciones en pantallas chicas.',
+          'En escritorio se mantiene la botonera visible para preservar productividad y acceso directo.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.37',
+    date: '2026-03-18',
+    title: 'Accordion real en temas de consejo',
+    summary:
+      'La sección Temas del consejo iniciado deja de usar una simulación manual y pasa a renderizarse con el componente Accordion de PrimeReact en mobile.',
+    sections: [
+      {
+        title: 'Consejo',
+        items: [
+          'En mobile, Temas se despliega con Accordion y mantiene dentro del mismo panel las acciones y el listado.',
+          'Se conserva el comportamiento expandido de escritorio sin introducir cambios en esa experiencia.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.36',
+    date: '2026-03-18',
+    title: 'Acordeón de temas en consejo mobile',
+    summary:
+      'La sección lateral de temas dentro del consejo iniciado pasa a comportarse como acordeón completo en mobile, incluyendo acciones y listado.',
+    sections: [
+      {
+        title: 'Consejo',
+        items: [
+          'La cabecera de Temas en mobile ahora despliega y contrae toda la sección, no solo el listado.',
+          'Agregar tema, Editar y la lista de temas quedan dentro del mismo bloque plegable para ahorrar espacio vertical.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.35',
+    date: '2026-03-18',
+    title: 'Temas desplegables en consejo mobile',
+    summary:
+      'El consejo iniciado mejora su uso en pantallas chicas haciendo que el listado de temas lateral se comporte como un bloque desplegable.',
+    sections: [
+      {
+        title: 'Consejo',
+        items: [
+          'En mobile y resoluciones chicas el listado de temas deja de quedar siempre visible y pasa a abrirse manualmente.',
+          'Al elegir un tema, el panel se contrae otra vez para dejar más espacio al contenido principal del acta.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.34',
+    date: '2026-03-18',
+    title: 'Dialogs responsive consistentes',
+    summary:
+      'Se completa la unificación responsive de dialogs y se termina el ajuste visual de Relaciones para mobile y resoluciones chicas.',
+    sections: [
+      {
+        title: 'Dialogs',
+        items: [
+          'Los formularios y dialogs pendientes ahora limitan su ancho al viewport, agregan padding interno y permiten scroll vertical cuando el contenido excede la altura disponible.',
+          'Los overlays de dropdowns y multiselects dentro de dialogs se adaptan mejor al espacio disponible en pantallas chicas.',
+        ],
+      },
+      {
+        title: 'Tablas',
+        items: [
+          'Relaciones oculta el selector visual de fila y deja la columna ID visible solo para cuentas DEV.',
+          'La selección sigue indicándose por color de fila sin exponer radiobuttons innecesarios.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.33',
+    date: '2026-03-18',
+    title: 'Filtros móviles en sidebar',
+    summary:
+      'Las tablas que ya usan acciones agrupadas en mobile corrigen la duplicación de botones visibles y suman un acceso lateral específico para filtros.',
+    sections: [
+      {
+        title: 'Mobile',
+        items: [
+          'Eventos deja de mostrar acciones duplicadas fuera del modal en resoluciones chicas.',
+          'Los filtros pasan a abrirse desde un botón propio con sidebar lateral en lugar de quedar siempre expuestos en el header móvil.',
+        ],
+      },
+      {
+        title: 'Cobertura',
+        items: [
+          'El patrón de filtros móviles se aplica a Protagonistas, Adultos, Responsables, Pagos, Eventos, Comisiones, Consejos y Cuentas.',
+          'En escritorio se conserva la visualización directa de filtros sin sidebar adicional.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.32',
+    date: '2026-03-18',
+    title: 'Headers de tablas agrupados en mobile',
+    summary:
+      'Las botoneras de header del dashboard pasan a un formato agrupado para mobile, reduciendo saturación visual y manteniendo separadas las acciones CRUD, especiales y relacionadas.',
+    sections: [
+      {
+        title: 'Responsive',
+        items: [
+          'En pantallas chicas los headers de tablas ya no muestran largas filas de botones, sino accesos agrupados que abren modal.',
+          'El patrón mantiene la separación conceptual entre CRUD, ediciones especiales y acciones o tablas relacionadas.',
+        ],
+      },
+      {
+        title: 'Cobertura',
+        items: [
+          'El cambio alcanza a Protagonistas, Adultos, Responsables, Pagos, Eventos, Comisiones, Consejos, Cuentas, Conceptos, Métodos y Tipos de Evento.',
+          'En escritorio se conserva la botonera visible, pero ya ordenada con el mismo criterio de agrupación.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.31',
+    date: '2026-03-18',
+    title: 'Buscadores de tablas alineados',
+    summary:
+      'Los filtros globales de tablas vuelven a usar una estructura consistente para que la lupa quede dentro del input en todo el dashboard.',
+    sections: [
+      {
+        title: 'Inputs',
+        items: [
+          'Los buscadores de Protagonistas, Adultos, Responsables, Pagos, Comisiones, Cuentas y Logs quedan alineados con el patrón visual correcto.',
+          'Cada input recupera ancho completo disponible dentro de su contenedor sin empujar el icono hacia afuera.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.30',
+    date: '2026-03-18',
+    title: 'Branding movido al header lateral',
+    summary:
+      'El dashboard reubica el logo y nombre institucional dentro del encabezado nativo de la sidebar para ordenar mejor la navegación lateral.',
+    sections: [
+      {
+        title: 'Sidebar',
+        items: [
+          'En mobile, el logo y nombre pasan al header propio de la sidebar en lugar de ocupar espacio dentro del cuerpo navegable.',
+          'En escritorio se mantiene el mismo branding en la parte superior del panel lateral para conservar consistencia visual.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.8.29',
+    date: '2026-03-18',
+    title: 'Tablas con selección visual unificada',
+    summary:
+      'Las tablas principales del dashboard dejan de mostrar la columna explícita de selección y reservan la columna ID únicamente para perfiles técnicos de desarrollo.',
+    sections: [
+      {
+        title: 'Visibilidad',
+        items: [
+          'El ID queda visible sólo para DEV, evitando inconsistencias entre tablas operativas del dashboard.',
+          'Responsables mantiene el mismo criterio y ahora también muestra ID sólo cuando corresponde por rol.',
+        ],
+      },
+      {
+        title: 'Interacción',
+        items: [
+          'La selección sigue funcionando por fila, pero sin radio visible, apoyándose sólo en el cambio de color.',
+          'El ajuste se aplica a Protagonistas, Adultos, Responsables, Pagos, Conceptos, Métodos, Cuentas, Eventos, Tipos de Evento, Comisiones y Consejos.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.8.28',
     date: '2026-03-18',
     title: 'Visor inicial de logs',

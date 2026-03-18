@@ -4,6 +4,7 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Message } from 'primereact/message';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 import { EventoMiembroOption } from '@/types/eventos';
 
 interface Props {
@@ -39,7 +40,13 @@ export function EventoInscripcionesDialog({
   );
 
   return (
-    <Dialog visible={visible} onHide={onHide} header="Inscripciones" footer={footer} className="w-full max-w-3xl" modal>
+    <Dialog
+      visible={visible}
+      onHide={onHide}
+      header="Inscripciones"
+      footer={footer}
+      {...getResponsiveDialogProps('48rem')}
+    >
       <div className="flex flex-col gap-4">
         {error ? <Message severity="error" text={error} /> : null}
         <MultiSelect
@@ -51,6 +58,7 @@ export function EventoInscripcionesDialog({
           display="comma"
           placeholder="Seleccionar miembros"
           className="w-full"
+          appendTo="self"
           itemTemplate={(option: EventoMiembroOption) =>
             `${option.apellidos}, ${option.nombre} (${option.dni})`
           }

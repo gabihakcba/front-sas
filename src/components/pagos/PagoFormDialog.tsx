@@ -10,6 +10,7 @@ import { FileUpload, FileUploadSelectEvent } from 'primereact/fileupload';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Controller, useForm, useWatch } from 'react-hook-form';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 import { PagoFormValues, PagosOptionsResponse } from '@/types/pagos';
 
 interface PagoFormDialogProps {
@@ -133,8 +134,7 @@ export function PagoFormDialog({
       onHide={onHide}
       header="Crear pago"
       footer={footer}
-      className="w-full max-w-3xl"
-      modal
+      {...getResponsiveDialogProps('48rem')}
     >
       {loading ? (
         <div className="py-4">Cargando formulario...</div>

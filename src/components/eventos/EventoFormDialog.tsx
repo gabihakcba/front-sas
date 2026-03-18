@@ -10,6 +10,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Controller, useForm } from 'react-hook-form';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 import { EventoFormValues, EventoOption } from '@/types/eventos';
 
 interface Props {
@@ -51,7 +52,7 @@ export function EventoFormDialog({
   );
 
   return (
-    <Dialog visible={visible} onHide={onHide} header={mode === 'create' ? 'Crear evento' : 'Editar evento'} footer={footer} className="w-full max-w-4xl" modal>
+    <Dialog visible={visible} onHide={onHide} header={mode === 'create' ? 'Crear evento' : 'Editar evento'} footer={footer} {...getResponsiveDialogProps('64rem')}>
       {loading ? (
         <div className="py-4">Cargando formulario...</div>
       ) : (

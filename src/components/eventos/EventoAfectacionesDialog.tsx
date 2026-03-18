@@ -4,6 +4,7 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Message } from 'primereact/message';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 import { EventoOption, EventoRamaOption } from '@/types/eventos';
 
 interface Props {
@@ -36,12 +37,18 @@ export function EventoAfectacionesDialog(props: Props) {
   );
 
   return (
-    <Dialog visible={props.visible} onHide={props.onHide} header="Áreas y ramas afectadas" footer={footer} className="w-full max-w-3xl" modal>
+    <Dialog
+      visible={props.visible}
+      onHide={props.onHide}
+      header="Áreas y ramas afectadas"
+      footer={footer}
+      {...getResponsiveDialogProps('48rem')}
+    >
       <div className="flex flex-col gap-4">
         {props.error ? <Message severity="error" text={props.error} /> : null}
         <div className="flex flex-col gap-2">
           <label>Áreas</label>
-          <MultiSelect value={props.selectedAreaIds} options={props.areas} optionLabel="nombre" optionValue="id" filter display="comma" placeholder="Seleccionar áreas" className="w-full" onChange={(event: MultiSelectChangeEvent) => props.onAreaChange((event.value as number[]) ?? [])} />
+          <MultiSelect value={props.selectedAreaIds} options={props.areas} optionLabel="nombre" optionValue="id" filter display="comma" placeholder="Seleccionar áreas" className="w-full" onChange={(event: MultiSelectChangeEvent) => props.onAreaChange((event.value as number[]) ?? [])} appendTo="self" />
           <div className="max-h-40 overflow-y-auto rounded border border-surface-300 p-2">
             {selectedAreas.length === 0 ? (
               <span className="text-sm text-color-secondary">
@@ -76,7 +83,7 @@ export function EventoAfectacionesDialog(props: Props) {
         </div>
         <div className="flex flex-col gap-2">
           <label>Ramas</label>
-          <MultiSelect value={props.selectedRamaIds} options={props.ramas} optionLabel="nombre" optionValue="id" filter display="comma" placeholder="Seleccionar ramas" className="w-full" onChange={(event: MultiSelectChangeEvent) => props.onRamaChange((event.value as number[]) ?? [])} />
+          <MultiSelect value={props.selectedRamaIds} options={props.ramas} optionLabel="nombre" optionValue="id" filter display="comma" placeholder="Seleccionar ramas" className="w-full" onChange={(event: MultiSelectChangeEvent) => props.onRamaChange((event.value as number[]) ?? [])} appendTo="self" />
           <div className="max-h-40 overflow-y-auto rounded border border-surface-300 p-2">
             {selectedRamas.length === 0 ? (
               <span className="text-sm text-color-secondary">

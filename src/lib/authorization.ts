@@ -80,6 +80,15 @@ export const hasDeletedAuditAccess = (
       (scope.scopeType === "GRUPO" || scope.scopeType === "GLOBAL"),
   );
 
+export const hasDeveloperAccess = (
+  user: User | null | undefined,
+): boolean =>
+  (user?.scopes ?? []).some(
+    (scope) =>
+      scope.role === "DEV" &&
+      (scope.scopeType === "GRUPO" || scope.scopeType === "GLOBAL"),
+  );
+
 const ADULT_MEMBER_ROLES = new Set<UserRole>([
   "ADM",
   "AYUDANTE",

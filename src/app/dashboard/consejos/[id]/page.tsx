@@ -6,9 +6,11 @@ import dayjs from 'dayjs';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
+import { Dialog } from 'primereact/dialog';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
 import { Editor, EditorTextChangeEvent } from 'primereact/editor';
 import { Message } from 'primereact/message';
+import { Sidebar } from 'primereact/sidebar';
 import { FilePreviewDialog } from '@/components/common/FilePreviewDialog';
 import { ConsejoAsistenciaDialog } from '@/components/consejos/ConsejoAsistenciaDialog';
 import { ConsejoModeradorDialog } from '@/components/consejos/ConsejoModeradorDialog';
@@ -21,6 +23,7 @@ import {
   hasAdultMemberAccess,
   hasPermissionAccess,
 } from '@/lib/authorization';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 import {
   createConsejoAsistenciaRequest,
   getConsejoAsistenciaOptionsRequest,
@@ -215,6 +218,9 @@ export default function ConsejoWorkspacePage() {
     createEmptyTemaForm(),
   );
   const [temaDialogError, setTemaDialogError] = useState('');
+  const [isDesktopTemas, setIsDesktopTemas] = useState(false);
+  const [temaSidebarVisible, setTemaSidebarVisible] = useState(false);
+  const [mobileOptionsVisible, setMobileOptionsVisible] = useState(false);
   const [asistenciaDialogVisible, setAsistenciaDialogVisible] = useState(false);
   const [moderadorDialogVisible, setModeradorDialogVisible] = useState(false);
   const [secretariaDialogVisible, setSecretariaDialogVisible] = useState(false);
@@ -737,13 +743,128 @@ export default function ConsejoWorkspacePage() {
     setRealtimeError('');
   }, [consejo, setRealtimeError]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia('(min-width: 768px)');
+
+    const syncSidebar = (matches: boolean) => {
+      setIsDesktopTemas(matches);
+      setTemaSidebarVisible(matches);
+    };
+
+    syncSidebar(mediaQuery.matches);
+
+    const handleChange = (event: MediaQueryListEvent) => {
+      syncSidebar(event.matches);
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleChange);
+    };
+  }, []);
+
   if (loading) {
     return <div className="py-4">Cargando consejo...</div>;
   }
 
+  const temasSidebarContent = (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap gap-2">
+        {canManageConsejo ? (
+          <Button
+            type="button"
+            label="Agregar tema"
+            icon="pi pi-plus"
+            iconPos="right"
+            outlined
+            size="small"
+            onClick={openCreateTemaDialog}
+          />
+        ) : null}
+        {canManageConsejo ? (
+          <Button
+            type="button"
+            label="Editar"
+            icon="pi pi-pencil"
+            iconPos="right"
+            outlined
+            size="small"
+            onClick={openEditTemaDialog}
+            disabled={!selectedTema}
+          />
+        ) : null}
+      </div>
+
+      <div className="flex flex-col gap-2">
+        {temas.map((tema) => (
+          <button
+            key={tema.id}
+            type="button"
+            onClick={() => {
+              setSelectedTemaId(tema.id);
+              if (!isDesktopTemas) {
+                setTemaSidebarVisible(false);
+              }
+            }}
+            className={`flex w-full items-center justify-between rounded border px-3 py-2 text-left ${
+              selectedTema?.id === tema.id ? 'border-primary' : 'border-gray-300'
+            }`}
+          >
+            <span className="truncate">{tema.titulo}</span>
+            <span className="ml-3 flex items-center gap-2">
+              <i
+                className={`pi pi-circle-fill ${getEstadoColorClass(tema.estado)}`}
+                title={tema.estado}
+              />
+              <i
+                className={`pi pi-info-circle ${getSinMpColorClass(tema.sin_mp)}`}
+                title={tema.sin_mp ? 'Sin MP' : 'Con MP'}
+              />
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
-    <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_22rem]">
-      <div className="order-2 xl:order-1">
+    <div className={temaSidebarVisible && isDesktopTemas ? 'md:pr-[23rem]' : ''}>
+      <div className="mb-4 flex justify-end">
+        <Button
+          type="button"
+          label="Temas"
+          icon="pi pi-bars"
+          iconPos="right"
+          outlined
+          size="small"
+          onClick={() => setTemaSidebarVisible((current) => !current)}
+        />
+      </div>
+      <Sidebar
+        visible={temaSidebarVisible}
+        position="right"
+        modal={!isDesktopTemas}
+        dismissable
+        blockScroll={!isDesktopTemas}
+        showCloseIcon={!isDesktopTemas}
+        closeOnEscape={!isDesktopTemas}
+        onHide={() => setTemaSidebarVisible(false)}
+        header="Temas"
+        style={{ width: isDesktopTemas ? '22rem' : 'calc(100vw - 2rem)', maxWidth: '22rem' }}
+        pt={{
+          content: {
+            className: 'p-4',
+          },
+        }}
+      >
+        {temasSidebarContent}
+      </Sidebar>
+      <div>
         <Card
           title={consejo ? `${consejo.nombre} - ${dayjs(consejo.fecha).format('DD/MM/YYYY')}` : 'Consejo'}
         >
@@ -759,57 +880,69 @@ export default function ConsejoWorkspacePage() {
             />
             <Button
               type="button"
-              label="Asistencia"
-              icon="pi pi-users"
+              label="Opciones"
+              icon="pi pi-ellipsis-v"
               iconPos="right"
               outlined
               size="small"
-              onClick={() => void openAsistenciaDialog()}
+              className="md:hidden"
+              onClick={() => setMobileOptionsVisible(true)}
             />
-            {canManageAssignments ? (
+            <div className="hidden flex-wrap gap-2 md:flex">
               <Button
                 type="button"
-                label="Asignar secretaria"
+                label="Asistencia"
                 icon="pi pi-users"
                 iconPos="right"
                 outlined
                 size="small"
-                onClick={() => void openSecretariaDialog()}
+                onClick={() => void openAsistenciaDialog()}
               />
-            ) : null}
-            {canManageAssignments ? (
+              {canManageAssignments ? (
+                <Button
+                  type="button"
+                  label="Asignar secretaria"
+                  icon="pi pi-users"
+                  iconPos="right"
+                  outlined
+                  size="small"
+                  onClick={() => void openSecretariaDialog()}
+                />
+              ) : null}
+              {canManageAssignments ? (
+                <Button
+                  type="button"
+                  label="Asignar moderador"
+                  icon="pi pi-user-plus"
+                  iconPos="right"
+                  outlined
+                  size="small"
+                  onClick={() => void openModeradorDialog()}
+                />
+              ) : null}
+              {canExportFullPdf ? (
+                <Button
+                  type="button"
+                  label="PDF completo"
+                  icon={exportingAll ? 'pi pi-spin pi-spinner' : 'pi pi-download'}
+                  iconPos="right"
+                  outlined
+                  size="small"
+                  onClick={() => void handleExportPdf(true)}
+                  loading={exportingAll}
+                />
+              ) : null}
               <Button
                 type="button"
-                label="Asignar moderador"
-                icon="pi pi-user-plus"
+                label="PDF"
+                icon={exportingPublic ? 'pi pi-spin pi-spinner' : 'pi pi-download'}
                 iconPos="right"
                 outlined
                 size="small"
-                onClick={() => void openModeradorDialog()}
+                onClick={() => void handleExportPdf(false)}
+                loading={exportingPublic}
               />
-            ) : null}
-            {canExportFullPdf ? (
-              <Button
-                type="button"
-                label="PDF completo"
-                icon={exportingAll ? 'pi pi-spin pi-spinner' : 'pi pi-download'}
-                iconPos="right"
-                outlined
-                size="small"
-                onClick={() => void handleExportPdf(true)}
-                loading={exportingAll}
-              />
-            ) : null}
-            <Button
-              type="button"
-              label="PDF"
-              icon={exportingPublic ? 'pi pi-spin pi-spinner' : 'pi pi-download'}
-              iconPos="right"
-              outlined
-              size="small"
-              onClick={() => void handleExportPdf(false)}
-              loading={exportingPublic}
-            />
+            </div>
           </div>
 
           {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
@@ -935,61 +1068,6 @@ export default function ConsejoWorkspacePage() {
         </Card>
       </div>
 
-      <div className="order-1 xl:order-2">
-        <Card title="Temas">
-          <div className="mb-3 flex flex-wrap gap-2">
-            {canManageConsejo ? (
-              <Button
-                type="button"
-                label="Agregar tema"
-                icon="pi pi-plus"
-                iconPos="right"
-                outlined
-                size="small"
-                onClick={openCreateTemaDialog}
-              />
-            ) : null}
-            {canManageConsejo ? (
-              <Button
-                type="button"
-                label="Editar"
-                icon="pi pi-pencil"
-                iconPos="right"
-                outlined
-                size="small"
-                onClick={openEditTemaDialog}
-                disabled={!selectedTema}
-              />
-            ) : null}
-          </div>
-
-          <div className="flex flex-col gap-2">
-            {temas.map((tema) => (
-              <button
-                key={tema.id}
-                type="button"
-                onClick={() => setSelectedTemaId(tema.id)}
-                className={`flex w-full items-center justify-between rounded border px-3 py-2 text-left ${
-                  selectedTema?.id === tema.id ? 'border-primary' : 'border-gray-300'
-                }`}
-              >
-                <span className="truncate">{tema.titulo}</span>
-                <span className="ml-3 flex items-center gap-2">
-                  <i
-                    className={`pi pi-circle-fill ${getEstadoColorClass(tema.estado)}`}
-                    title={tema.estado}
-                  />
-                  <i
-                    className={`pi pi-info-circle ${getSinMpColorClass(tema.sin_mp)}`}
-                    title={tema.sin_mp ? 'Sin MP' : 'Con MP'}
-                  />
-                </span>
-              </button>
-            ))}
-          </div>
-        </Card>
-      </div>
-
       <ConsejoTemarioFormDialog
         visible={temaDialogVisible}
         mode={temaDialogMode}
@@ -1047,6 +1125,83 @@ export default function ConsejoWorkspacePage() {
           setPreviewError('');
         }}
       />
+      <Dialog
+        visible={mobileOptionsVisible}
+        onHide={() => setMobileOptionsVisible(false)}
+        header="Opciones"
+        {...getResponsiveDialogProps('30rem')}
+      >
+        <div className="flex flex-col gap-2">
+          <Button
+            type="button"
+            label="Asistencia"
+            icon="pi pi-users"
+            iconPos="right"
+            outlined
+            size="small"
+            onClick={() => {
+              setMobileOptionsVisible(false);
+              void openAsistenciaDialog();
+            }}
+          />
+          {canManageAssignments ? (
+            <Button
+              type="button"
+              label="Asignar secretaria"
+              icon="pi pi-users"
+              iconPos="right"
+              outlined
+              size="small"
+              onClick={() => {
+                setMobileOptionsVisible(false);
+                void openSecretariaDialog();
+              }}
+            />
+          ) : null}
+          {canManageAssignments ? (
+            <Button
+              type="button"
+              label="Asignar moderador"
+              icon="pi pi-user-plus"
+              iconPos="right"
+              outlined
+              size="small"
+              onClick={() => {
+                setMobileOptionsVisible(false);
+                void openModeradorDialog();
+              }}
+            />
+          ) : null}
+          {canExportFullPdf ? (
+            <Button
+              type="button"
+              label="PDF completo"
+              icon={exportingAll ? 'pi pi-spin pi-spinner' : 'pi pi-download'}
+              iconPos="right"
+              outlined
+              size="small"
+              onClick={() => {
+                setMobileOptionsVisible(false);
+                void handleExportPdf(true);
+              }}
+              loading={exportingAll}
+            />
+          ) : null}
+          <Button
+            type="button"
+            label="PDF"
+            icon={exportingPublic ? 'pi pi-spin pi-spinner' : 'pi pi-download'}
+            iconPos="right"
+            outlined
+            size="small"
+            onClick={() => {
+              setMobileOptionsVisible(false);
+              void handleExportPdf(false);
+            }}
+            loading={exportingPublic}
+          />
+        </div>
+      </Dialog>
       {consejo ? (
         <ConsejoOradoresPanel
           isConnected={realtimeConnected}

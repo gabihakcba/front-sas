@@ -6,6 +6,7 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Controller, useForm } from 'react-hook-form';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 import { RelacionFormValues } from '@/types/relaciones';
 
 interface RelacionFormDialogProps {
@@ -73,8 +74,7 @@ export function RelacionFormDialog({
       onHide={onHide}
       header={mode === 'create' ? 'Crear relación' : 'Editar relación'}
       footer={footer}
-      className="w-full max-w-xl"
-      modal
+      {...getResponsiveDialogProps('36rem')}
     >
       {loading ? (
         <div className="py-4">Cargando formulario...</div>

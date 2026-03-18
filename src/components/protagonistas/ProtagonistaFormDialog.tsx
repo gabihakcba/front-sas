@@ -11,6 +11,7 @@ import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Password } from 'primereact/password';
 import { Controller, useForm } from 'react-hook-form';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 import { ProtagonistaFormValues, RamaOption } from '@/types/protagonistas';
 
 interface ProtagonistaFormDialogProps {
@@ -80,8 +81,7 @@ export function ProtagonistaFormDialog({
       onHide={onHide}
       header={mode === 'create' ? 'Crear protagonista' : 'Editar protagonista'}
       footer={footer}
-      className="w-full max-w-4xl"
-      modal
+      {...getResponsiveDialogProps('64rem')}
     >
       {loading ? (
         <div className="py-4">Cargando formulario...</div>

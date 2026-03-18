@@ -1,16 +1,19 @@
 'use client';
 
-import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { Message } from 'primereact/message';
+import { ResponsiveTableActions } from '@/components/common/ResponsiveTableActions';
+import { useAuth } from '@/context/AuthContext';
 import { MetodoPagoFormDialog } from '@/components/metodos-pago/MetodoPagoFormDialog';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useMetodosPagoHook } from '@/hooks/useMetodosPagoHooks';
+import { hasDeveloperAccess } from '@/lib/authorization';
 import { MetodoPago } from '@/types/metodos-pago';
 
 export default function MetodosPagoPage() {
+  const { user } = useAuth();
   const { confirmDelete, deleteConfirmDialog } = useDeleteConfirm();
   const {
     metodosPago,
@@ -34,6 +37,7 @@ export default function MetodosPagoPage() {
     submitForm,
     deleteSelected,
   } = useMetodosPagoHook();
+  const canSeeId = hasDeveloperAccess(user);
 
   const handlePage = (event: DataTablePageEvent) => {
     const nextPage = Math.floor(event.first / event.rows) + 1;
@@ -55,38 +59,28 @@ export default function MetodosPagoPage() {
   const header = (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div />
-      <div className="flex flex-wrap justify-end gap-2">
-        <Button
-          type="button"
-          label="Crear"
-          icon="pi pi-plus"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={openCreateDialog}
-        />
-        <Button
-          type="button"
-          label="Editar"
-          icon="pi pi-pencil"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={() => void openEditDialog()}
-          disabled={!selectedMetodoPago}
-        />
-        <Button
-          type="button"
-          label="Eliminar"
-          icon="pi pi-trash"
-          iconPos="right"
-          outlined
-          size="small"
-          severity="danger"
-          onClick={handleDelete}
-          disabled={!selectedMetodoPago}
-        />
-      </div>
+      <ResponsiveTableActions
+        crudActions={[
+          {
+            label: 'Crear',
+            icon: 'pi pi-plus',
+            onClick: openCreateDialog,
+          },
+          {
+            label: 'Editar',
+            icon: 'pi pi-pencil',
+            onClick: () => void openEditDialog(),
+            disabled: !selectedMetodoPago,
+          },
+          {
+            label: 'Eliminar',
+            icon: 'pi pi-trash',
+            onClick: handleDelete,
+            disabled: !selectedMetodoPago,
+            severity: 'danger' as const,
+          },
+        ]}
+      />
     </div>
   );
 
@@ -117,8 +111,7 @@ export default function MetodosPagoPage() {
           emptyMessage="No hay métodos de pago disponibles."
           tableStyle={{ minWidth: '42rem', width: '100%' }}
         >
-          <Column selectionMode="single" headerStyle={{ width: '3rem' }} />
-          <Column field="id" header="ID" />
+          {canSeeId ? <Column field="id" header="ID" /> : null}
           <Column field="nombre" header="Nombre" />
           <Column
             field="descripcion"

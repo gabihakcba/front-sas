@@ -4,6 +4,7 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
 import { Message } from 'primereact/message';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 import { EventoComisionOption } from '@/types/eventos';
 
 interface Props {
@@ -29,10 +30,16 @@ export function EventoComisionDialog(props: Props) {
   );
 
   return (
-    <Dialog visible={props.visible} onHide={props.onHide} header="Asignar comisión" footer={footer} className="w-full max-w-xl" modal>
+    <Dialog
+      visible={props.visible}
+      onHide={props.onHide}
+      header="Asignar comisión"
+      footer={footer}
+      {...getResponsiveDialogProps('36rem')}
+    >
       <div className="flex flex-col gap-4">
         {props.error ? <Message severity="error" text={props.error} /> : null}
-        <Dropdown value={props.selectedId} options={props.comisiones} optionLabel="nombre" optionValue="id" placeholder="Seleccionar comisión" showClear filter className="w-full" onChange={(event: DropdownChangeEvent) => props.onChange((event.value as number | null) ?? null)} />
+        <Dropdown value={props.selectedId} options={props.comisiones} optionLabel="nombre" optionValue="id" placeholder="Seleccionar comisión" showClear filter className="w-full" onChange={(event: DropdownChangeEvent) => props.onChange((event.value as number | null) ?? null)} appendTo="self" />
         <div className="flex flex-col gap-2">
           <label>Asignada</label>
           <div className="max-h-40 overflow-y-auto rounded border border-surface-300 p-2">

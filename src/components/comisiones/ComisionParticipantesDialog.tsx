@@ -4,6 +4,7 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Message } from 'primereact/message';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 import { ComisionAdultOption } from '@/types/comisiones';
 
 interface Props {
@@ -53,8 +54,7 @@ export function ComisionParticipantesDialog(props: Props) {
       onHide={props.onHide}
       header="Participantes adultos"
       footer={footer}
-      className="w-full max-w-3xl"
-      modal
+      {...getResponsiveDialogProps('48rem')}
     >
       <div className="flex flex-col gap-4">
         {props.error ? <Message severity="error" text={props.error} /> : null}
@@ -67,6 +67,7 @@ export function ComisionParticipantesDialog(props: Props) {
           display="comma"
           placeholder="Seleccionar adultos"
           className="w-full"
+          appendTo="self"
           itemTemplate={(option: ComisionAdultOption) =>
             `${option.Miembro.apellidos}, ${option.Miembro.nombre} (${option.Miembro.dni})`
           }

@@ -9,6 +9,7 @@ import {
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Message } from 'primereact/message';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 
 interface AdultoFirmaDialogProps {
   visible: boolean;
@@ -237,8 +238,7 @@ export function AdultoFirmaDialog({
       onHide={onHide}
       header={`Firma de ${adultoNombre}`}
       footer={footer}
-      className="w-full max-w-4xl"
-      modal
+      {...getResponsiveDialogProps('64rem')}
     >
       {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
       {loading ? (
@@ -250,7 +250,7 @@ export function AdultoFirmaDialog({
             ref={canvasRef}
             width={CANVAS_WIDTH}
             height={CANVAS_HEIGHT}
-            className="bg-gray-300 touch-none"
+            className="w-full max-w-full touch-none rounded border border-surface-300 bg-surface-100"
             onMouseDown={beginDrawing}
             onMouseMove={draw}
             onMouseUp={endDrawing}

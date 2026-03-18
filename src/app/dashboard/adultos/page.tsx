@@ -14,10 +14,15 @@ import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
 import { AdultoFormDialog } from '@/components/adultos/AdultoFormDialog';
+import { ResponsiveTableActions } from '@/components/common/ResponsiveTableActions';
 import { useAuth } from '@/context/AuthContext';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useAdultosHook } from '@/hooks/useAdultosHooks';
-import { hasDeletedAuditAccess, hasPermissionAccess } from '@/lib/authorization';
+import {
+  hasDeletedAuditAccess,
+  hasDeveloperAccess,
+  hasPermissionAccess,
+} from '@/lib/authorization';
 import { Adulto } from '@/types/adultos';
 
 const getAsignacionActual = (adulto: Adulto) => adulto.EquipoArea[0] ?? null;
@@ -61,6 +66,7 @@ export default function AdultosPage() {
   const canDelete = hasPermissionAccess(user, 'DELETE:ADULTO');
   const canSeeOperationalColumns = canEdit || canDelete;
   const canAuditDeleted = hasDeletedAuditAccess(user);
+  const canSeeId = hasDeveloperAccess(user);
 
   const handlePage = (event: DataTablePageEvent) => {
     const nextPage = Math.floor(event.first / event.rows) + 1;
@@ -79,77 +85,78 @@ export default function AdultosPage() {
     });
   };
 
-  const header = (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div />
-      <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-center">
-        <IconField iconPosition="right">
-          <InputText
-            value={filters.q}
+  const filterControls = (
+    <>
+      <IconField iconPosition="right" className="w-full">
+        <InputText
+          className="w-full"
+          value={filters.q}
+          onChange={(event) =>
+            setFilters({
+              ...filters,
+              q: event.target.value,
+            })
+          }
+          placeholder="Buscar adulto"
+        />
+        <InputIcon className="pi pi-search" />
+      </IconField>
+      {canAuditDeleted ? (
+        <div className="flex items-center gap-2">
+          <label htmlFor="adultos-include-deleted">Incluir borrados</label>
+          <Checkbox
+            inputId="adultos-include-deleted"
+            checked={filters.includeDeleted}
             onChange={(event) =>
               setFilters({
                 ...filters,
-                q: event.target.value,
+                includeDeleted: Boolean(event.checked),
               })
             }
-            placeholder="Buscar adulto"
           />
-          <InputIcon className="pi pi-search" />
-        </IconField>
-        {canAuditDeleted ? (
-          <div className="flex items-center gap-2">
-            <label htmlFor="adultos-include-deleted">Incluir borrados</label>
-            <Checkbox
-              inputId="adultos-include-deleted"
-              checked={filters.includeDeleted}
-              onChange={(event) =>
-                setFilters({
-                  ...filters,
-                  includeDeleted: Boolean(event.checked),
-                })
-              }
-            />
-          </div>
-        ) : null}
-      </div>
-      <div className="flex flex-wrap justify-end gap-2">
-        {canCreate ? (
-          <Button
-            type="button"
-            label="Crear"
-            icon="pi pi-plus"
-            iconPos="right"
-            outlined
-            size="small"
-            onClick={() => void openCreateDialog()}
-          />
-        ) : null}
-        {canEdit ? (
-          <Button
-            type="button"
-            label="Editar"
-            icon="pi pi-pencil"
-            iconPos="right"
-            outlined
-            size="small"
-            onClick={() => void openEditDialog()}
-            disabled={!selectedAdulto || Boolean(selectedAdulto.borrado)}
-          />
-        ) : null}
-        {canDelete ? (
-          <Button
-            type="button"
-            label="Eliminar"
-            icon="pi pi-trash"
-            iconPos="right"
-            outlined
-            size="small"
-            severity="danger"
-            onClick={handleDelete}
-            disabled={!selectedAdulto || Boolean(selectedAdulto.borrado)}
-          />
-        ) : null}
-      </div>
+        </div>
+      ) : null}
+    </>
+  );
+
+  const header = (
+    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="hidden md:flex md:flex-col md:gap-2">{filterControls}</div>
+      <ResponsiveTableActions
+        filtersContent={filterControls}
+        crudActions={[
+          ...(canCreate
+            ? [
+                {
+                  label: 'Crear',
+                  icon: 'pi pi-plus',
+                  onClick: () => void openCreateDialog(),
+                },
+              ]
+            : []),
+          ...(canEdit
+            ? [
+                {
+                  label: 'Editar',
+                  icon: 'pi pi-pencil',
+                  onClick: () => void openEditDialog(),
+                  disabled: !selectedAdulto || Boolean(selectedAdulto.borrado),
+                },
+              ]
+            : []),
+          ...(canDelete
+            ? [
+                {
+                  label: 'Eliminar',
+                  icon: 'pi pi-trash',
+                  onClick: handleDelete,
+                  disabled: !selectedAdulto || Boolean(selectedAdulto.borrado),
+                  severity: 'danger' as const,
+                },
+              ]
+            : []),
+        ]}
+      />
     </div>
   );
 
@@ -273,8 +280,7 @@ export default function AdultosPage() {
           emptyMessage="No hay adultos disponibles para tu scope actual."
           tableStyle={{ minWidth: '60rem', width: '100%' }}
         >
-          <Column selectionMode="single" headerStyle={{ width: '3rem' }} />
-          <Column field="id" header="ID" />
+          {canSeeId ? <Column field="id" header="ID" /> : null}
           <Column
             header="Nombre"
             body={(adulto: Adulto) =>

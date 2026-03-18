@@ -5,6 +5,7 @@ import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
 import { Message } from 'primereact/message';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 import { ConsejoTemarioItem } from '@/types/consejos';
 
 interface ConsejoTemarioDialogProps {
@@ -123,8 +124,7 @@ export function ConsejoTemarioDialog({
       onHide={onHide}
       header="Temario"
       footer={footer}
-      className="w-full max-w-5xl"
-      modal
+      {...getResponsiveDialogProps('72rem')}
     >
       {error ? <Message severity="error" text={error} className="mb-3" /> : null}
       {successMessage ? (

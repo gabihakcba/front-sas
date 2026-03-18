@@ -7,6 +7,7 @@ import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Controller, useForm, useWatch } from 'react-hook-form';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 import {
   CuentaDineroFormValues,
   CuentaDineroOptionsResponse,
@@ -91,8 +92,7 @@ export function CuentaDineroFormDialog({
       onHide={onHide}
       header={mode === 'create' ? 'Crear cuenta de dinero' : 'Editar cuenta de dinero'}
       footer={footer}
-      className="w-full max-w-2xl"
-      modal
+      {...getResponsiveDialogProps('40rem')}
     >
       {loading ? (
         <div className="py-4">Cargando formulario...</div>
@@ -196,6 +196,7 @@ export function CuentaDineroFormDialog({
                     }
                   }}
                   className="w-full"
+                  appendTo="self"
                 />
               )}
             />
@@ -232,6 +233,7 @@ export function CuentaDineroFormDialog({
                     }
                     className="w-full"
                     placeholder="Seleccioná un área"
+                    appendTo="self"
                   />
                 )}
               />
@@ -265,6 +267,7 @@ export function CuentaDineroFormDialog({
                     }
                     className="w-full"
                     placeholder="Seleccioná una rama"
+                    appendTo="self"
                   />
                 )}
               />
@@ -298,6 +301,7 @@ export function CuentaDineroFormDialog({
                     }
                     className="w-full"
                     placeholder="Seleccioná un miembro"
+                    appendTo="self"
                     itemTemplate={(miembro) =>
                       miembro
                         ? `${miembro.apellidos}, ${miembro.nombre} (${miembro.dni})`

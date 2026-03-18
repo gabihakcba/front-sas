@@ -4,6 +4,7 @@ import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Message } from 'primereact/message';
 import { MultiSelect, MultiSelectChangeEvent } from 'primereact/multiselect';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 import { ResponsableOptionProtagonista } from '@/types/responsables';
 
 interface ResponsableAsignacionDialogProps {
@@ -64,8 +65,7 @@ export function ResponsableAsignacionDialog({
       onHide={onHide}
       header="Asignar responsabilidades"
       footer={footer}
-      className="w-full max-w-3xl"
-      modal
+      {...getResponsiveDialogProps('48rem')}
     >
       <div className="flex flex-col gap-4">
         {error ? <Message severity="error" text={error} /> : null}
@@ -82,6 +82,7 @@ export function ResponsableAsignacionDialog({
             placeholder="Seleccionar protagonistas"
             className="w-full"
             selectedItemsLabel="{0} protagonistas"
+            appendTo="self"
             itemTemplate={(option: ResponsableOptionProtagonista) =>
               formatProtagonistaOption(option)
             }

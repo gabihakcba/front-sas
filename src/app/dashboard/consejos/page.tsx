@@ -3,13 +3,13 @@
 import { startTransition } from 'react';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
-import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Checkbox } from 'primereact/checkbox';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
+import { ResponsiveTableActions } from '@/components/common/ResponsiveTableActions';
 import { ConsejoFormDialog } from '@/components/consejos/ConsejoFormDialog';
 import { ConsejoTemarioDialog } from '@/components/consejos/ConsejoTemarioDialog';
 import { ConsejoTemarioFormDialog } from '@/components/consejos/ConsejoTemarioFormDialog';
@@ -19,6 +19,7 @@ import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import {
   hasAdultMemberAccess,
   hasDeletedAuditAccess,
+  hasDeveloperAccess,
   hasPermissionAccess,
 } from '@/lib/authorization';
 import { Consejo } from '@/types/consejos';
@@ -78,6 +79,7 @@ export default function ConsejosPage() {
     hasAdultMemberAccess(user) && hasPermissionAccess(user, 'DELETE:CONSEJO');
   const canManageTemario = hasAdultMemberAccess(user);
   const canAuditDeleted = hasDeletedAuditAccess(user);
+  const canSeeId = hasDeveloperAccess(user);
 
   const handlePage = (event: DataTablePageEvent) => {
     const nextPage = Math.floor(event.first / event.rows) + 1;
@@ -96,90 +98,81 @@ export default function ConsejosPage() {
     });
   };
 
+  const filterControls = canAuditDeleted ? (
+    <div className="flex items-center gap-2">
+      <label htmlFor="consejos-include-deleted">Incluir borrados</label>
+      <Checkbox
+        inputId="consejos-include-deleted"
+        checked={filters.includeDeleted}
+        onChange={(event) =>
+          setFilters({
+            includeDeleted: Boolean(event.checked),
+          })
+        }
+      />
+    </div>
+  ) : null;
+
   const header = (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div className="flex flex-wrap gap-2">
-        <Button
-          type="button"
-          label="Temario"
-          icon="pi pi-list"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={() => void openTemarioDialog()}
-          disabled={!selectedConsejo || Boolean(selectedConsejo.borrado)}
-        />
-        <Button
-          type="button"
-          label="Iniciar consejo"
-          icon="pi pi-play"
-          iconPos="right"
-          outlined
-          size="small"
-          onClick={() => {
-            if (!selectedConsejo) {
-              return;
-            }
-
-            startTransition(() =>
-              router.push(`/dashboard/consejos/${selectedConsejo.id}`),
-            );
-          }}
-          disabled={!selectedConsejo || Boolean(selectedConsejo.borrado)}
-        />
-      </div>
-      <div className="flex flex-wrap justify-end gap-2">
-        {canAuditDeleted ? (
-          <div className="flex items-center gap-2">
-            <label htmlFor="consejos-include-deleted">Incluir borrados</label>
-            <Checkbox
-              inputId="consejos-include-deleted"
-              checked={filters.includeDeleted}
-              onChange={(event) =>
-                setFilters({
-                  includeDeleted: Boolean(event.checked),
-                })
+      <div className="hidden md:flex md:flex-col md:gap-2">{filterControls}</div>
+      <ResponsiveTableActions
+        filtersContent={filterControls}
+        specialActions={[
+          {
+            label: 'Temario',
+            icon: 'pi pi-list',
+            onClick: () => void openTemarioDialog(),
+            disabled: !selectedConsejo || Boolean(selectedConsejo.borrado),
+          },
+          {
+            label: 'Iniciar consejo',
+            icon: 'pi pi-play',
+            onClick: () => {
+              if (!selectedConsejo) {
+                return;
               }
-            />
-          </div>
-        ) : null}
-        {canCreate ? (
-          <Button
-            type="button"
-            label="Crear"
-            icon="pi pi-plus"
-            iconPos="right"
-            outlined
-            size="small"
-            onClick={openCreateDialog}
-          />
-        ) : null}
-        {canEdit ? (
-          <Button
-            type="button"
-            label="Editar"
-            icon="pi pi-pencil"
-            iconPos="right"
-            outlined
-            size="small"
-            onClick={() => void openEditDialog()}
-            disabled={!selectedConsejo || Boolean(selectedConsejo.borrado)}
-          />
-        ) : null}
-        {canDelete ? (
-          <Button
-            type="button"
-            label="Eliminar"
-            icon="pi pi-trash"
-            iconPos="right"
-            outlined
-            size="small"
-            severity="danger"
-            onClick={handleDelete}
-            disabled={!selectedConsejo || Boolean(selectedConsejo.borrado)}
-          />
-        ) : null}
-      </div>
+
+              startTransition(() =>
+                router.push(`/dashboard/consejos/${selectedConsejo.id}`),
+              );
+            },
+            disabled: !selectedConsejo || Boolean(selectedConsejo.borrado),
+          },
+        ]}
+        crudActions={[
+          ...(canCreate
+            ? [
+                {
+                  label: 'Crear',
+                  icon: 'pi pi-plus',
+                  onClick: openCreateDialog,
+                },
+              ]
+            : []),
+          ...(canEdit
+            ? [
+                {
+                  label: 'Editar',
+                  icon: 'pi pi-pencil',
+                  onClick: () => void openEditDialog(),
+                  disabled: !selectedConsejo || Boolean(selectedConsejo.borrado),
+                },
+              ]
+            : []),
+          ...(canDelete
+            ? [
+                {
+                  label: 'Eliminar',
+                  icon: 'pi pi-trash',
+                  onClick: handleDelete,
+                  disabled: !selectedConsejo || Boolean(selectedConsejo.borrado),
+                  severity: 'danger' as const,
+                },
+              ]
+            : []),
+        ]}
+      />
     </div>
   );
 
@@ -210,8 +203,7 @@ export default function ConsejosPage() {
           emptyMessage="No hay consejos disponibles."
           tableStyle={{ minWidth: '70rem', width: '100%' }}
         >
-          <Column selectionMode="single" headerStyle={{ width: '3rem' }} />
-          <Column field="id" header="ID" />
+          {canSeeId ? <Column field="id" header="ID" /> : null}
           <Column field="nombre" header="Nombre" />
           <Column
             header="Fecha"

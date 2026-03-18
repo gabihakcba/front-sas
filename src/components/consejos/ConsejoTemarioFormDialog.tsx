@@ -9,6 +9,7 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Controller, useForm } from 'react-hook-form';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 import { ConsejoTemarioFormValues } from '@/types/consejos';
 
 interface ConsejoTemarioFormDialogProps {
@@ -83,8 +84,7 @@ export function ConsejoTemarioFormDialog({
       onHide={onHide}
       header={mode === 'create' ? 'Agregar tema' : 'Editar tema'}
       footer={footer}
-      className="w-full max-w-2xl"
-      modal
+      {...getResponsiveDialogProps('40rem')}
     >
       {loading ? (
         <div className="py-4">Cargando formulario...</div>
@@ -137,6 +137,7 @@ export function ConsejoTemarioFormDialog({
                       field.onChange(event.value as string)
                     }
                     className="w-full"
+                    appendTo="self"
                   />
                 )}
               />

@@ -13,12 +13,17 @@ import { InputIcon } from 'primereact/inputicon';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
+import { ResponsiveTableActions } from '@/components/common/ResponsiveTableActions';
 import { ProtagonistaFormDialog } from '@/components/protagonistas/ProtagonistaFormDialog';
 import { ProtagonistaPaseDialog } from '@/components/protagonistas/ProtagonistaPaseDialog';
 import { useAuth } from '@/context/AuthContext';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useProtagonistasHook } from '@/hooks/useProtagonistasHooks';
-import { hasDeletedAuditAccess, hasPermissionAccess } from '@/lib/authorization';
+import {
+  hasDeletedAuditAccess,
+  hasDeveloperAccess,
+  hasPermissionAccess,
+} from '@/lib/authorization';
 import { Protagonista } from '@/types/protagonistas';
 
 const getRamaActual = (protagonista: Protagonista) =>
@@ -65,6 +70,7 @@ export default function ProtagonistasPage() {
   const canRegisterPase = hasPermissionAccess(user, 'UPDATE:PROTAGONISTA');
   const canSeeOperationalColumns = canEdit || canDelete;
   const canAuditDeleted = hasDeletedAuditAccess(user);
+  const canSeeId = hasDeveloperAccess(user);
 
   const handlePage = (event: DataTablePageEvent) => {
     const nextPage = Math.floor(event.first / event.rows) + 1;
@@ -83,90 +89,93 @@ export default function ProtagonistasPage() {
     });
   };
 
-  const header = (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div className="flex flex-wrap gap-2">
-        {canRegisterPase ? (
-          <Button
-            type="button"
-            label="Pase"
-            icon="pi pi-arrow-right-arrow-left"
-            iconPos="right"
-            outlined
-            size="small"
-            onClick={() => void openPaseDialog()}
-            disabled={!selectedProtagonista || Boolean(selectedProtagonista.borrado)}
-          />
-        ) : null}
-      </div>
-      <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-center">
-        <IconField iconPosition="right">
-          <InputText
-            value={filters.q}
+  const filterControls = (
+    <>
+      <IconField iconPosition="right" className="w-full">
+        <InputText
+          className="w-full"
+          value={filters.q}
+          onChange={(event) =>
+            setFilters({
+              ...filters,
+              q: event.target.value,
+            })
+          }
+          placeholder="Buscar protagonista"
+        />
+        <InputIcon className="pi pi-search" />
+      </IconField>
+      {canAuditDeleted ? (
+        <div className="flex items-center gap-2">
+          <label htmlFor="protagonistas-include-deleted">Incluir borrados</label>
+          <Checkbox
+            inputId="protagonistas-include-deleted"
+            checked={filters.includeDeleted}
             onChange={(event) =>
               setFilters({
                 ...filters,
-                q: event.target.value,
+                includeDeleted: Boolean(event.checked),
               })
             }
-            placeholder="Buscar protagonista"
           />
-          <InputIcon className="pi pi-search" />
-        </IconField>
-        {canAuditDeleted ? (
-          <div className="flex items-center gap-2">
-            <label htmlFor="protagonistas-include-deleted">Incluir borrados</label>
-            <Checkbox
-              inputId="protagonistas-include-deleted"
-              checked={filters.includeDeleted}
-              onChange={(event) =>
-                setFilters({
-                  ...filters,
-                  includeDeleted: Boolean(event.checked),
-                })
-              }
-            />
-          </div>
-        ) : null}
-      </div>
-      <div className="flex flex-wrap justify-end gap-2">
-        {canCreate ? (
-          <Button
-            type="button"
-            label="Crear"
-            icon="pi pi-plus"
-            iconPos="right"
-            outlined
-            size="small"
-            onClick={() => void openCreateDialog()}
-          />
-        ) : null}
-        {canEdit ? (
-          <Button
-            type="button"
-            label="Editar"
-            icon="pi pi-pencil"
-            iconPos="right"
-            outlined
-            size="small"
-            onClick={() => void openEditDialog()}
-            disabled={!selectedProtagonista || Boolean(selectedProtagonista.borrado)}
-          />
-        ) : null}
-        {canDelete ? (
-          <Button
-            type="button"
-            label="Eliminar"
-            icon="pi pi-trash"
-            iconPos="right"
-            outlined
-            size="small"
-            severity="danger"
-            onClick={handleDelete}
-            disabled={!selectedProtagonista || Boolean(selectedProtagonista.borrado)}
-          />
-        ) : null}
-      </div>
+        </div>
+      ) : null}
+    </>
+  );
+
+  const header = (
+    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="hidden md:flex md:flex-col md:gap-2">{filterControls}</div>
+      <ResponsiveTableActions
+        filtersContent={filterControls}
+        specialActions={
+          canRegisterPase
+            ? [
+                {
+                  label: 'Pase',
+                  icon: 'pi pi-arrow-right-arrow-left',
+                  onClick: () => void openPaseDialog(),
+                  disabled:
+                    !selectedProtagonista || Boolean(selectedProtagonista.borrado),
+                },
+              ]
+            : []
+        }
+        crudActions={[
+          ...(canCreate
+            ? [
+                {
+                  label: 'Crear',
+                  icon: 'pi pi-plus',
+                  onClick: () => void openCreateDialog(),
+                },
+              ]
+            : []),
+          ...(canEdit
+            ? [
+                {
+                  label: 'Editar',
+                  icon: 'pi pi-pencil',
+                  onClick: () => void openEditDialog(),
+                  disabled:
+                    !selectedProtagonista || Boolean(selectedProtagonista.borrado),
+                },
+              ]
+            : []),
+          ...(canDelete
+            ? [
+                {
+                  label: 'Eliminar',
+                  icon: 'pi pi-trash',
+                  onClick: handleDelete,
+                  disabled:
+                    !selectedProtagonista || Boolean(selectedProtagonista.borrado),
+                  severity: 'danger' as const,
+                },
+              ]
+            : []),
+        ]}
+      />
     </div>
   );
 
@@ -256,8 +265,7 @@ export default function ProtagonistasPage() {
           emptyMessage="No hay protagonistas disponibles para tu scope actual."
           tableStyle={{ minWidth: '50rem', width: '100%' }}
         >
-          <Column selectionMode="single" headerStyle={{ width: '3rem' }} />
-          <Column field="id" header="ID" />
+          {canSeeId ? <Column field="id" header="ID" /> : null}
           <Column
             header="Nombre"
             body={(protagonista: Protagonista) =>

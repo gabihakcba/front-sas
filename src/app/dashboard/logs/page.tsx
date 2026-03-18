@@ -108,8 +108,9 @@ export default function LogsPage() {
     <div className="h-full w-full">
       <Card title="Logs" className="h-full">
         <div className="flex flex-col gap-3">
-          <IconField iconPosition="right">
+          <IconField iconPosition="right" className="w-full">
             <InputText
+              className="w-full"
               value={filters.q}
               onChange={(event) =>
                 setFilters({
@@ -118,7 +119,6 @@ export default function LogsPage() {
                 })
               }
               placeholder="Buscar por endpoint, IP o user-agent"
-              className="w-full"
             />
             <InputIcon className="pi pi-search" />
           </IconField>

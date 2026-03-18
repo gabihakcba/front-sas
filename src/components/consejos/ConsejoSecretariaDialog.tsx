@@ -6,6 +6,7 @@ import { Dialog } from 'primereact/dialog';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
 import { Message } from 'primereact/message';
 import { Controller, useForm } from 'react-hook-form';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 import {
   ConsejoAsistenciaOption,
   ConsejoSecretariaMember,
@@ -82,8 +83,7 @@ export function ConsejoSecretariaDialog({
       onHide={onHide}
       header="Asignar secretaria"
       footer={footer}
-      className="w-full max-w-2xl"
-      modal
+      {...getResponsiveDialogProps('40rem')}
     >
       <div className="flex flex-col gap-3">
         {error ? <Message severity="error" text={error} /> : null}
@@ -107,6 +107,7 @@ export function ConsejoSecretariaDialog({
                   filter
                   showClear
                   className="w-full"
+                  appendTo="self"
                 />
               )}
             />
@@ -130,6 +131,7 @@ export function ConsejoSecretariaDialog({
                   filter
                   showClear
                   className="w-full"
+                  appendTo="self"
                 />
               )}
             />

@@ -5,13 +5,20 @@ import esLocale from '@fullcalendar/core/locales/es';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import multiMonthPlugin from '@fullcalendar/multimonth';
 import FullCalendar from '@fullcalendar/react';
+import { DatesSetArg } from '@fullcalendar/core';
+import { useRef, useState } from 'react';
 import { Button } from 'primereact/button';
+import { Calendar } from 'primereact/calendar';
+import { Dialog } from 'primereact/dialog';
 import { Message } from 'primereact/message';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { SelectButton, SelectButtonChangeEvent } from 'primereact/selectbutton';
 import { Sidebar } from 'primereact/sidebar';
+import { FormEvent } from 'primereact/ts-helpers';
 import { EventContentArg } from '@fullcalendar/core';
 import CalendarioFiltersSidebar from '@/components/calendario/CalendarioFiltersSidebar';
 import { useCalendarioHook } from '@/hooks/useCalendarioHooks';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 
 function renderCalendarEventContent(eventInfo: EventContentArg) {
   const stripeColor = eventInfo.event.extendedProps.stripeColor as string | null;
@@ -41,7 +48,34 @@ function renderCalendarEventContent(eventInfo: EventContentArg) {
   );
 }
 
+type NavigationOption = {
+  value: 'prev' | 'next';
+  icon: string;
+};
+
+type ViewOption = {
+  label: string;
+  value: 'dayGridMonth' | 'multiMonthSemester' | 'multiMonthYear';
+};
+
+const navigationOptions: NavigationOption[] = [
+  { value: 'prev', icon: 'pi pi-chevron-left' },
+  { value: 'next', icon: 'pi pi-chevron-right' },
+];
+
+const viewOptions: ViewOption[] = [
+  { label: 'Mes', value: 'dayGridMonth' },
+  { label: 'Semestre', value: 'multiMonthSemester' },
+  { label: 'Año', value: 'multiMonthYear' },
+];
+
 export default function CalendarioPage() {
+  const calendarRef = useRef<FullCalendar | null>(null);
+  const touchStartXRef = useRef<number | null>(null);
+  const [titlePickerVisible, setTitlePickerVisible] = useState(false);
+  const [currentTitle, setCurrentTitle] = useState('');
+  const [currentView, setCurrentView] = useState('dayGridMonth');
+  const [pickerDate, setPickerDate] = useState<Date | null>(new Date());
   const {
     events,
     sourceOptions,
@@ -65,6 +99,86 @@ export default function CalendarioPage() {
     setFiltersVisible,
     handleDatesSet,
   } = useCalendarioHook();
+
+  const handleCalendarDatesSet = (arg: DatesSetArg) => {
+    setCurrentTitle(arg.view.title);
+    setCurrentView(arg.view.type);
+    setPickerDate(arg.start);
+    handleDatesSet(arg);
+  };
+
+  const handleNavigate = (action: 'prev' | 'next') => {
+    const api = calendarRef.current?.getApi();
+
+    if (!api) {
+      return;
+    }
+
+    if (action === 'prev') {
+      api.prev();
+      return;
+    }
+
+    if (action === 'next') {
+      api.next();
+    }
+  };
+
+  const handleChangeView = (view: 'dayGridMonth' | 'multiMonthSemester' | 'multiMonthYear') => {
+    const api = calendarRef.current?.getApi();
+
+    if (!api) {
+      return;
+    }
+
+    api.changeView(view);
+  };
+
+  const handlePickerChange = (event: FormEvent<Date | null>) => {
+    const selectedValue = event.value;
+    const nextDate =
+      selectedValue instanceof Date
+        ? selectedValue
+        : Array.isArray(selectedValue)
+          ? (selectedValue[0] ?? null)
+          : null;
+
+    if (!nextDate) {
+      return;
+    }
+
+    setPickerDate(nextDate);
+    calendarRef.current?.getApi().gotoDate(nextDate);
+    setTitlePickerVisible(false);
+  };
+
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    touchStartXRef.current = event.changedTouches[0]?.clientX ?? null;
+  };
+
+  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    const startX = touchStartXRef.current;
+    const endX = event.changedTouches[0]?.clientX ?? null;
+
+    touchStartXRef.current = null;
+
+    if (startX === null || endX === null) {
+      return;
+    }
+
+    const diffX = endX - startX;
+
+    if (Math.abs(diffX) < 48) {
+      return;
+    }
+
+    if (diffX < 0) {
+      handleNavigate('next');
+      return;
+    }
+
+    handleNavigate('prev');
+  };
 
   return (
     <>
@@ -127,52 +241,110 @@ export default function CalendarioPage() {
             </div>
           ) : null}
 
-          <FullCalendar
-            plugins={[dayGridPlugin, multiMonthPlugin]}
-            initialView="dayGridMonth"
-            locale={esLocale}
-            height="auto"
-            datesSet={handleDatesSet}
-            events={events}
-            headerToolbar={{
-              left: 'prev,next today',
-              center: 'title',
-              right: 'dayGridMonth,multiMonthSemester,multiMonthYear',
-            }}
-            buttonText={{
-              today: 'Hoy',
-              month: 'Mes',
-            }}
-            views={{
-              dayGridMonth: {
-                titleFormat: { year: 'numeric', month: 'long' },
-              },
-              multiMonthSemester: {
-                type: 'multiMonth',
-                duration: { months: 6 },
-                multiMonthMaxColumns: 3,
-                titleFormat: (arg) =>
-                  `${dayjs(arg.start.marker).format('MMMM YYYY')} - ${dayjs(
-                    arg.end?.marker ?? arg.start.marker,
-                  )
-                    .subtract(1, 'day')
-                    .format('MMMM YYYY')}`,
-                buttonText: 'Semestre',
-              },
-              multiMonthYear: {
-                type: 'multiMonth',
-                duration: { years: 1 },
-                titleFormat: { year: 'numeric' },
-                buttonText: 'Año',
-              },
-            }}
-            fixedWeekCount={false}
-            showNonCurrentDates={false}
-            eventDisplay="block"
-            eventContent={renderCalendarEventContent}
-          />
+          <div className="mb-4 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+            <div className="hidden md:block">
+              <SelectButton
+                value={null}
+                options={navigationOptions}
+                itemTemplate={(option: NavigationOption) => <i className={option.icon} />}
+                onChange={(event: SelectButtonChangeEvent) => {
+                  if (event.value) {
+                    handleNavigate(event.value as 'prev' | 'next');
+                  }
+                }}
+              />
+            </div>
+            <div className="flex justify-center">
+              <Button
+                type="button"
+                label={currentTitle || 'Seleccionar fecha'}
+                icon="pi pi-angle-down"
+                iconPos="right"
+                outlined
+                size="small"
+                onClick={() => setTitlePickerVisible(true)}
+              />
+            </div>
+            <SelectButton
+              value={currentView}
+              options={viewOptions}
+              optionLabel="label"
+              optionValue="value"
+              onChange={(event: SelectButtonChangeEvent) => {
+                if (event.value) {
+                  handleChangeView(
+                    event.value as 'dayGridMonth' | 'multiMonthSemester' | 'multiMonthYear',
+                  );
+                }
+              }}
+            />
+          </div>
+
+          <div onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+            <FullCalendar
+              ref={calendarRef}
+              plugins={[dayGridPlugin, multiMonthPlugin]}
+              initialView="dayGridMonth"
+              locale={esLocale}
+              height="auto"
+              datesSet={handleCalendarDatesSet}
+              events={events}
+              headerToolbar={{
+                left: '',
+                center: '',
+                right: '',
+              }}
+              views={{
+                dayGridMonth: {
+                  titleFormat: { year: 'numeric', month: 'long' },
+                },
+                multiMonthSemester: {
+                  type: 'multiMonth',
+                  duration: { months: 6 },
+                  multiMonthMaxColumns: 3,
+                  titleFormat: (arg) =>
+                    `${dayjs(arg.start.marker).format('MMMM YYYY')} - ${dayjs(
+                      arg.end?.marker ?? arg.start.marker,
+                    )
+                      .subtract(1, 'day')
+                      .format('MMMM YYYY')}`,
+                  buttonText: 'Semestre',
+                },
+                multiMonthYear: {
+                  type: 'multiMonth',
+                  duration: { years: 1 },
+                  titleFormat: { year: 'numeric' },
+                  buttonText: 'Año',
+                },
+              }}
+              fixedWeekCount={false}
+              showNonCurrentDates={false}
+              eventDisplay="block"
+              eventContent={renderCalendarEventContent}
+            />
+          </div>
         </div>
       </div>
+
+      <Dialog
+        visible={titlePickerVisible}
+        onHide={() => setTitlePickerVisible(false)}
+        header="Seleccionar fecha"
+        {...getResponsiveDialogProps('28rem')}
+      >
+        <Calendar
+          inline
+          value={pickerDate}
+          onChange={handlePickerChange}
+          viewDate={pickerDate ?? undefined}
+          monthNavigator
+          yearNavigator
+          yearRange="2000:2100"
+          showButtonBar
+          dateFormat="dd/mm/yy"
+          className="w-full"
+        />
+      </Dialog>
     </>
   );
 }

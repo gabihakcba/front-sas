@@ -6,6 +6,7 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Controller, useForm } from 'react-hook-form';
+import { getResponsiveDialogProps } from '@/lib/dialog';
 import { TipoEventoFormValues } from '@/types/tipos-evento';
 
 interface Props {
@@ -45,7 +46,13 @@ export function TipoEventoFormDialog({
   );
 
   return (
-    <Dialog visible={visible} onHide={onHide} header={mode === 'create' ? 'Crear tipo de evento' : 'Editar tipo de evento'} footer={footer} className="w-full max-w-xl" modal>
+    <Dialog
+      visible={visible}
+      onHide={onHide}
+      header={mode === 'create' ? 'Crear tipo de evento' : 'Editar tipo de evento'}
+      footer={footer}
+      {...getResponsiveDialogProps('36rem')}
+    >
       {loading ? (
         <div className="py-4">Cargando formulario...</div>
       ) : (
