@@ -594,8 +594,13 @@ export default function FormacionesPage() {
     const anchor = document.createElement('a');
     anchor.href = objectUrl;
     anchor.download = fileName;
+    anchor.style.display = 'none';
+    document.body.appendChild(anchor);
     anchor.click();
-    URL.revokeObjectURL(objectUrl);
+    document.body.removeChild(anchor);
+    window.setTimeout(() => {
+      URL.revokeObjectURL(objectUrl);
+    }, 1000);
   };
 
   const runAdjuntoUpload = async (
@@ -996,6 +1001,9 @@ export default function FormacionesPage() {
                           response.archivo_mime ?? 'application/octet-stream',
                         );
                         triggerBlobDownload(blob, response.archivo_nombre);
+                      })
+                      .catch(() => {
+                        setPreviewError('No se pudo descargar el adjunto.');
                       })
                       .finally(() => {
                         setLoadingAdjuntoId(null);
