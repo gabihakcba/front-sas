@@ -29,6 +29,7 @@ const createEmptyFilters = (): PagoFilters => ({
   idMetodoPago: null,
   idCuentaDinero: null,
   idCuentaOrigen: null,
+  includeDeleted: false,
 });
 
 const createEmptyFormValues = (): PagoFormValues => ({

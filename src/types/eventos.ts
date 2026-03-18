@@ -22,6 +22,7 @@ export interface EventoComisionOption extends EventoOption {
 
 export interface Evento {
   id: number;
+  borrado?: boolean;
   nombre: string;
   descripcion: string | null;
   fecha_inicio: string;
@@ -104,6 +105,7 @@ export interface EventoFilters {
   idTipo: number | null;
   fechaDesde: string;
   fechaHasta: string;
+  includeDeleted: boolean;
 }
 
 export interface EventoFormValues {

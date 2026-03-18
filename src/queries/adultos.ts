@@ -34,6 +34,7 @@ export const getAdultosRequest = async ({
       ...(filters?.activo !== null && filters?.activo !== undefined
         ? { activo: filters.activo }
         : {}),
+      ...(filters?.includeDeleted ? { includeDeleted: true } : {}),
     },
   });
 

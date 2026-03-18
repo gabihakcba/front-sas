@@ -67,6 +67,7 @@ export interface ConsejoSecretariaMember {
 
 export interface Consejo {
   id: number;
+  borrado?: boolean;
   nombre: string;
   descripcion: string | null;
   fecha: string;
@@ -115,6 +116,10 @@ export type ConsejoRealtimeTemarioUpdate = ConsejoTemarioItem;
 export interface PaginatedConsejosResponse {
   data: Consejo[];
   meta: PaginatedResponseMeta;
+}
+
+export interface ConsejosFilters {
+  includeDeleted: boolean;
 }
 
 export interface ConsejoFormValues {

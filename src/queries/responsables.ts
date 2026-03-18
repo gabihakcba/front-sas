@@ -24,6 +24,7 @@ export const getResponsablesRequest = async ({
       page,
       limit,
       ...(filters?.q.trim() ? { q: filters.q.trim() } : {}),
+      ...(filters?.includeDeleted ? { includeDeleted: true } : {}),
     },
   });
 

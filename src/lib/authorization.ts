@@ -64,6 +64,22 @@ export const hasFullGroupAccess = (
       (scope.scopeType === "GRUPO" || scope.scopeType === "GLOBAL"),
   );
 
+const SOFT_DELETE_AUDIT_ROLES = new Set<UserRole>([
+  "ADM",
+  "DEV",
+  "JEFATURA",
+  "SECRETARIA_TESORERIA",
+]);
+
+export const hasDeletedAuditAccess = (
+  user: User | null | undefined,
+): boolean =>
+  (user?.scopes ?? []).some(
+    (scope) =>
+      SOFT_DELETE_AUDIT_ROLES.has(scope.role) &&
+      (scope.scopeType === "GRUPO" || scope.scopeType === "GLOBAL"),
+  );
+
 const ADULT_MEMBER_ROLES = new Set<UserRole>([
   "ADM",
   "AYUDANTE",

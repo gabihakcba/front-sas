@@ -5,16 +5,22 @@ import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
+import { Checkbox } from 'primereact/checkbox';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { Message } from 'primereact/message';
+import { Tag } from 'primereact/tag';
 import { ConsejoFormDialog } from '@/components/consejos/ConsejoFormDialog';
 import { ConsejoTemarioDialog } from '@/components/consejos/ConsejoTemarioDialog';
 import { ConsejoTemarioFormDialog } from '@/components/consejos/ConsejoTemarioFormDialog';
 import { useAuth } from '@/context/AuthContext';
 import { useConsejosHook } from '@/hooks/useConsejosHooks';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
-import { hasAdultMemberAccess, hasPermissionAccess } from '@/lib/authorization';
+import {
+  hasAdultMemberAccess,
+  hasDeletedAuditAccess,
+  hasPermissionAccess,
+} from '@/lib/authorization';
 import { Consejo } from '@/types/consejos';
 
 export default function ConsejosPage() {
@@ -47,6 +53,8 @@ export default function ConsejosPage() {
     page,
     total,
     limit,
+    filters,
+    setFilters,
     refetch,
     openCreateDialog,
     openEditDialog,
@@ -69,6 +77,7 @@ export default function ConsejosPage() {
   const canDelete =
     hasAdultMemberAccess(user) && hasPermissionAccess(user, 'DELETE:CONSEJO');
   const canManageTemario = hasAdultMemberAccess(user);
+  const canAuditDeleted = hasDeletedAuditAccess(user);
 
   const handlePage = (event: DataTablePageEvent) => {
     const nextPage = Math.floor(event.first / event.rows) + 1;
@@ -98,7 +107,7 @@ export default function ConsejosPage() {
           outlined
           size="small"
           onClick={() => void openTemarioDialog()}
-          disabled={!selectedConsejo}
+          disabled={!selectedConsejo || Boolean(selectedConsejo.borrado)}
         />
         <Button
           type="button"
@@ -116,10 +125,24 @@ export default function ConsejosPage() {
               router.push(`/dashboard/consejos/${selectedConsejo.id}`),
             );
           }}
-          disabled={!selectedConsejo}
+          disabled={!selectedConsejo || Boolean(selectedConsejo.borrado)}
         />
       </div>
       <div className="flex flex-wrap justify-end gap-2">
+        {canAuditDeleted ? (
+          <div className="flex items-center gap-2">
+            <label htmlFor="consejos-include-deleted">Incluir borrados</label>
+            <Checkbox
+              inputId="consejos-include-deleted"
+              checked={filters.includeDeleted}
+              onChange={(event) =>
+                setFilters({
+                  includeDeleted: Boolean(event.checked),
+                })
+              }
+            />
+          </div>
+        ) : null}
         {canCreate ? (
           <Button
             type="button"
@@ -140,7 +163,7 @@ export default function ConsejosPage() {
             outlined
             size="small"
             onClick={() => void openEditDialog()}
-            disabled={!selectedConsejo}
+            disabled={!selectedConsejo || Boolean(selectedConsejo.borrado)}
           />
         ) : null}
         {canDelete ? (
@@ -153,7 +176,7 @@ export default function ConsejosPage() {
             size="small"
             severity="danger"
             onClick={handleDelete}
-            disabled={!selectedConsejo}
+            disabled={!selectedConsejo || Boolean(selectedConsejo.borrado)}
           />
         ) : null}
       </div>
@@ -225,6 +248,17 @@ export default function ConsejosPage() {
             header="Asistencias"
             body={(consejo: Consejo) => consejo._count.AsistenciaConsejo}
           />
+          {canAuditDeleted ? (
+            <Column
+              header="Borrado"
+              body={(consejo: Consejo) => (
+                <Tag
+                  value={consejo.borrado ? 'Sí' : 'No'}
+                  severity={consejo.borrado ? 'danger' : 'success'}
+                />
+              )}
+            />
+          ) : null}
         </DataTable>
       </Card>
 

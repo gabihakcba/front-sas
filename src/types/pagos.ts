@@ -26,6 +26,7 @@ export interface PagoMiembroOption {
 
 export interface Pago {
   id: number;
+  borrado?: boolean;
   monto: string;
   detalles: string | null;
   comprobante_pago_mime: string | null;
@@ -53,6 +54,7 @@ export interface PagoFilters {
   idMetodoPago: number | null;
   idCuentaDinero: number | null;
   idCuentaOrigen: number | null;
+  includeDeleted: boolean;
 }
 
 export interface PagosOptionsResponse {

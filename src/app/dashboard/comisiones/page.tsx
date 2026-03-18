@@ -3,6 +3,7 @@
 import { useAuth } from '@/context/AuthContext';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
+import { Checkbox } from 'primereact/checkbox';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
@@ -10,11 +11,12 @@ import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
+import { Tag } from 'primereact/tag';
 import { ComisionFormDialog } from '@/components/comisiones/ComisionFormDialog';
 import { ComisionParticipantesDialog } from '@/components/comisiones/ComisionParticipantesDialog';
 import { useComisionesHook } from '@/hooks/useComisionesHooks';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
-import { hasPermissionAccess } from '@/lib/authorization';
+import { hasDeletedAuditAccess, hasPermissionAccess } from '@/lib/authorization';
 import { Comision } from '@/types/comisiones';
 
 export default function ComisionesPage() {
@@ -55,6 +57,7 @@ export default function ComisionesPage() {
   const canCreate = hasPermissionAccess(user, 'CREATE:COMISION');
   const canEdit = hasPermissionAccess(user, 'UPDATE:COMISION');
   const canDelete = hasPermissionAccess(user, 'DELETE:COMISION');
+  const canAuditDeleted = hasDeletedAuditAccess(user);
 
   const handleDelete = () => {
     if (!selectedComision) return;
@@ -69,7 +72,7 @@ export default function ComisionesPage() {
   const header = (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center">
-        {canEdit ? <Button type="button" label="Adultos" icon="pi pi-users" iconPos="right" outlined size="small" onClick={() => void openParticipantesDialog()} disabled={!selectedComision} /> : null}
+        {canEdit ? <Button type="button" label="Adultos" icon="pi pi-users" iconPos="right" outlined size="small" onClick={() => void openParticipantesDialog()} disabled={!selectedComision || Boolean(selectedComision.borrado)} /> : null}
         <IconField iconPosition="right">
           <InputText
             value={filters.q}
@@ -83,11 +86,26 @@ export default function ComisionesPage() {
           />
           <InputIcon className="pi pi-search" />
         </IconField>
+        {canAuditDeleted ? (
+          <div className="flex items-center gap-2">
+            <label htmlFor="comisiones-include-deleted">Incluir borrados</label>
+            <Checkbox
+              inputId="comisiones-include-deleted"
+              checked={filters.includeDeleted}
+              onChange={(event) =>
+                setFilters({
+                  ...filters,
+                  includeDeleted: Boolean(event.checked),
+                })
+              }
+            />
+          </div>
+        ) : null}
       </div>
       <div className="flex flex-wrap justify-end gap-2">
         {canCreate ? <Button type="button" label="Crear" icon="pi pi-plus" iconPos="right" outlined size="small" onClick={openCreateDialog} /> : null}
-        {canEdit ? <Button type="button" label="Editar" icon="pi pi-pencil" iconPos="right" outlined size="small" onClick={() => void openEditDialog()} disabled={!selectedComision} /> : null}
-        {canDelete ? <Button type="button" label="Eliminar" icon="pi pi-trash" iconPos="right" outlined size="small" severity="danger" onClick={handleDelete} disabled={!selectedComision} /> : null}
+        {canEdit ? <Button type="button" label="Editar" icon="pi pi-pencil" iconPos="right" outlined size="small" onClick={() => void openEditDialog()} disabled={!selectedComision || Boolean(selectedComision.borrado)} /> : null}
+        {canDelete ? <Button type="button" label="Eliminar" icon="pi pi-trash" iconPos="right" outlined size="small" severity="danger" onClick={handleDelete} disabled={!selectedComision || Boolean(selectedComision.borrado)} /> : null}
       </div>
     </div>
   );
@@ -121,6 +139,17 @@ export default function ComisionesPage() {
           <Column header="Descripción" body={(comision: Comision) => comision.descripcion ?? '-'} />
           <Column header={eventoHeader} body={(comision: Comision) => comision.Evento?.nombre ?? '-'} />
           <Column header="Participantes" body={(comision: Comision) => comision._count.ParticipantesComision} />
+          {canAuditDeleted ? (
+            <Column
+              header="Borrado"
+              body={(comision: Comision) => (
+                <Tag
+                  value={comision.borrado ? 'Sí' : 'No'}
+                  severity={comision.borrado ? 'danger' : 'success'}
+                />
+              )}
+            />
+          ) : null}
         </DataTable>
       </Card>
       <ComisionFormDialog visible={dialogVisible} mode={dialogMode} loading={dialogLoading} submitting={submitting} values={formValues} eventos={options.eventos} error={error} onHide={closeDialog} onSubmit={(values) => void submitForm(values)} />

@@ -16,14 +16,16 @@ import {
 interface GetConsejosParams {
   page?: number;
   limit?: number;
+  includeDeleted?: boolean;
 }
 
 export const getConsejosRequest = async ({
   page = 1,
   limit = 10,
+  includeDeleted = false,
 }: GetConsejosParams = {}): Promise<PaginatedConsejosResponse> => {
   const response = await api.get<PaginatedConsejosResponse>('/consejos', {
-    params: { page, limit },
+    params: { page, limit, ...(includeDeleted ? { includeDeleted: true } : {}) },
   });
 
   return response.data;

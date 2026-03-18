@@ -2,6 +2,7 @@ import { PaginatedResponseMeta } from '@/types/pagination';
 
 export interface Comision {
   id: number;
+  borrado?: boolean;
   nombre: string;
   descripcion: string | null;
   Evento: {
@@ -49,6 +50,7 @@ export interface UpdateComisionPayload {
 export interface ComisionFilters {
   q: string;
   idEvento: number | null;
+  includeDeleted: boolean;
 }
 
 export interface ComisionOption {

@@ -29,6 +29,7 @@ export const getPagosRequest = async ({
       ...(filters?.idMetodoPago ? { idMetodoPago: filters.idMetodoPago } : {}),
       ...(filters?.idCuentaDinero ? { idCuentaDinero: filters.idCuentaDinero } : {}),
       ...(filters?.idCuentaOrigen ? { idCuentaOrigen: filters.idCuentaOrigen } : {}),
+      ...(filters?.includeDeleted ? { includeDeleted: true } : {}),
     },
   });
 

@@ -2,6 +2,16 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.8.25
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- las tablas de `Protagonistas`, `Adultos`, `Responsables`, `Pagos`, `Eventos`, `Consejos` y `Comisiones` agregan la opción `Incluir borrados` para `JEFATURA`, `SECRETARIA_TESORERIA`, `ADM` y `DEV` con scope de grupo
+- el frontend muestra el estado de borrado en esas tablas y deja los registros eliminados en modo auditoría, sin permitir reeditarlos o volver a eliminarlos
+- el backend unifica el soft delete sobre `borrado` y elimina el uso duplicado de `deleted`
+
 ## 1.8.24
 
 Fecha: 2026-03-18

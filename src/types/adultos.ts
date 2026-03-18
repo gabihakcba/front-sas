@@ -18,6 +18,7 @@ export interface AdultoCuenta {
 
 export interface AdultoMiembro {
   id: number;
+  borrado?: boolean;
   nombre: string;
   apellidos: string;
   dni: string;
@@ -54,6 +55,7 @@ export interface AdultoEquipoArea {
 
 export interface Adulto {
   id: number;
+  borrado?: boolean;
   es_becado: boolean;
   activo: boolean;
   Miembro: AdultoMiembro;
@@ -76,6 +78,7 @@ export interface AdultoFilters {
   idRama: number | null;
   esBecado: boolean | null;
   activo: boolean | null;
+  includeDeleted: boolean;
 }
 
 export interface AreaOption {

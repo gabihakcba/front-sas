@@ -30,6 +30,7 @@ const createEmptyFilters = (): ProtagonistaFilters => ({
   idRama: null,
   esBecado: null,
   activo: null,
+  includeDeleted: false,
 });
 
 const createEmptyFormValues = (): ProtagonistaFormValues => ({

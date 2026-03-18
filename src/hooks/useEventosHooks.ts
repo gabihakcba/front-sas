@@ -35,6 +35,7 @@ const createEmptyFilters = (): EventoFilters => ({
   idTipo: null,
   fechaDesde: '',
   fechaHasta: '',
+  includeDeleted: false,
 });
 
 const createEmptyFormValues = (): EventoFormValues => ({

@@ -32,6 +32,7 @@ export const getProtagonistasRequest = async ({
       ...(filters?.activo !== null && filters?.activo !== undefined
         ? { activo: filters.activo }
         : {}),
+      ...(filters?.includeDeleted ? { includeDeleted: true } : {}),
     },
   });
   return response.data;

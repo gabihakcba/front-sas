@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Button } from 'primereact/button';
 import { Calendar } from 'primereact/calendar';
 import { Card } from 'primereact/card';
+import { Checkbox } from 'primereact/checkbox';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
@@ -12,6 +13,7 @@ import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
+import { Tag } from 'primereact/tag';
 import { useRouter } from 'next/navigation';
 import { EventoAfectacionesDialog } from '@/components/eventos/EventoAfectacionesDialog';
 import { EventoComisionDialog } from '@/components/eventos/EventoComisionDialog';
@@ -20,7 +22,11 @@ import { EventoInscripcionesDialog } from '@/components/eventos/EventoInscripcio
 import { EVENT_MANAGEMENT_ACCESS } from '@/data/access-control';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useEventosHook } from '@/hooks/useEventosHooks';
-import { hasAccessRule, hasPermissionAccess } from '@/lib/authorization';
+import {
+  hasAccessRule,
+  hasDeletedAuditAccess,
+  hasPermissionAccess,
+} from '@/lib/authorization';
 import { Evento } from '@/types/eventos';
 
 export default function EventosPage() {
@@ -79,6 +85,7 @@ export default function EventosPage() {
   const canDelete = hasPermissionAccess(user, 'DELETE:EVENTO');
   const canManageInscripciones = hasPermissionAccess(user, 'UPDATE:INSCRIPCION');
   const canManageEventModules = hasAccessRule(user?.scopes, EVENT_MANAGEMENT_ACCESS);
+  const canAuditDeleted = hasDeletedAuditAccess(user);
 
   const handleDelete = () => {
     if (!selectedEvento) return;
@@ -141,11 +148,26 @@ export default function EventosPage() {
           />
         </div>
         <div className="flex flex-wrap gap-2">
+          {canAuditDeleted ? (
+            <div className="flex items-center gap-2">
+              <label htmlFor="eventos-include-deleted">Incluir borrados</label>
+              <Checkbox
+                inputId="eventos-include-deleted"
+                checked={filters.includeDeleted}
+                onChange={(event) =>
+                  setFilters({
+                    ...filters,
+                    includeDeleted: Boolean(event.checked),
+                  })
+                }
+              />
+            </div>
+          ) : null}
           {canManageEventModules ? (
             <>
-              <Button type="button" label="Inscripciones" icon="pi pi-users" iconPos="right" outlined size="small" onClick={() => void openInscripcionesDialog()} disabled={!selectedEvento || !canManageInscripciones} />
-              <Button type="button" label="Afectaciones" icon="pi pi-sitemap" iconPos="right" outlined size="small" onClick={() => void openAfectacionesDialog()} disabled={!selectedEvento || !canEdit} />
-              <Button type="button" label="Comisión" icon="pi pi-briefcase" iconPos="right" outlined size="small" onClick={() => void openComisionDialog()} disabled={!selectedEvento || !canEdit} />
+              <Button type="button" label="Inscripciones" icon="pi pi-users" iconPos="right" outlined size="small" onClick={() => void openInscripcionesDialog()} disabled={!selectedEvento || !canManageInscripciones || Boolean(selectedEvento?.borrado)} />
+              <Button type="button" label="Afectaciones" icon="pi pi-sitemap" iconPos="right" outlined size="small" onClick={() => void openAfectacionesDialog()} disabled={!selectedEvento || !canEdit || Boolean(selectedEvento?.borrado)} />
+              <Button type="button" label="Comisión" icon="pi pi-briefcase" iconPos="right" outlined size="small" onClick={() => void openComisionDialog()} disabled={!selectedEvento || !canEdit || Boolean(selectedEvento?.borrado)} />
               <Button type="button" label="Tipos" icon="pi pi-tags" iconPos="right" outlined size="small" onClick={() => router.push('/dashboard/tipos-evento')} />
             </>
           ) : null}
@@ -153,8 +175,8 @@ export default function EventosPage() {
       </div>
       <div className="flex flex-wrap justify-end gap-2">
         {canCreate ? <Button type="button" label="Crear" icon="pi pi-plus" iconPos="right" outlined size="small" onClick={() => void openCreateDialog()} /> : null}
-        {canEdit ? <Button type="button" label="Editar" icon="pi pi-pencil" iconPos="right" outlined size="small" onClick={() => void openEditDialog()} disabled={!selectedEvento} /> : null}
-        {canDelete ? <Button type="button" label="Eliminar" icon="pi pi-trash" iconPos="right" outlined size="small" severity="danger" onClick={handleDelete} disabled={!selectedEvento} /> : null}
+        {canEdit ? <Button type="button" label="Editar" icon="pi pi-pencil" iconPos="right" outlined size="small" onClick={() => void openEditDialog()} disabled={!selectedEvento || Boolean(selectedEvento.borrado)} /> : null}
+        {canDelete ? <Button type="button" label="Eliminar" icon="pi pi-trash" iconPos="right" outlined size="small" severity="danger" onClick={handleDelete} disabled={!selectedEvento || Boolean(selectedEvento.borrado)} /> : null}
       </div>
     </div>
   );
@@ -191,6 +213,17 @@ export default function EventosPage() {
           <Column header="Lugar" body={(evento: Evento) => evento.lugar ?? '-'} />
           <Column header="Comisión" body={(evento: Evento) => evento.Comision[0]?.nombre ?? '-'} />
           <Column header="Inscriptos" body={(evento: Evento) => evento._count.InscripcionEvento} />
+          {canAuditDeleted ? (
+            <Column
+              header="Borrado"
+              body={(evento: Evento) => (
+                <Tag
+                  value={evento.borrado ? 'Sí' : 'No'}
+                  severity={evento.borrado ? 'danger' : 'success'}
+                />
+              )}
+            />
+          ) : null}
         </DataTable>
       </Card>
 

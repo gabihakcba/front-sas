@@ -7,6 +7,7 @@ export interface ResponsableCuenta {
 
 export interface ResponsableMiembro {
   id: number;
+  borrado?: boolean;
   nombre: string;
   apellidos: string;
   dni: string;
@@ -42,6 +43,7 @@ export interface ResponsableAsignacion {
 
 export interface Responsable {
   id: number;
+  borrado?: boolean;
   Miembro: ResponsableMiembro;
   Responsabilidad: ResponsableAsignacion[];
 }
@@ -53,6 +55,7 @@ export interface PaginatedResponsablesResponse {
 
 export interface ResponsableFilters {
   q: string;
+  includeDeleted: boolean;
 }
 
 export interface ResponsableOptionProtagonista {

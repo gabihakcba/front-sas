@@ -31,6 +31,7 @@ const createEmptyFilters = (): AdultoFilters => ({
   idRama: null,
   esBecado: null,
   activo: null,
+  includeDeleted: false,
 });
 
 type DialogMode = 'create' | 'edit';

@@ -26,6 +26,7 @@ export const getComisionesRequest = async ({
       limit,
       ...(filters?.q ? { q: filters.q } : {}),
       ...(filters?.idEvento ? { idEvento: filters.idEvento } : {}),
+      ...(filters?.includeDeleted ? { includeDeleted: true } : {}),
     },
   });
   return response.data;

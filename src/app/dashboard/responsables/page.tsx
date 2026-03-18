@@ -5,13 +5,15 @@ import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
+import { Checkbox } from 'primereact/checkbox';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
-import { hasPermissionAccess } from '@/lib/authorization';
+import { Tag } from 'primereact/tag';
+import { hasDeletedAuditAccess, hasPermissionAccess } from '@/lib/authorization';
 import { useAuth } from '@/context/AuthContext';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useResponsablesHook } from '@/hooks/useResponsablesHooks';
@@ -66,6 +68,7 @@ export default function ResponsablesPage() {
   const canEdit = hasPermissionAccess(user, 'UPDATE:RESPONSABLE');
   const canDelete = hasPermissionAccess(user, 'DELETE:RESPONSABLE');
   const canAssign = hasPermissionAccess(user, 'UPDATE:RESPONSABLE');
+  const canAuditDeleted = hasDeletedAuditAccess(user);
 
   const handlePage = (event: DataTablePageEvent) => {
     const nextPage = Math.floor(event.first / event.rows) + 1;
@@ -107,7 +110,7 @@ export default function ResponsablesPage() {
             outlined
             size="small"
             onClick={() => void openAssignmentDialog()}
-            disabled={!selectedResponsable}
+            disabled={!selectedResponsable || Boolean(selectedResponsable.borrado)}
           />
         ) : null}
       </div>
@@ -117,6 +120,7 @@ export default function ResponsablesPage() {
             value={filters.q}
             onChange={(event) =>
               setFilters({
+                ...filters,
                 q: event.target.value,
               })
             }
@@ -124,6 +128,21 @@ export default function ResponsablesPage() {
           />
           <InputIcon className="pi pi-search" />
         </IconField>
+        {canAuditDeleted ? (
+          <div className="flex items-center gap-2">
+            <label htmlFor="responsables-include-deleted">Incluir borrados</label>
+            <Checkbox
+              inputId="responsables-include-deleted"
+              checked={filters.includeDeleted}
+              onChange={(event) =>
+                setFilters({
+                  ...filters,
+                  includeDeleted: Boolean(event.checked),
+                })
+              }
+            />
+          </div>
+        ) : null}
       </div>
       <div className="flex flex-wrap justify-end gap-2">
         {canCreate ? (
@@ -146,7 +165,7 @@ export default function ResponsablesPage() {
             outlined
             size="small"
             onClick={() => void openEditDialog()}
-            disabled={!selectedResponsable}
+            disabled={!selectedResponsable || Boolean(selectedResponsable.borrado)}
           />
         ) : null}
         {canDelete ? (
@@ -159,7 +178,7 @@ export default function ResponsablesPage() {
             size="small"
             severity="danger"
             onClick={handleDelete}
-            disabled={!selectedResponsable}
+            disabled={!selectedResponsable || Boolean(selectedResponsable.borrado)}
           />
         ) : null}
       </div>
@@ -229,6 +248,7 @@ export default function ResponsablesPage() {
                 iconPos="right"
                 outlined
                 size="small"
+                disabled={Boolean(responsable.borrado)}
                 onClick={() =>
                   router.push(`/dashboard/perfil/${responsable.Miembro.id}`)
                 }
@@ -251,6 +271,17 @@ export default function ResponsablesPage() {
                 : '-'
             }
           />
+          {canAuditDeleted ? (
+            <Column
+              header="Borrado"
+              body={(responsable: Responsable) => (
+                <Tag
+                  value={responsable.borrado ? 'Sí' : 'No'}
+                  severity={responsable.borrado ? 'danger' : 'success'}
+                />
+              )}
+            />
+          ) : null}
         </DataTable>
       </div>
 

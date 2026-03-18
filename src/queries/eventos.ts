@@ -38,6 +38,7 @@ export const getEventosRequest = async ({
       ...(filters?.idTipo ? { idTipo: filters.idTipo } : {}),
       ...(filters?.fechaDesde ? { fechaDesde: filters.fechaDesde } : {}),
       ...(filters?.fechaHasta ? { fechaHasta: filters.fechaHasta } : {}),
+      ...(filters?.includeDeleted ? { includeDeleted: true } : {}),
     },
   });
   return response.data;

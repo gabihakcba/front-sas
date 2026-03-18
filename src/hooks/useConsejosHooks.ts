@@ -2,7 +2,7 @@
 
 import dayjs from 'dayjs';
 import { AxiosError } from 'axios';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   createConsejoRequest,
   createConsejoTemarioRequest,
@@ -16,6 +16,7 @@ import {
 } from '@/queries/consejos';
 import {
   Consejo,
+  ConsejosFilters,
   ConsejoFormValues,
   ConsejoTemarioFormValues,
   ConsejoTemarioItem,
@@ -103,6 +104,8 @@ interface UseConsejosHookResult {
   page: number;
   total: number;
   limit: number;
+  filters: ConsejosFilters;
+  setFilters: (filters: ConsejosFilters) => void;
   refetch: (nextPage?: number) => Promise<void>;
   openCreateDialog: () => void;
   openEditDialog: () => Promise<void>;
@@ -145,6 +148,9 @@ export const useConsejosHook = (): UseConsejosHookResult => {
   const [temarioSubmitting, setTemarioSubmitting] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [page, setPage] = useState(1);
+  const [filters, setFiltersState] = useState<ConsejosFilters>({
+    includeDeleted: false,
+  });
   const [meta, setMeta] = useState<PaginatedResponseMeta>({
     page: 1,
     limit: DEFAULT_LIMIT,
@@ -152,7 +158,11 @@ export const useConsejosHook = (): UseConsejosHookResult => {
     totalPages: 0,
   });
 
-  const fetchConsejos = async (nextPage = 1) => {
+  const setFilters = (nextFilters: ConsejosFilters) => {
+    setFiltersState(nextFilters);
+  };
+
+  const fetchConsejos = useCallback(async (nextPage = 1) => {
     setLoading(true);
     setError('');
 
@@ -160,6 +170,7 @@ export const useConsejosHook = (): UseConsejosHookResult => {
       const response = await getConsejosRequest({
         page: nextPage,
         limit: DEFAULT_LIMIT,
+        includeDeleted: filters.includeDeleted,
       });
 
       setConsejos(response.data);
@@ -177,11 +188,11 @@ export const useConsejosHook = (): UseConsejosHookResult => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters.includeDeleted]);
 
   useEffect(() => {
     void fetchConsejos();
-  }, []);
+  }, [fetchConsejos]);
 
   const openCreateDialog = () => {
     setDialogMode('create');
@@ -446,6 +457,8 @@ export const useConsejosHook = (): UseConsejosHookResult => {
     page,
     total: meta.total,
     limit: meta.limit,
+    filters,
+    setFilters,
     refetch: fetchConsejos,
     openCreateDialog,
     openEditDialog,

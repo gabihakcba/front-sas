@@ -27,6 +27,7 @@ const DEFAULT_LIMIT = 10;
 
 const createEmptyFilters = (): ResponsableFilters => ({
   q: '',
+  includeDeleted: false,
 });
 
 const createEmptyFormValues = (): ResponsableFormValues => ({

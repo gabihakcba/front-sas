@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
+import { Checkbox } from 'primereact/checkbox';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
@@ -17,7 +18,7 @@ import { ProtagonistaPaseDialog } from '@/components/protagonistas/ProtagonistaP
 import { useAuth } from '@/context/AuthContext';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useProtagonistasHook } from '@/hooks/useProtagonistasHooks';
-import { hasPermissionAccess } from '@/lib/authorization';
+import { hasDeletedAuditAccess, hasPermissionAccess } from '@/lib/authorization';
 import { Protagonista } from '@/types/protagonistas';
 
 const getRamaActual = (protagonista: Protagonista) =>
@@ -63,6 +64,7 @@ export default function ProtagonistasPage() {
   const canDelete = hasPermissionAccess(user, 'DELETE:PROTAGONISTA');
   const canRegisterPase = hasPermissionAccess(user, 'UPDATE:PROTAGONISTA');
   const canSeeOperationalColumns = canEdit || canDelete;
+  const canAuditDeleted = hasDeletedAuditAccess(user);
 
   const handlePage = (event: DataTablePageEvent) => {
     const nextPage = Math.floor(event.first / event.rows) + 1;
@@ -93,7 +95,7 @@ export default function ProtagonistasPage() {
             outlined
             size="small"
             onClick={() => void openPaseDialog()}
-            disabled={!selectedProtagonista}
+            disabled={!selectedProtagonista || Boolean(selectedProtagonista.borrado)}
           />
         ) : null}
       </div>
@@ -111,6 +113,21 @@ export default function ProtagonistasPage() {
           />
           <InputIcon className="pi pi-search" />
         </IconField>
+        {canAuditDeleted ? (
+          <div className="flex items-center gap-2">
+            <label htmlFor="protagonistas-include-deleted">Incluir borrados</label>
+            <Checkbox
+              inputId="protagonistas-include-deleted"
+              checked={filters.includeDeleted}
+              onChange={(event) =>
+                setFilters({
+                  ...filters,
+                  includeDeleted: Boolean(event.checked),
+                })
+              }
+            />
+          </div>
+        ) : null}
       </div>
       <div className="flex flex-wrap justify-end gap-2">
         {canCreate ? (
@@ -133,7 +150,7 @@ export default function ProtagonistasPage() {
             outlined
             size="small"
             onClick={() => void openEditDialog()}
-            disabled={!selectedProtagonista}
+            disabled={!selectedProtagonista || Boolean(selectedProtagonista.borrado)}
           />
         ) : null}
         {canDelete ? (
@@ -146,7 +163,7 @@ export default function ProtagonistasPage() {
             size="small"
             severity="danger"
             onClick={handleDelete}
-            disabled={!selectedProtagonista}
+            disabled={!selectedProtagonista || Boolean(selectedProtagonista.borrado)}
           />
         ) : null}
       </div>
@@ -259,6 +276,7 @@ export default function ProtagonistasPage() {
                 iconPos="right"
                 outlined
                 size="small"
+                disabled={Boolean(protagonista.borrado)}
                 onClick={() =>
                   router.push(`/dashboard/perfil/${protagonista.Miembro.id}`)
                 }
@@ -298,6 +316,17 @@ export default function ProtagonistasPage() {
                 <Tag
                   value={protagonista.activo ? 'Activo' : 'Inactivo'}
                   severity={protagonista.activo ? 'info' : 'danger'}
+                />
+              )}
+            />
+          ) : null}
+          {canAuditDeleted ? (
+            <Column
+              header="Borrado"
+              body={(protagonista: Protagonista) => (
+                <Tag
+                  value={protagonista.borrado ? 'Sí' : 'No'}
+                  severity={protagonista.borrado ? 'danger' : 'success'}
                 />
               )}
             />

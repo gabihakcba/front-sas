@@ -13,6 +13,29 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.8.25',
+    date: '2026-03-18',
+    title: 'Auditoría de borrados y soft delete unificado',
+    summary:
+      'Las tablas operativas principales incorporan visualización opcional de registros borrados y el sistema queda unificado sobre un único campo de soft delete.',
+    sections: [
+      {
+        title: 'Tablas auditables',
+        items: [
+          'Protagonistas, Adultos, Responsables, Pagos, Eventos, Consejos y Comisiones agregan el check Incluir borrados para perfiles de grupo con auditoría.',
+          'Cada listado muestra el estado de borrado y evita reabrir flujos de edición o eliminación sobre registros ya dados de baja.',
+        ],
+      },
+      {
+        title: 'Consistencia',
+        items: [
+          'El frontend y el backend pasan a trabajar sobre un único criterio de soft delete.',
+          'Los listados siguen ocultando borrados por defecto y sólo los incluyen cuando el usuario habilita explícitamente la opción.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.8.24',
     date: '2026-03-18',
     title: 'Consejos restringido a perfiles adultos',

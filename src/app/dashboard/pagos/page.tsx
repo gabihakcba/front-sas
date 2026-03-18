@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
+import { Checkbox } from 'primereact/checkbox';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
@@ -12,12 +13,17 @@ import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
+import { Tag } from 'primereact/tag';
 import { FilePreviewDialog } from '@/components/common/FilePreviewDialog';
 import { useAuth } from '@/context/AuthContext';
 import { PagoFormDialog } from '@/components/pagos/PagoFormDialog';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { usePagosHook } from '@/hooks/usePagosHooks';
-import { hasAccessRule, hasPermissionAccess } from '@/lib/authorization';
+import {
+  hasAccessRule,
+  hasDeletedAuditAccess,
+  hasPermissionAccess,
+} from '@/lib/authorization';
 import {
   exportPagoReceiptRequest,
   getPagoAttachmentRequest,
@@ -71,6 +77,7 @@ export default function PagosPage() {
     user?.scopes,
     PAYMENT_MANAGEMENT_ACCESS,
   );
+  const canAuditDeleted = hasDeletedAuditAccess(user);
 
   const handlePage = (event: DataTablePageEvent) => {
     const nextPage = Math.floor(event.first / event.rows) + 1;
@@ -238,8 +245,8 @@ export default function PagosPage() {
           iconPos="right"
           outlined
           size="small"
-          onClick={() => void handleDownloadReceipt()}
-          disabled={!selectedPago}
+            onClick={() => void handleDownloadReceipt()}
+          disabled={!selectedPago || Boolean(selectedPago.borrado)}
         />
         {canManagePaymentCatalogs ? (
           <>
@@ -251,7 +258,7 @@ export default function PagosPage() {
               outlined
               size="small"
               onClick={() => void handlePreviewAttachment()}
-              disabled={!selectedPago?.comprobante_pago_mime}
+              disabled={!selectedPago?.comprobante_pago_mime || Boolean(selectedPago?.borrado)}
             />
             <Button
               type="button"
@@ -261,9 +268,24 @@ export default function PagosPage() {
               outlined
               size="small"
               onClick={() => void handleWhatsappShare()}
-              disabled={!selectedPago}
+              disabled={!selectedPago || Boolean(selectedPago.borrado)}
             />
           </>
+        ) : null}
+        {canAuditDeleted ? (
+          <div className="flex items-center gap-2">
+            <label htmlFor="pagos-include-deleted">Incluir borrados</label>
+            <Checkbox
+              inputId="pagos-include-deleted"
+              checked={filters.includeDeleted}
+              onChange={(event) =>
+                setFilters({
+                  ...filters,
+                  includeDeleted: Boolean(event.checked),
+                })
+              }
+            />
+          </div>
         ) : null}
       </div>
       <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center md:justify-center">
@@ -302,7 +324,7 @@ export default function PagosPage() {
             outlined
             size="small"
             onClick={() => void openEditDialog()}
-            disabled={!selectedPago}
+            disabled={!selectedPago || Boolean(selectedPago.borrado)}
           />
         ) : null}
         {canDelete ? (
@@ -315,7 +337,7 @@ export default function PagosPage() {
             size="small"
             severity="danger"
             onClick={handleDelete}
-            disabled={!selectedPago}
+            disabled={!selectedPago || Boolean(selectedPago.borrado)}
           />
         ) : null}
       </div>
@@ -450,6 +472,17 @@ export default function PagosPage() {
             header="Adjunto"
             body={(pago: Pago) => (pago.comprobante_pago_mime ? 'Sí' : '-')}
           />
+          {canAuditDeleted ? (
+            <Column
+              header="Borrado"
+              body={(pago: Pago) => (
+                <Tag
+                  value={pago.borrado ? 'Sí' : 'No'}
+                  severity={pago.borrado ? 'danger' : 'success'}
+                />
+              )}
+            />
+          ) : null}
         </DataTable>
       </Card>
 

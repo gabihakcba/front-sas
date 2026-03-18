@@ -33,6 +33,7 @@ const createEmptyFormValues = (): ComisionFormValues => ({
 const createEmptyFilters = (): ComisionFilters => ({
   q: '',
   idEvento: null,
+  includeDeleted: false,
 });
 
 const getErrorMessage = (err: unknown, fallback: string) => {

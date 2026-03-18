@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
+import { Checkbox } from 'primereact/checkbox';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
@@ -16,7 +17,7 @@ import { AdultoFormDialog } from '@/components/adultos/AdultoFormDialog';
 import { useAuth } from '@/context/AuthContext';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useAdultosHook } from '@/hooks/useAdultosHooks';
-import { hasPermissionAccess } from '@/lib/authorization';
+import { hasDeletedAuditAccess, hasPermissionAccess } from '@/lib/authorization';
 import { Adulto } from '@/types/adultos';
 
 const getAsignacionActual = (adulto: Adulto) => adulto.EquipoArea[0] ?? null;
@@ -59,6 +60,7 @@ export default function AdultosPage() {
   const canEdit = hasPermissionAccess(user, 'UPDATE:ADULTO');
   const canDelete = hasPermissionAccess(user, 'DELETE:ADULTO');
   const canSeeOperationalColumns = canEdit || canDelete;
+  const canAuditDeleted = hasDeletedAuditAccess(user);
 
   const handlePage = (event: DataTablePageEvent) => {
     const nextPage = Math.floor(event.first / event.rows) + 1;
@@ -94,6 +96,21 @@ export default function AdultosPage() {
           />
           <InputIcon className="pi pi-search" />
         </IconField>
+        {canAuditDeleted ? (
+          <div className="flex items-center gap-2">
+            <label htmlFor="adultos-include-deleted">Incluir borrados</label>
+            <Checkbox
+              inputId="adultos-include-deleted"
+              checked={filters.includeDeleted}
+              onChange={(event) =>
+                setFilters({
+                  ...filters,
+                  includeDeleted: Boolean(event.checked),
+                })
+              }
+            />
+          </div>
+        ) : null}
       </div>
       <div className="flex flex-wrap justify-end gap-2">
         {canCreate ? (
@@ -116,7 +133,7 @@ export default function AdultosPage() {
             outlined
             size="small"
             onClick={() => void openEditDialog()}
-            disabled={!selectedAdulto}
+            disabled={!selectedAdulto || Boolean(selectedAdulto.borrado)}
           />
         ) : null}
         {canDelete ? (
@@ -129,7 +146,7 @@ export default function AdultosPage() {
             size="small"
             severity="danger"
             onClick={handleDelete}
-            disabled={!selectedAdulto}
+            disabled={!selectedAdulto || Boolean(selectedAdulto.borrado)}
           />
         ) : null}
       </div>
@@ -331,6 +348,17 @@ export default function AdultosPage() {
                 <Tag
                   value={adulto.activo ? 'Activo' : 'Inactivo'}
                   severity={adulto.activo ? 'info' : 'danger'}
+                />
+              )}
+            />
+          ) : null}
+          {canAuditDeleted ? (
+            <Column
+              header="Borrado"
+              body={(adulto: Adulto) => (
+                <Tag
+                  value={adulto.borrado ? 'Sí' : 'No'}
+                  severity={adulto.borrado ? 'danger' : 'success'}
                 />
               )}
             />
