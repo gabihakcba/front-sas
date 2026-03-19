@@ -2,6 +2,7 @@
 
 import { AxiosError } from 'axios';
 import { useEffect, useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
 import {
   getMyProfileActividadRequest,
   getMyProfileAsignacionRequest,
@@ -28,6 +29,7 @@ import {
 } from '@/types/perfiles';
 
 export function usePerfilHook(memberId?: number) {
+  const { login: updateSession } = useAuth();
   const [summary, setSummary] = useState<PerfilResumen | null>(null);
   const [asignacion, setAsignacion] = useState<PerfilAsignacion | null>(null);
   const [actividad, setActividad] = useState<PerfilActividad | null>(null);
@@ -191,7 +193,12 @@ export function usePerfilHook(memberId?: number) {
     setSyncingPermissions(true);
     setError('');
     try {
-      const response = await syncMyPermissionsRequest();
+      const response = (await syncMyPermissionsRequest()) as any;
+
+      if (response.access_token && response.user) {
+        updateSession(response.access_token, response.user);
+      }
+
       return response;
     } catch {
       setError('No se pudieron sincronizar los permisos.');
