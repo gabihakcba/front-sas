@@ -13,6 +13,34 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.12.0',
+    date: '2026-03-19',
+    title: 'Nueva seccion Reuniones con invitaciones por miembro',
+    summary:
+      'Se incorpora Reuniones al dashboard con filtros server-side, CRUD para adultos e invitaciones gestionadas por accion separada, manteniendo el patron responsive de tablas.',
+    sections: [
+      {
+        title: 'Reuniones',
+        items: [
+          'Nuevo listado de reuniones con paginacion backend (rows=10) y filtros por texto, modalidad e intervalo de fechas.',
+          'El header de acciones usa la misma agrupacion responsive del dashboard: filtros, acciones especiales y CRUD en desktop/mobile.',
+          'El formulario de reunion soporta modalidades presencial, virtual e hibrida, con lugar fisico y URL virtual opcionales.',
+          'Las areas y ramas afectadas se seleccionan como multivalor desde el formulario de reunion.',
+        ],
+      },
+      {
+        title: 'Invitaciones y permisos',
+        items: [
+          'La gestion de invitados se realiza despues de crear/seleccionar una reunion, mediante una accion especial dedicada.',
+          'El backend filtra reuniones por invitacion personal del miembro autenticado.',
+          'Crear, editar y eliminar reuniones queda restringido a perfiles adultos con permisos CRUD sobre REUNION.',
+          'Al crear una reunion, el miembro creador queda invitado automaticamente.',
+        ],
+      },
+    ],
+  },
+
+  {
     version: '1.11.3',
     date: '2026-03-18',
     title: 'Correcciones en el Calendario',

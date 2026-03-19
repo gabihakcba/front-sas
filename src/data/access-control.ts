@@ -77,6 +77,14 @@ export const BRANCH_EVENT_ACCESS: AccessRule[] = [
   ...RESPONSABLE_ACCESS,
 ];
 
+export const BRANCH_MEETING_ACCESS: AccessRule[] = [
+  ...GROUP_LEADERSHIP_ACCESS,
+  { role: "JEFATURA_RAMA", scopeType: "RAMA" },
+  { role: "AYUDANTE_RAMA", scopeType: "RAMA" },
+  ...PROTAGONISTA_ACCESS,
+  ...RESPONSABLE_ACCESS,
+];
+
 export const EVENT_MANAGEMENT_ACCESS: AccessRule[] = [
   ...GROUP_LEADERSHIP_ACCESS,
   { role: "JEFATURA_RAMA", scopeType: "RAMA" },
@@ -158,6 +166,12 @@ export const dashboardSidebarItems: DashboardSidebarItem[] = [
     accessRules: BRANCH_EVENT_ACCESS,
   },
   {
+    label: "Reuniones",
+    icon: "pi pi-video",
+    path: "/dashboard/reuniones",
+    accessRules: BRANCH_MEETING_ACCESS,
+  },
+  {
     label: "Formaciones",
     icon: "pi pi-book",
     path: "/dashboard/formaciones",
@@ -220,6 +234,7 @@ export const dashboardRouteAccessList: DashboardRouteAccess[] = [
     accessRules: PAYMENT_MANAGEMENT_ACCESS,
   },
   { pathPrefix: "/dashboard/eventos", accessRules: BRANCH_EVENT_ACCESS },
+  { pathPrefix: "/dashboard/reuniones", accessRules: BRANCH_MEETING_ACCESS },
   {
     pathPrefix: "/dashboard/tipos-evento",
     accessRules: EVENT_MANAGEMENT_ACCESS,

@@ -106,6 +106,7 @@ export const hasProgramCycleGroupManagementAccess = (
 
 const ADULT_MEMBER_ROLES = new Set<UserRole>([
   "ADM",
+  "DEV",
   "AYUDANTE",
   "OWN",
   "JEFATURA",

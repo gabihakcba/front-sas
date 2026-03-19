@@ -59,7 +59,7 @@ type ViewOption = {
 };
 
 interface CalendarExtendedProps {
-  source?: 'eventos' | 'consejos' | 'cumpleanios';
+  source?: 'eventos' | 'consejos' | 'cumpleanios' | 'reuniones';
   tipo?: string;
   lugar?: string | null;
   descripcion?: string | null;
@@ -69,6 +69,8 @@ interface CalendarExtendedProps {
   tipoMiembro?: 'protagonista' | 'responsable' | 'adulto' | 'otro';
   ramaNombre?: string | null;
   areaNombre?: string | null;
+  modalidad?: string;
+  url?: string | null;
 }
 
 interface CalendarDayListItem {
@@ -208,14 +210,24 @@ export default function CalendarioPage() {
     const targetDay = dayjs(date).format('YYYY-MM-DD');
     const items = events.filter((item) => {
       const start = item.start ? dayjs(item.start as string) : null;
-      const end = item.end ? dayjs(item.end as string).subtract(1, 'day') : start;
+      // If allDay is true, FullCalendar's end date is exclusive (the day after the event ends)
+      // If allDay is false (like meetings), the end date is inclusive of the time.
+      const end =
+        item.end && item.allDay
+          ? dayjs(item.end as string).subtract(1, 'day')
+          : item.end
+            ? dayjs(item.end as string)
+            : start;
       const target = dayjs(targetDay);
 
       if (!start || !end) {
         return false;
       }
 
-      return !target.isBefore(start.startOf('day')) && !target.isAfter(end.endOf('day'));
+      return (
+        !target.isBefore(start.startOf('day')) &&
+        !target.isAfter(end.endOf('day'))
+      );
     }) as CalendarDayListItem[];
 
     setSelectedDay(targetDay);
@@ -488,6 +500,26 @@ export default function CalendarioPage() {
                         {dayjs(`1970-01-01T${item.extendedProps.horaFin}`).format('HH:mm')}
                       </span>
                     ) : null}
+                    {item.extendedProps.descripcion ? (
+                      <span>Descripción: {item.extendedProps.descripcion}</span>
+                    ) : null}
+                  </div>
+                ) : item.extendedProps?.source === 'reuniones' ? (
+                  <div className="flex flex-col gap-1 text-sm break-words whitespace-normal">
+                    <span>Tipo: Reunión</span>
+                    <span>Modalidad: {item.extendedProps.modalidad ?? '-'}</span>
+                    {item.extendedProps.lugar ? (
+                      <span>Lugar: {item.extendedProps.lugar}</span>
+                    ) : null}
+                    {item.extendedProps.url ? (
+                      <span className="break-all">
+                        URL: <a href={item.extendedProps.url} target="_blank" rel="noreferrer" className="text-primary underline">{item.extendedProps.url}</a>
+                      </span>
+                    ) : null}
+                    <span>
+                      Hora: {dayjs(item.start).format('HH:mm')} -{' '}
+                      {dayjs(item.end).format('HH:mm')}
+                    </span>
                     {item.extendedProps.descripcion ? (
                       <span>Descripción: {item.extendedProps.descripcion}</span>
                     ) : null}

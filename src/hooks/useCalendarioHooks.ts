@@ -10,6 +10,7 @@ import {
   getCalendarEventosRequest,
   getEventosOptionsRequest,
 } from '@/queries/eventos';
+import { getCalendarReunionesRequest } from '@/queries/reuniones';
 import {
   CalendarBirthday,
   CalendarConsejo,
@@ -17,7 +18,7 @@ import {
   EventoRamaOption,
 } from '@/types/eventos';
 
-export type CalendarSource = 'eventos' | 'consejos' | 'cumpleanios';
+export type CalendarSource = 'eventos' | 'consejos' | 'cumpleanios' | 'reuniones';
 export type CalendarBirthdayMemberType =
   | 'protagonista'
   | 'responsable'
@@ -29,10 +30,11 @@ type CalendarSourceOption = {
   value: CalendarSource;
 };
 
-const DEFAULT_CALENDAR_SOURCES: CalendarSource[] = ['eventos', 'consejos'];
+const DEFAULT_CALENDAR_SOURCES: CalendarSource[] = ['eventos', 'reuniones', 'consejos'];
 
 const calendarSourceOptions: CalendarSourceOption[] = [
   { label: 'Eventos', value: 'eventos' },
+  { label: 'Reuniones', value: 'reuniones' },
   { label: 'Consejos', value: 'consejos' },
   { label: 'Cumpleaños', value: 'cumpleanios' },
 ];
@@ -57,6 +59,7 @@ const ramaBirthdayColors: Record<string, string> = {
 
 const ramaStripeOrder = ['Castores', 'Manada', 'Unidad', 'Caminantes', 'Rovers'];
 const eventCalendarColor = '#b8f2e6';
+const reunionCalendarColor = '#fee2e2';
 const consejoCalendarColor = '#c7d2fe';
 const adultBirthdayColor = '#a855f7';
 const defaultBirthdayColor = 'var(--surface-500)';
@@ -168,6 +171,30 @@ export const useCalendarioHook = () => {
                 esOrdinario: item.es_ordinario,
                 horaInicio: item.hora_inicio,
                 horaFin: item.hora_fin,
+              },
+            })),
+          ),
+        );
+      }
+
+      if (sources.includes('reuniones')) {
+        requests.push(
+          getCalendarReunionesRequest({ from, to }).then((response) =>
+            response.map((item) => ({
+              id: `reunion-${item.id}`,
+              title: `Reunión: ${item.titulo}`,
+              start: item.fecha_inicio,
+              end: item.fecha_fin,
+              allDay: false,
+              backgroundColor: reunionCalendarColor,
+              borderColor: reunionCalendarColor,
+              textColor: '#7f1d1d',
+              extendedProps: {
+                source: 'reuniones',
+                modalidad: item.modalidad,
+                lugar: item.lugar_fisico,
+                url: item.url_virtual,
+                descripcion: item.descripcion,
               },
             })),
           ),

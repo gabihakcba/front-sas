@@ -2,6 +2,18 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.12.0
+
+Fecha: 2026-03-19
+
+### Ajustes funcionales relevantes
+
+- se incorpora la nueva sección `Reuniones` en dashboard, accesible para miembros autenticados con listado paginado server-side y filtros por texto, modalidad y rango de fechas
+- la gestión CRUD de reuniones queda habilitada solo para perfiles adultos con permisos (`CREATE/UPDATE/DELETE:REUNION`)
+- las reuniones soportan modalidad `PRESENCIAL`, `VIRTUAL` e `HIBRIDA`, con áreas y ramas afectadas múltiples y campos opcionales de lugar físico y URL virtual
+- las invitaciones se administran en una acción separada (`Invitados`) al seleccionar una reunión, reutilizando el patrón responsive de acciones agrupadas desktop/mobile
+- la creación de una reunión genera automáticamente la invitación del miembro creador
+
 ## 1.11.3
 
 Fecha: 2026-03-18
