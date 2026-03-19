@@ -8,10 +8,10 @@ import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Dialog } from 'primereact/dialog';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
-import { Editor, EditorTextChangeEvent } from 'primereact/editor';
 import { Message } from 'primereact/message';
 import { Sidebar } from 'primereact/sidebar';
 import { FilePreviewDialog } from '@/components/common/FilePreviewDialog';
+import { RichTextEditor } from '@/components/common/RichTextEditor';
 import { ConsejoAsistenciaDialog } from '@/components/consejos/ConsejoAsistenciaDialog';
 import { ConsejoModeradorDialog } from '@/components/consejos/ConsejoModeradorDialog';
 import { ConsejoOradoresPanel } from '@/components/consejos/ConsejoOradoresPanel';
@@ -89,114 +89,6 @@ const createEmptyTemaForm = (): ConsejoTemarioFormValues => ({
   sinMp: false,
   estado: 'PENDIENTE',
 });
-
-const EDITOR_HEADER = (
-  <>
-    <span className="ql-formats">
-      <select
-        className="ql-header"
-        defaultValue=""
-        aria-label="Formato"
-        title="Formato de bloque"
-      >
-        <option value="">Normal</option>
-        <option value="1">Titulo</option>
-        <option value="2">Subtitulo</option>
-      </select>
-    </span>
-    <span className="ql-formats">
-      <button
-        className="ql-bold"
-        aria-label="Negrita"
-        title="Negrita (Ctrl+B)"
-      />
-      <button
-        className="ql-underline"
-        aria-label="Subrayado"
-        title="Subrayado (Ctrl+U)"
-      />
-      <button
-        className="ql-italic"
-        aria-label="Cursiva"
-        title="Cursiva (Ctrl+I)"
-      />
-      <button
-        className="ql-link"
-        aria-label="Enlace"
-        title="Enlace (Ctrl+K)"
-      />
-      <button
-        className="ql-list"
-        value="ordered"
-        aria-label="Lista ordenada"
-        title="Lista ordenada (Ctrl+Shift+7)"
-      />
-      <button
-        className="ql-list"
-        value="bullet"
-        aria-label="Lista desordenada"
-        title="Lista desordenada (Ctrl+Shift+8)"
-      />
-    </span>
-  </>
-);
-
-type QuillKeyboardModule = {
-  addBinding: (
-    binding: {
-      key: string;
-      shortKey: boolean;
-      shiftKey: boolean;
-    },
-    handler: () => boolean,
-  ) => void;
-};
-
-type QuillEditorInstance = {
-  keyboard?: QuillKeyboardModule;
-  getFormat: () => Record<string, unknown>;
-  format: (name: string, value: false | string, source?: 'user') => void;
-};
-
-const registerEditorShortcuts = (quill: QuillEditorInstance) => {
-  if (!quill.keyboard) {
-    return;
-  }
-
-  quill.keyboard.addBinding(
-    {
-      key: '7',
-      shortKey: true,
-      shiftKey: true,
-    },
-    () => {
-      const currentList = quill.getFormat().list;
-      quill.format(
-        'list',
-        currentList === 'ordered' ? false : 'ordered',
-        'user',
-      );
-      return false;
-    },
-  );
-
-  quill.keyboard.addBinding(
-    {
-      key: '8',
-      shortKey: true,
-      shiftKey: true,
-    },
-    () => {
-      const currentList = quill.getFormat().list;
-      quill.format(
-        'list',
-        currentList === 'bullet' ? false : 'bullet',
-        'user',
-      );
-      return false;
-    },
-  );
-};
 
 export default function ConsejoWorkspacePage() {
   const params = useParams<{ id: string }>();
@@ -628,8 +520,8 @@ export default function ConsejoWorkspacePage() {
       await updateConsejoTemarioRequest(consejoId, selectedTema.id, {
         ...(canEditActa
           ? {
-              debate: debate.trim(),
-              acuerdo: acuerdo.trim(),
+              debate,
+              acuerdo,
             }
           : {}),
         estado,
@@ -1008,42 +900,34 @@ export default function ConsejoWorkspacePage() {
 
               <div className="flex flex-col gap-2">
                 <label htmlFor="tema-debate">Debate</label>
-                <Editor
-                  id="tema-debate"
-                  value={debate}
-                  onLoad={registerEditorShortcuts}
-                  onTextChange={(event: EditorTextChangeEvent) => {
-                    if (!canEditActa) {
-                      return;
-                    }
-
-                    setDebate(event.htmlValue ?? '');
-                  }}
-                  headerTemplate={EDITOR_HEADER}
-                  style={{ height: '18rem' }}
-                  readOnly={!canEditActa}
-                  disabled={!canEditActa}
-                />
+                 <RichTextEditor
+                   id="tema-debate"
+                   value={debate}
+                   onChange={(nextValue) => {
+                     if (!canEditActa) {
+                       return;
+                     }
+                     setDebate(nextValue);
+                   }}
+                   minHeightRem={12}
+                   disabled={!canEditActa}
+                 />
               </div>
 
               <div className="flex flex-col gap-2">
                 <label htmlFor="tema-acuerdo">Acuerdo</label>
-                <Editor
-                  id="tema-acuerdo"
-                  value={acuerdo}
-                  onLoad={registerEditorShortcuts}
-                  onTextChange={(event: EditorTextChangeEvent) => {
-                    if (!canEditActa) {
-                      return;
-                    }
-
-                    setAcuerdo(event.htmlValue ?? '');
-                  }}
-                  headerTemplate={EDITOR_HEADER}
-                  style={{ height: '16rem' }}
-                  readOnly={!canEditActa}
-                  disabled={!canEditActa}
-                />
+                 <RichTextEditor
+                   id="tema-acuerdo"
+                   value={acuerdo}
+                   onChange={(nextValue) => {
+                     if (!canEditActa) {
+                       return;
+                     }
+                     setAcuerdo(nextValue);
+                   }}
+                   minHeightRem={12}
+                   disabled={!canEditActa}
+                 />
               </div>
 
               {canEditActa ? (

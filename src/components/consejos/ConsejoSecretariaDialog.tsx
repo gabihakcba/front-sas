@@ -107,7 +107,6 @@ export function ConsejoSecretariaDialog({
                   filter
                   showClear
                   className="w-full"
-                  appendTo="self"
                 />
               )}
             />
@@ -131,7 +130,6 @@ export function ConsejoSecretariaDialog({
                   filter
                   showClear
                   className="w-full"
-                  appendTo="self"
                 />
               )}
             />

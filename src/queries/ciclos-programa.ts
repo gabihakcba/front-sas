@@ -67,3 +67,11 @@ export const updateCicloProgramaRequest = async (
 export const deleteCicloProgramaRequest = async (id: number): Promise<void> => {
   await api.delete(`/ciclos-programa/${id}`);
 };
+
+export const exportCicloProgramaPdfRequest = async (id: number): Promise<ArrayBuffer> => {
+  const response = await api.get<ArrayBuffer>(`/ciclos-programa/${id}/export/pdf`, {
+    responseType: 'arraybuffer',
+  });
+
+  return response.data;
+};

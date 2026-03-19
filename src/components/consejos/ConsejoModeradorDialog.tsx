@@ -100,7 +100,6 @@ export function ConsejoModeradorDialog({
                 filter
                 showClear
                 className="w-full"
-                appendTo="self"
               />
             )}
           />

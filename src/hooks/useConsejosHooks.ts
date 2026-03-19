@@ -370,8 +370,8 @@ export const useConsejosHook = (): UseConsejosHookResult => {
       ...(values.descripcion.trim()
         ? { descripcion: values.descripcion.trim() }
         : {}),
-      ...(values.debate.trim() ? { debate: values.debate.trim() } : {}),
-      ...(values.acuerdo.trim() ? { acuerdo: values.acuerdo.trim() } : {}),
+      ...(values.debate ? { debate: values.debate } : {}),
+      ...(values.acuerdo ? { acuerdo: values.acuerdo } : {}),
       sinMp: values.sinMp,
       estado: values.estado,
     };

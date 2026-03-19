@@ -271,6 +271,7 @@ export const useCalendarioHook = () => {
 
   useEffect(() => {
     if (selectedRamaId === null) {
+      setSelectedAreaId(null);
       return;
     }
 

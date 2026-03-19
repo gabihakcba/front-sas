@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { startTransition, useEffect, useMemo, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Sidebar } from "primereact/sidebar";
 import { Button } from "primereact/button";
@@ -75,6 +75,14 @@ export default function DashboardShell({ children }: DashboardShellProps) {
     router.push("/");
   };
 
+  const handleNavigate = (path: string) => {
+    setSidebarVisible(false);
+    startTransition(() => {
+      router.push(path);
+      router.refresh();
+    });
+  };
+
   if (isLoading) {
     return <div className="min-h-screen" />;
   }
@@ -118,10 +126,7 @@ export default function DashboardShell({ children }: DashboardShellProps) {
         <div className="p-3">
           <SidebarNavigation
             pathname={pathname}
-            onNavigate={(path) => {
-              router.push(path);
-              setSidebarVisible(false);
-            }}
+            onNavigate={handleNavigate}
           />
           <div className="mt-3">
             <Button
@@ -141,8 +146,7 @@ export default function DashboardShell({ children }: DashboardShellProps) {
               type="button"
               className="cursor-pointer border-none bg-transparent p-0 text-sm text-color-secondary"
               onClick={() => {
-                router.push("/dashboard/versiones");
-                setSidebarVisible(false);
+                handleNavigate("/dashboard/versiones");
               }}
             >
               Version {appVersion}
@@ -164,10 +168,7 @@ export default function DashboardShell({ children }: DashboardShellProps) {
             <div className="mt-3 border-b border-surface-300" />
             <SidebarNavigation
               pathname={pathname}
-              onNavigate={(path) => {
-                router.push(path);
-                setSidebarVisible(false);
-              }}
+              onNavigate={handleNavigate}
             />
             <div className="mt-3">
               <Button
@@ -187,8 +188,7 @@ export default function DashboardShell({ children }: DashboardShellProps) {
                 type="button"
                 className="cursor-pointer border-none bg-transparent p-0 text-sm text-color-secondary"
                 onClick={() => {
-                  router.push("/dashboard/versiones");
-                  setSidebarVisible(false);
+                  handleNavigate("/dashboard/versiones");
                 }}
               >
                 Version {appVersion}

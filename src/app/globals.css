@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 body {
   margin: 0;
@@ -146,4 +147,17 @@ body {
   border-radius: var(--border-radius);
   overflow: hidden;
   background: var(--surface-card);
+}
+
+/* El editor TipTap es estilizado por @tailwindcss/typography (clase prose) */
+
+/* Reset: quitar el outline nativo del área editable de TipTap */
+.ProseMirror:focus {
+  outline: none;
+}
+
+/* Suprimir comillas decorativas que Tailwind Typography agrega a blockquotes */
+.prose blockquote p:first-of-type::before,
+.prose blockquote p:last-of-type::after {
+  content: none;
 }

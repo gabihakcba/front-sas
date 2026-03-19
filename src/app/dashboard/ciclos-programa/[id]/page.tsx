@@ -9,13 +9,13 @@ import { Calendar } from 'primereact/calendar';
 import { Card } from 'primereact/card';
 import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
-import { Editor, EditorTextChangeEvent } from 'primereact/editor';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Message } from 'primereact/message';
 import { TabMenu } from 'primereact/tabmenu';
 import type { MenuItem } from 'primereact/menuitem';
 import { EventoFormDialog } from '@/components/eventos/EventoFormDialog';
+import { RichTextEditor } from '@/components/common/RichTextEditor';
 import { useAuth } from '@/context/AuthContext';
 import { useCicloProgramaDetailHook } from '@/hooks/useCiclosProgramaHooks';
 import {
@@ -25,6 +25,7 @@ import {
 } from '@/lib/authorization';
 import { getResponsiveDialogProps } from '@/lib/dialog';
 import NotAllowed from '@/components/common/NotAllowed';
+import { FilePreviewDialog } from '@/components/common/FilePreviewDialog';
 import {
   createEventoRequest,
   getEventoRequest,
@@ -32,6 +33,7 @@ import {
   getEventosRequest,
   updateEventoRequest,
 } from '@/queries/eventos';
+import { exportCicloProgramaPdfRequest } from '@/queries/ciclos-programa';
 import { CicloProgramaDetalle, EstadoCiclo, UpdateCicloProgramaPayload } from '@/types/ciclos-programa';
 import { Evento, EventoFormValues, EventosOptionsResponse } from '@/types/eventos';
 
@@ -55,61 +57,6 @@ const STAGE_TABS: Array<{
   { key: 'FINALIZADO', label: 'Finalizado', field: null },
 ];
 
-const EDITOR_HEADER = (
-  <>
-    <span className="ql-formats">
-      <select
-        className="ql-header"
-        defaultValue=""
-        aria-label="Formato"
-        title="Formato de bloque"
-      >
-        <option value="">Normal</option>
-        <option value="1">Titulo</option>
-        <option value="2">Subtitulo</option>
-      </select>
-    </span>
-    <span className="ql-formats">
-      <button className="ql-bold" aria-label="Negrita" title="Negrita (Ctrl+B)" />
-      <button
-        className="ql-underline"
-        aria-label="Subrayado"
-        title="Subrayado (Ctrl+U)"
-      />
-      <button className="ql-italic" aria-label="Cursiva" title="Cursiva (Ctrl+I)" />
-      <button className="ql-link" aria-label="Enlace" title="Enlace (Ctrl+K)" />
-      <button
-        className="ql-list"
-        value="ordered"
-        aria-label="Lista ordenada"
-        title="Lista ordenada (Ctrl+Shift+7)"
-      />
-      <button
-        className="ql-list"
-        value="bullet"
-        aria-label="Lista desordenada"
-        title="Lista desordenada (Ctrl+Shift+8)"
-      />
-    </span>
-  </>
-);
-
-type QuillKeyboardModule = {
-  addBinding: (
-    binding: {
-      key: string;
-      shortKey: boolean;
-      shiftKey: boolean;
-    },
-    handler: () => boolean,
-  ) => void;
-};
-
-type QuillEditorInstance = {
-  keyboard?: QuillKeyboardModule;
-  getFormat: () => Record<string, unknown>;
-  format: (name: string, value: false | string, source?: 'user') => void;
-};
 
 interface CicloProgramaEditState {
   nombre: string;
@@ -138,38 +85,6 @@ const createEmptyEventoFormValues = (): EventoFormValues => ({
   areaIds: [],
   ramaIds: [],
 });
-
-const registerEditorShortcuts = (quill: QuillEditorInstance) => {
-  if (!quill.keyboard) {
-    return;
-  }
-
-  quill.keyboard.addBinding(
-    {
-      key: '7',
-      shortKey: true,
-      shiftKey: true,
-    },
-    () => {
-      const currentList = quill.getFormat().list;
-      quill.format('list', currentList === 'ordered' ? false : 'ordered', 'user');
-      return false;
-    },
-  );
-
-  quill.keyboard.addBinding(
-    {
-      key: '8',
-      shortKey: true,
-      shiftKey: true,
-    },
-    () => {
-      const currentList = quill.getFormat().list;
-      quill.format('list', currentList === 'bullet' ? false : 'bullet', 'user');
-      return false;
-    },
-  );
-};
 
 const buildEditState = (ciclo: CicloProgramaDetalle): CicloProgramaEditState => ({
   nombre: ciclo.nombre,
@@ -236,6 +151,14 @@ export default function CicloProgramaDetailPage() {
   const [linkEventoError, setLinkEventoError] = useState('');
   const [selectedLinkEventoId, setSelectedLinkEventoId] = useState<number | null>(null);
   const [linkableEventos, setLinkableEventos] = useState<Evento[]>([]);
+  const [exportingPdf, setExportingPdf] = useState(false);
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewBlob, setPreviewBlob] = useState<Blob | null>(null);
+  const [previewTitle, setPreviewTitle] = useState('Preview del ciclo');
+  const [previewFileName, setPreviewFileName] = useState('ciclo-programa.pdf');
+  const [previewMimeType, setPreviewMimeType] = useState('application/pdf');
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState('');
 
   const canUpdate = hasPermissionAccess(user, 'UPDATE:CICLO_PROGRAMA');
   const canManageEvents = hasPermissionAccess(user, 'UPDATE:EVENTO');
@@ -521,10 +444,10 @@ export default function CicloProgramaDetailPage() {
       fechaInicio: dayjs(editState.fechaInicio).toISOString(),
       fechaFin: dayjs(editState.fechaFin).toISOString(),
       estado: editState.estado,
-      diagnostico: editState.diagnostico.trim() || undefined,
-      planificacion: editState.planificacion.trim() || undefined,
-      desarrollo: editState.desarrollo.trim() || undefined,
-      evaluacion: editState.evaluacion.trim() || undefined,
+      diagnostico: editState.diagnostico,
+      planificacion: editState.planificacion,
+      desarrollo: editState.desarrollo,
+      evaluacion: editState.evaluacion,
       ...(canManageRama && editState.idRama ? { idRama: editState.idRama } : {}),
     };
 
@@ -540,6 +463,33 @@ export default function CicloProgramaDetailPage() {
       setError(getErrorMessage(err, 'No se pudo actualizar el ciclo de programa.'));
     }
   }, [canManageRama, ciclo, editState, save, setError]);
+
+  const handleExportPdf = useCallback(async () => {
+    if (!ciclo) {
+      return;
+    }
+
+    setExportingPdf(true);
+    setPreviewVisible(true);
+    setPreviewLoading(true);
+    setPreviewError('');
+    setPreviewBlob(null);
+    setPreviewTitle(`Ciclo ${ciclo.nombre}`);
+    setPreviewFileName(`ciclo-${ciclo.id}.pdf`);
+    setPreviewMimeType('application/pdf');
+
+    try {
+      const data = await exportCicloProgramaPdfRequest(ciclo.id);
+      const blob = new Blob([data], { type: 'application/pdf' });
+      setPreviewBlob(blob);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No se pudo exportar el ciclo a PDF.'));
+      setPreviewError('No se pudo generar el PDF del ciclo.');
+    } finally {
+      setExportingPdf(false);
+      setPreviewLoading(false);
+    }
+  }, [ciclo, setError]);
 
   useEffect(() => {
     if (!editing) {
@@ -609,6 +559,16 @@ export default function CicloProgramaDetailPage() {
                 outlined
                 size="small"
                 onClick={() => router.push('/dashboard/ciclos-programa')}
+              />
+              <Button
+                type="button"
+                label="Exportar PDF"
+                icon="pi pi-file-pdf"
+                iconPos="right"
+                outlined
+                size="small"
+                loading={exportingPdf}
+                onClick={() => void handleExportPdf()}
               />
               {canUpdate ? (
                 editing ? (
@@ -915,24 +875,20 @@ export default function CicloProgramaDetailPage() {
               }
             >
               {activeStageConfig.field ? (
-                editing ? (
-                  <Editor
-                    value={activeStageValue}
-                    onTextChange={(event: EditorTextChangeEvent) =>
-                      updateStageValue(event.htmlValue ?? '')
-                    }
-                    headerTemplate={EDITOR_HEADER}
-                    style={{ minHeight: '20rem' }}
-                    onLoad={registerEditorShortcuts}
-                  />
-                ) : activeStageValue ? (
-                  <div
-                    className="overflow-x-auto break-words"
-                    dangerouslySetInnerHTML={{ __html: activeStageValue }}
-                  />
-                ) : (
-                  <span>No hay contenido cargado para esta etapa.</span>
-                )
+                 <RichTextEditor
+                   key={`${activeTab}-${editing ? 'edit' : 'view'}`}
+                   id={`ciclo-stage-${activeTab.toLowerCase()}`}
+                   value={activeStageValue}
+                   onChange={(nextValue) => {
+                     if (!editing) {
+                       return;
+                     }
+
+                     updateStageValue(nextValue);
+                   }}
+                   disabled={!editing}
+                   minHeightRem={12}
+                 />
               ) : (
                 <Message
                   severity="info"
@@ -1020,6 +976,20 @@ export default function CicloProgramaDetailPage() {
           )}
         </div>
       </Dialog>
+      <FilePreviewDialog
+        visible={previewVisible}
+        title={previewTitle}
+        fileName={previewFileName}
+        mimeType={previewMimeType}
+        blob={previewBlob}
+        loading={previewLoading}
+        error={previewError}
+        onHide={() => {
+          setPreviewVisible(false);
+          setPreviewBlob(null);
+          setPreviewError('');
+        }}
+      />
     </div>
   );
 }

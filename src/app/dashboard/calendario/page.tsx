@@ -457,12 +457,16 @@ export default function CalendarioPage() {
                 {item.extendedProps?.source === 'eventos' ? (
                   <div className="flex flex-col gap-1 text-sm break-words whitespace-normal">
                     <span>Tipo: {item.extendedProps.tipo ?? '-'}</span>
-                    <span>Lugar: {item.extendedProps.lugar ?? '-'}</span>
+                    {item.extendedProps.lugar ? (
+                      <span>Lugar: {item.extendedProps.lugar}</span>
+                    ) : null}
                     <span>
                       Fecha: {dayjs(item.start).format('DD/MM/YYYY')} -{' '}
                       {dayjs(item.end ?? item.start).subtract(1, 'day').format('DD/MM/YYYY')}
                     </span>
-                    <span>Descripción: {item.extendedProps.descripcion ?? '-'}</span>
+                    {item.extendedProps.descripcion ? (
+                      <span>Descripción: {item.extendedProps.descripcion}</span>
+                    ) : null}
                   </div>
                 ) : item.extendedProps?.source === 'consejos' ? (
                   <div className="flex flex-col gap-1 text-sm break-words whitespace-normal">
@@ -472,26 +476,32 @@ export default function CalendarioPage() {
                       {item.extendedProps.esOrdinario ? 'Ordinario' : 'Extraordinario'}
                     </span>
                     <span>Fecha: {dayjs(item.start).format('DD/MM/YYYY')}</span>
-                    <span>
-                      Hora inicio:{' '}
-                      {item.extendedProps.horaInicio
-                        ? dayjs(item.extendedProps.horaInicio).format('HH:mm')
-                        : '-'}
-                    </span>
-                    <span>
-                      Hora fin:{' '}
-                      {item.extendedProps.horaFin
-                        ? dayjs(item.extendedProps.horaFin).format('HH:mm')
-                        : '-'}
-                    </span>
-                    <span>Descripción: {item.extendedProps.descripcion ?? '-'}</span>
+                    {item.extendedProps.horaInicio ? (
+                      <span>
+                        Hora inicio:{' '}
+                        {dayjs(`1970-01-01T${item.extendedProps.horaInicio}`).format('HH:mm')}
+                      </span>
+                    ) : null}
+                    {item.extendedProps.horaFin ? (
+                      <span>
+                        Hora fin:{' '}
+                        {dayjs(`1970-01-01T${item.extendedProps.horaFin}`).format('HH:mm')}
+                      </span>
+                    ) : null}
+                    {item.extendedProps.descripcion ? (
+                      <span>Descripción: {item.extendedProps.descripcion}</span>
+                    ) : null}
                   </div>
                 ) : (
                   <div className="flex flex-col gap-1 text-sm break-words whitespace-normal">
                     <span>Tipo: Cumpleaños</span>
                     <span>Miembro: {item.extendedProps?.tipoMiembro ?? '-'}</span>
-                    <span>Rama: {item.extendedProps?.ramaNombre ?? '-'}</span>
-                    <span>Área: {item.extendedProps?.areaNombre ?? '-'}</span>
+                    {item.extendedProps?.ramaNombre ? (
+                      <span>Rama: {item.extendedProps.ramaNombre}</span>
+                    ) : null}
+                    {item.extendedProps?.areaNombre ? (
+                      <span>Área: {item.extendedProps.areaNombre}</span>
+                    ) : null}
                   </div>
                 )}
               </div>

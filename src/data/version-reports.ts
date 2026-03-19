@@ -13,6 +13,137 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.11.3',
+    date: '2026-03-18',
+    title: 'Correcciones en el Calendario',
+    summary: 'Se corrigen tres bugs en el calendario: parseo de horas, filtro de área y campos vacíos en el modal del día.',
+    sections: [
+      {
+        title: 'Calendario',
+        items: [
+          'Parseo de horaInicio/horaFin corregido usando dayjs("1970-01-01T" + hora) en lugar de dayjs(horaISO).',
+          'Al deseleccionar la rama en los filtros, el área ahora se limpia automáticamente.',
+          'El modal de agenda del día ya no muestra líneas vacías ("Campo: -") para campos sin valor.',
+        ],
+      },
+    ],
+  },
+
+  {
+    version: '1.11.2',
+    date: '2026-03-18',
+    title: 'ColorPicker para color de texto y resaltado',
+    summary:
+      'Los selectores de color en el editor enriquecido reemplazan el Dropdown por un ColorPicker de PrimeReact con swatches predefinidos y un picker libre en OverlayPanel.',
+    sections: [
+      {
+        title: 'Editor (Consejos y Ciclos de Programa)',
+        items: [
+          'El color de texto y el resaltado ahora se eligen desde un OverlayPanel con paleta rápida de colores predefinidos.',
+          'El ColorPicker inline de PrimeReact permite seleccionar cualquier color libremente además de los presets.',
+          'El botón del toolbar muestra un pequeño indicador del color actualmente aplicado.',
+        ],
+      },
+    ],
+  },
+
+  {
+    version: '1.11.1',
+    date: '2026-03-18',
+    title: 'Refactor del editor de texto enriquecido',
+    summary:
+      'El editor TipTap se reescribe desde cero siguiendo buenas prácticas: toolbar usando la API nativa de PrimeReact (severity) para estados activos, contenido estilizado con @tailwindcss/typography y código limpio sin className ad-hoc.',
+    sections: [
+      {
+        title: 'Editor (Consejos y Ciclos de Programa)',
+        items: [
+          'El toolbar elimina toda manipulación de className para estados activos y usa la prop severity de PrimeReact Button.',
+          'Los iconos de formato reemplazan las etiquetas de texto B, I, U por iconos PrimeIcons estándar.',
+          'El área de contenido mantiene prose de @tailwindcss/typography como herramienta correcta para renderizar HTML de usuario.',
+          'Se eliminan las reglas .ProseMirror ad-hoc de globals.css que colisionaban con prose.',
+          'Los separadores entre grupos de botones usan el componente Divider de PrimeReact.',
+        ],
+      },
+    ],
+  },
+
+  {
+    version: '1.10.9',
+    date: '2026-03-18',
+    title: 'Fidelidad de editor enriquecido en Consejo y Ciclos',
+    summary:
+      'Se mejora la edición y persistencia de texto enriquecido para mantener el HTML de origen y reflejarlo mejor en exportaciones PDF.',
+    sections: [
+      {
+        title: 'Edición',
+        items: [
+          'Los editores suman herramientas de sangría, color de texto, resaltado y limpieza de formato.',
+          'Se elimina el recorte automático de contenido en debate/acuerdo y en bitácoras de ciclo para no alterar el HTML guardado.',
+        ],
+      },
+      {
+        title: 'Exportación',
+        items: [
+          'El PDF de ciclo interpreta mejor títulos, subtítulos, listas y estilos básicos desde el HTML enriquecido almacenado.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.10.8',
+    date: '2026-03-18',
+    title: 'Preview integrado para exportar ciclos',
+    summary:
+      'La exportación de ciclo sigue usando el mismo endpoint, pero ahora se muestra en el `FilePreviewDialog` y desde ahí se puede descargar.',
+    sections: [
+      {
+        title: 'Ciclo de programa',
+        items: [
+          'El botón “Exportar PDF” abre el preview institucional con el archivo generado en lugar de forzar una nueva pestaña.',
+          'Desde el mismo diálogo se puede descargar el PDF sin abrir nuevas ventanas, manteniendo la experiencia ya usada para adjuntos y comprobantes.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.10.7',
+    date: '2026-03-18',
+    title: 'Exportación en PDF de Ciclos de Programa',
+    summary:
+      'Se agrega la capacidad de descargar un PDF oficial con el detalle del ciclo, su bitácora y los eventos asociados directamente desde la vista operativa.',
+    sections: [
+      {
+        title: 'Nuevo flujo',
+        items: [
+          'El detalle del ciclo expone un botón “Exportar PDF” que dispara la descarga vía nuevo endpoint protegido.',
+          'El PDF resume la información de la rama, fechas, estado, bitácoras y eventos del ciclo con branding institucional.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.10.6',
+    date: '2026-03-18',
+    title: 'Correcciones de navegación, consejos y bitácora',
+    summary:
+      'Se estabiliza el render al cambiar de sección, se corrigen overlays de dialogs en consejos y la lectura de listas enriquecidas en ciclos de programa.',
+    sections: [
+      {
+        title: 'Dashboard y consejos',
+        items: [
+          'La navegación lateral vuelve a refrescar la vista al cambiar de sección sin depender de recarga manual.',
+          'Los dropdowns de Asignar moderador y Asignar secretaria ya se superponen correctamente dentro del consejo iniciado.',
+        ],
+      },
+      {
+        title: 'Ciclos de programa',
+        items: [
+          'La bitácora del ciclo ahora muestra listas, numeraciones y sangrías correctamente en modo vista.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.10.5',
     date: '2026-03-18',
     title: 'Defaults institucionales desde backend',

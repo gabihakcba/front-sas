@@ -2,7 +2,42 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.11.3
+
+Fecha: 2026-03-18
+
+### Correcciones
+
+- el parseo de `horaInicio` y `horaFin` en el modal del día del calendario se corrige usando `dayjs("1970-01-01T" + hora)` en lugar de `dayjs(horaISO)` que era incorrecto para strings de tiempo
+- los filtros de rama y área ahora se sincronizan correctamente: al deseleccionar la rama, el área se limpia automáticamente
+- el modal de agenda del día ya no muestra líneas `"Campo: -"` para campos sin valor; solo muestra los que tienen datos
+
+## 1.11.2
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- los selectores de color de texto y resaltado reemplazan el `Dropdown` por `ColorPicker` de PrimeReact con swatches predefinidos
+- cada picker se presenta en un `OverlayPanel` con una paleta de colores rápidos y el `ColorPicker` inline para selección libre
+- el botón de activación muestra un pequeño indicador del color actualmente aplicado
+
+## 1.11.1
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales relevantes
+
+- el editor TipTap se reescribe desde cero eliminando todo uso ad-hoc de className para estados activos en el toolbar
+- los botones del toolbar ahora usan la prop `severity` nativa de PrimeReact Button para reflejar si el formato está activo o no
+- las etiquetas de texto `B`, `I`, `U` pasan a iconos `pi-bold`, `pi-italic`, `pi-underline` de PrimeIcons
+- los separadores entre grupos de herramientas usan el componente `Divider` de PrimeReact en lugar de divs con clases Tailwind
+- el área de contenido mantiene la clase `prose` de `@tailwindcss/typography` como solución estándar para renderizar HTML de usuario
+- se eliminan las reglas `.ProseMirror` ad-hoc de `globals.css` que colisionaban con el estilizado de `prose`
+- los cambios aplican a todos los campos ricos: `Debate`, `Acuerdo` (Consejos) y `Diagnóstico`, `Planificación`, `Desarrollo`, `Evaluación` (Ciclos de Programa)
+
 ## 1.10.5
+
 
 Fecha: 2026-03-18
 
@@ -757,6 +792,46 @@ Fecha: 2026-03-15
 
 - el panel flotante de oradores ahora combina manos levantadas y alta manual desde asistencia
 - se mantiene la logica realtime sin duplicar participantes en la cola
+
+## 1.10.9
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales
+
+- los editores de Consejo y Ciclo de Programa amplían la barra de herramientas con sangría, color de texto, resaltado y limpieza de formato.
+- se deja de recortar (`trim`) el contenido rico de debate/acuerdo y de las etapas del ciclo al guardar, para preservar exactamente el HTML del editor.
+- el PDF de ciclo queda alineado al HTML enriquecido (títulos, subtítulos, estilos y listas) para una salida más fiel al contenido cargado.
+
+## 1.10.8
+
+Fecha: 2026-03-18
+
+### Ajustes funcionales
+
+- el botón `Exportar PDF` ahora reutiliza el `FilePreviewDialog` común: el PDF se genera, se muestra en preview y desde allí también se puede descargar.
+
+## 1.10.7
+
+Fecha: 2026-03-18
+
+### Funcionalidades nuevas
+
+- incorporación del botón `Exportar PDF` en el detalle de un ciclo de programa para bajar una versión impresa del ciclo, sus bitácoras y los eventos asociados.
+
+### Ajustes de integración
+
+- la API del ciclo expone un endpoint `GET /ciclos-programa/:id/export/pdf` firmado por los permisos de lectura y el cliente lo descarga automáticamente en una nueva pestaña.
+
+## 1.10.6
+
+Fecha: 2026-03-18
+
+### Correcciones
+
+- la navegación lateral del dashboard vuelve a refrescar correctamente el contenido al cambiar de sección sin requerir `F5`
+- los selectores de `Asignar moderador` y `Asignar secretaria` dentro de consejo abierto ya se renderizan por encima del footer del dialog
+- la bitácora de `Ciclos de Programa` ahora respeta listas y sangrías en modo vista cuando el contenido fue escrito con formato enriquecido
 
 ## 1.1.0
 

@@ -79,17 +79,18 @@ export function ConsejoTemarioFormDialog({
   );
 
   return (
-    <Dialog
-      visible={visible}
-      onHide={onHide}
-      header={mode === 'create' ? 'Agregar tema' : 'Editar tema'}
-      footer={footer}
-      {...getResponsiveDialogProps('40rem')}
-    >
+     <Dialog
+       visible={visible}
+       onHide={onHide}
+       header={mode === 'create' ? 'Agregar tema' : 'Editar tema'}
+       footer={footer}
+       className="max-h-[80vh] overflow-auto"
+       {...getResponsiveDialogProps('40rem')}
+     >
       {loading ? (
         <div className="py-4">Cargando formulario...</div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {error ? (
             <div className="md:col-span-2">
               <Message severity="error" text={error} />
