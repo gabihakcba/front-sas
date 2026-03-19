@@ -81,3 +81,10 @@ export const updateProfileFirmaRequest = async (
   });
   return response.data;
 };
+
+export const syncMyPermissionsRequest = async () => {
+  const response = await api.post<{ success: boolean; message: string }>(
+    '/perfiles/me/sync-permissions',
+  );
+  return response.data;
+};

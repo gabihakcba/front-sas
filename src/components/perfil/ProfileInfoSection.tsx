@@ -68,6 +68,8 @@ interface Props {
     value: ProfilePersonalFormValues[K],
   ) => void;
   onEditSignature: () => void;
+  onSyncPermissions: () => void;
+  syncingPermissions: boolean;
 }
 
 export function ProfileInfoSection({
@@ -82,6 +84,8 @@ export function ProfileInfoSection({
   onSaveProfile,
   onChange,
   onEditSignature,
+  onSyncPermissions,
+  syncingPermissions,
 }: Props) {
   return (
     <Card title={`${summary.nombre} ${summary.apellidos}`}>
@@ -146,6 +150,19 @@ export function ProfileInfoSection({
                 outlined
                 size="small"
                 onClick={onEditSignature}
+              />
+            ) : null}
+            {canEditOwnProfile ? (
+              <Button
+                type="button"
+                label="Actualizar Permisos"
+                icon="pi pi-sync"
+                iconPos="right"
+                outlined
+                size="small"
+                loading={syncingPermissions}
+                onClick={onSyncPermissions}
+                severity="secondary"
               />
             ) : null}
           </div>

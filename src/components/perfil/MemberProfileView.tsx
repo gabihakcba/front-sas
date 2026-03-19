@@ -61,6 +61,8 @@ export function MemberProfileView({ memberId }: Props) {
     loadFirma,
     saveProfile,
     saveFirma,
+    syncPermissions,
+    syncingPermissions,
   } = usePerfilHook(memberId);
   const [signatureDialogVisible, setSignatureDialogVisible] = useState(false);
   const [profileEditMode, setProfileEditMode] = useState(false);
@@ -181,6 +183,17 @@ export function MemberProfileView({ memberId }: Props) {
           setSignatureDialogVisible(true);
           void loadFirma();
         }}
+        onSyncPermissions={() => {
+          void (async () => {
+            try {
+              await syncPermissions();
+              window.location.reload();
+            } catch (e) {
+              console.error(e);
+            }
+          })();
+        }}
+        syncingPermissions={syncingPermissions}
       />
 
       <Accordion

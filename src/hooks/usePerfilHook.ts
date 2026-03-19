@@ -16,6 +16,7 @@ import {
   updateMyProfileRequest,
   updateMyProfileFirmaRequest,
   updateProfileFirmaRequest,
+  syncMyPermissionsRequest,
 } from '@/queries/perfiles';
 import {
   PerfilActividad,
@@ -39,6 +40,7 @@ export function usePerfilHook(memberId?: number) {
   const [loadingFirma, setLoadingFirma] = useState(false);
   const [savingFirma, setSavingFirma] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
+  const [syncingPermissions, setSyncingPermissions] = useState(false);
   const [error, setError] = useState('');
   const [firmaError, setFirmaError] = useState('');
   const [forbidden, setForbidden] = useState(false);
@@ -185,6 +187,20 @@ export function usePerfilHook(memberId?: number) {
     }
   };
 
+  const syncPermissions = async () => {
+    setSyncingPermissions(true);
+    setError('');
+    try {
+      const response = await syncMyPermissionsRequest();
+      return response;
+    } catch {
+      setError('No se pudieron sincronizar los permisos.');
+      throw new Error('No se pudieron sincronizar los permisos.');
+    } finally {
+      setSyncingPermissions(false);
+    }
+  };
+
   return {
     summary,
     asignacion,
@@ -198,6 +214,7 @@ export function usePerfilHook(memberId?: number) {
     loadingFirma,
     savingFirma,
     savingProfile,
+    syncingPermissions,
     error,
     firmaError,
     forbidden,
@@ -207,5 +224,6 @@ export function usePerfilHook(memberId?: number) {
     loadFirma,
     saveProfile,
     saveFirma,
+    syncPermissions,
   };
 }
