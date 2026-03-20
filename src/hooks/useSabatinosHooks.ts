@@ -275,7 +275,11 @@ export const useSabatinosHook = () => {
         await createActividadRequest(payload);
         setSuccessMessage('Actividad creada con éxito.');
       } else if (selectedActividad) {
-        await updateActividadRequest(selectedActividad.id, data as UpdateActividadPayload);
+        const payload: UpdateActividadPayload = {
+          ...data,
+          id_sabatino: sabatinoId,
+        };
+        await updateActividadRequest(selectedActividad.id, payload);
         setSuccessMessage('Actividad actualizada con éxito.');
       }
       
