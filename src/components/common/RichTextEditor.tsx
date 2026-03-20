@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { CSSProperties, useEffect, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
 import { ColorPicker, ColorPickerChangeEvent } from 'primereact/colorpicker';
 import { Divider } from 'primereact/divider';
+import { Dialog } from 'primereact/dialog';
+import { InputText } from 'primereact/inputtext';
 import { SelectButton, SelectButtonChangeEvent } from 'primereact/selectbutton';
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { Extension } from '@tiptap/core';
@@ -23,6 +25,11 @@ type RichTextEditorProps = {
   onChange: (value: string) => void;
   disabled?: boolean;
   minHeightRem?: number;
+};
+
+type LinkSelectionState = {
+  from: number;
+  to: number;
 };
 
 // ── Color Presets ────────────────────────────────────────────
@@ -99,17 +106,7 @@ const CustomKeyboardExtension = Extension.create({
       'Mod-Shift-7': () => this.editor.chain().focus().toggleOrderedList().run(),
       'Mod-Shift-8': () => this.editor.chain().focus().toggleBulletList().run(),
       // Enlace: interceptar Ctrl+K antes que el browser
-      'Mod-k': () => {
-        const prev = this.editor.getAttributes('link').href as string | undefined;
-        const next = window.prompt('Ingresa la URL', prev ?? 'https://');
-        if (next === null) return true;
-        if (!next.trim()) {
-          this.editor.chain().focus().unsetLink().run();
-          return true;
-        }
-        this.editor.chain().focus().setLink({ href: next.trim() }).run();
-        return true;
-      },
+      'Mod-k': () => true,
     };
   },
 });
@@ -117,6 +114,30 @@ const CustomKeyboardExtension = Extension.create({
 // ── Helpers ──────────────────────────────────────────────────
 
 const normalizeHtml = (html: string) => html.replace(/\s+/g, ' ').trim();
+
+const normalizeLinkUrl = (value: string): string | null => {
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    return null;
+  }
+
+  const withProtocol = /^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(trimmed)
+    ? trimmed
+    : `https://${trimmed}`;
+
+  try {
+    const parsed = new URL(withProtocol);
+
+    if (!parsed.protocol || !parsed.hostname) {
+      return null;
+    }
+
+    return parsed.toString();
+  } catch {
+    return null;
+  }
+};
 
 /** Convierte hex con # al formato sin # que espera ColorPicker */
 const toPickerValue = (hex: string) => hex.replace('#', '');
@@ -135,13 +156,17 @@ export function RichTextEditor({
 }: RichTextEditorProps) {
   const textColorPanelRef = useRef<OverlayPanel>(null);
   const highlightPanelRef = useRef<OverlayPanel>(null);
+  const [linkDialogVisible, setLinkDialogVisible] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
+  const [linkError, setLinkError] = useState('');
+  const [linkSelection, setLinkSelection] = useState<LinkSelectionState | null>(null);
 
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
       Underline,
-      Link.configure({ autolink: true, openOnClick: !disabled, defaultProtocol: 'https' }),
+      Link.configure({ autolink: true, openOnClick: false, defaultProtocol: 'https' }),
       TextStyle,
       Color,
       Highlight.configure({ multicolor: true }),
@@ -164,17 +189,136 @@ export function RichTextEditor({
     editor.commands.setContent(value || '', false);
   }, [editor, value]);
 
+  useEffect(() => {
+    if (!editor) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'k') {
+        return;
+      }
+
+      event.preventDefault();
+
+      if (disabled) {
+        return;
+      }
+
+      const { from, to } = editor.state.selection;
+      if (editor.isActive('link')) {
+        editor
+          .chain()
+          .focus()
+          .setTextSelection({ from, to })
+          .extendMarkRange('link')
+          .unsetLink()
+          .run();
+        return;
+      }
+
+      const prev = editor.getAttributes('link').href as string | undefined;
+      const selectedText = from < to ? editor.state.doc.textBetween(from, to, ' ') : '';
+
+      setLinkSelection({ from, to });
+      setLinkUrl(prev ?? selectedText);
+      setLinkError('');
+      setLinkDialogVisible(true);
+    };
+
+    const dom = editor.view.dom;
+    dom.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      dom.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [disabled, editor]);
+
   if (!editor) return null;
 
   // ── Handlers ─────────────────────────────────────────────
 
   const setLink = () => {
     if (disabled) return;
+    const { from, to } = editor.state.selection;
+    if (editor.isActive('link')) {
+      editor
+        .chain()
+        .focus()
+        .setTextSelection({ from, to })
+        .extendMarkRange('link')
+        .unsetLink()
+        .run();
+      return;
+    }
+
     const prev = editor.getAttributes('link').href as string | undefined;
-    const next = window.prompt('Ingresa la URL', prev ?? 'https://');
-    if (next === null) return;
-    if (!next.trim()) { editor.chain().focus().unsetLink().run(); return; }
-    editor.chain().focus().setLink({ href: next.trim() }).run();
+    const selectedText = from < to ? editor.state.doc.textBetween(from, to, ' ') : '';
+    setLinkSelection({ from, to });
+    setLinkUrl(prev ?? selectedText);
+    setLinkError('');
+    setLinkDialogVisible(true);
+  };
+
+  const closeLinkDialog = () => {
+    setLinkDialogVisible(false);
+    setLinkUrl('');
+    setLinkError('');
+    setLinkSelection(null);
+    editor.chain().focus().run();
+  };
+
+  const applyLink = () => {
+    const normalizedUrl = normalizeLinkUrl(linkUrl);
+
+    if (!linkUrl.trim()) {
+      if (linkSelection) {
+        editor
+          .chain()
+          .focus()
+          .setTextSelection(linkSelection)
+          .unsetLink()
+          .run();
+      } else {
+        editor.chain().focus().unsetLink().run();
+      }
+      closeLinkDialog();
+      return;
+    }
+
+    if (!normalizedUrl) {
+      setLinkError('Ingresá una URL válida.');
+      return;
+    }
+
+    const selection = linkSelection ?? {
+      from: editor.state.selection.from,
+      to: editor.state.selection.to,
+    };
+
+    const hasSelectedText = selection.to > selection.from;
+
+    if (hasSelectedText) {
+      editor
+        .chain()
+        .focus()
+        .setTextSelection(selection)
+        .extendMarkRange('link')
+        .setLink({ href: normalizedUrl })
+        .run();
+    } else {
+      editor
+        .chain()
+        .focus()
+        .insertContent({
+          type: 'text',
+          text: linkUrl.trim(),
+          marks: [{ type: 'link', attrs: { href: normalizedUrl } }],
+        })
+        .run();
+    }
+
+    closeLinkDialog();
   };
 
   const applyTextColor = (color: string) => {
@@ -204,7 +348,7 @@ export function RichTextEditor({
 
   // ── Color swatch style ────────────────────────────────────
 
-  const swatchStyle = (color: string): React.CSSProperties => ({
+  const swatchStyle = (color: string): CSSProperties => ({
     width: '1.25rem',
     height: '1.25rem',
     borderRadius: 'var(--border-radius)',
@@ -214,7 +358,7 @@ export function RichTextEditor({
     flexShrink: 0,
   });
 
-  const colorIndicatorStyle = (color: string): React.CSSProperties => ({
+  const colorIndicatorStyle = (color: string): CSSProperties => ({
     width: '0.6rem',
     height: '0.6rem',
     borderRadius: '2px',
@@ -226,10 +370,11 @@ export function RichTextEditor({
   });
 
   return (
-    <div
-      className="w-full flex flex-col"
-      style={{ border: '1px solid var(--surface-border)', borderRadius: 'var(--border-radius)', overflow: 'hidden' }}
-    >
+    <>
+      <div
+        className="w-full flex flex-col"
+        style={{ border: '1px solid var(--surface-border)', borderRadius: 'var(--border-radius)', overflow: 'hidden' }}
+      >
       {/* ── Toolbar ──────────────────────────────────────────── */}
       <div
         style={{
@@ -384,6 +529,53 @@ export function RichTextEditor({
           className="prose prose-sm max-w-none w-full min-h-full p-4 focus:outline-none"
         />
       </div>
-    </div>
+      </div>
+      <Dialog
+        visible={linkDialogVisible}
+        onHide={closeLinkDialog}
+        header="Insertar enlace"
+        className="w-full max-w-lg"
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              label="Cancelar"
+              icon="pi pi-times"
+              iconPos="right"
+              outlined
+              size="small"
+              onClick={closeLinkDialog}
+            />
+            <Button
+              type="button"
+              label="Aplicar"
+              icon="pi pi-check"
+              iconPos="right"
+              outlined
+              size="small"
+              onClick={applyLink}
+            />
+          </div>
+        }
+      >
+        <div className="flex flex-col gap-3">
+          <label htmlFor={`${id}-link-url`}>URL</label>
+          <InputText
+            id={`${id}-link-url`}
+            value={linkUrl}
+            onChange={(event) => {
+              setLinkUrl(event.target.value);
+              if (linkError) {
+                setLinkError('');
+              }
+            }}
+            placeholder="https://..."
+            className="w-full"
+            autoFocus
+          />
+          {linkError ? <small className="text-red-500">{linkError}</small> : null}
+        </div>
+      </Dialog>
+    </>
   );
 }

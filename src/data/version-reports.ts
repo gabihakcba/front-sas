@@ -13,6 +13,124 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.13.7',
+    date: '2026-03-20',
+    title: 'Opciones del consejo ajustadas al modo móvil real',
+    summary:
+      'La cabecera del consejo iniciado deja de depender exclusivamente de clases responsive para mostrar el botón Opciones y usa el mismo estado de breakpoint que gobierna el sidebar de temas.',
+    sections: [
+      {
+        title: 'Consejos',
+        items: [
+          'El botón Opciones solo se renderiza cuando la pantalla no está en modo desktop.',
+          'Las acciones extendidas de escritorio usan el mismo estado isDesktopTemas para evitar inconsistencias visuales.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.13.6',
+    date: '2026-03-20',
+    title: 'Toggle de enlaces en el editor',
+    summary:
+      'El editor enriquecido mejora el manejo de enlaces permitiendo quitar el formato link desde el mismo botón o con Ctrl/Cmd + K cuando la selección ya está enlazada.',
+    sections: [
+      {
+        title: 'Editor enriquecido',
+        items: [
+          'El botón de enlace ahora alterna entre crear y quitar links según el contexto de la selección.',
+          'Ctrl/Cmd + K replica el mismo comportamiento toggle del botón.',
+          'Al quitar un link se conserva el texto y solo se elimina la marca de enlace.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.13.5',
+    date: '2026-03-20',
+    title: 'Links del editor con URL única y selección precargada',
+    summary:
+      'La creación de enlaces en el editor deja de separar texto y URL, y pasa a trabajar con un único campo URL que aprovecha la selección actual como valor inicial.',
+    sections: [
+      {
+        title: 'Editor enriquecido',
+        items: [
+          'El modal de enlaces ahora muestra solo el campo URL.',
+          'Al crear un link con texto seleccionado, la selección se precarga directamente como URL.',
+          'Si falta protocolo, el enlace se normaliza automáticamente con https:// antes de aplicarse.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.13.4',
+    date: '2026-03-20',
+    title: 'Acta de consejo con drafts por tema y tiempo real estable',
+    summary:
+      'El consejo iniciado corrige la edición del acta separando el draft por temario y reactivando la sincronización en tiempo real sin volver a mezclar Debate y Acuerdo entre temas.',
+    sections: [
+      {
+        title: 'Consejos',
+        items: [
+          'Cada tema del temario conserva su propio draft de Debate, Acuerdo y Estado.',
+          'La edición en tiempo real vuelve a sincronizarse con debounce sobre el tema activo.',
+          'La restricción de edición sigue reservada a secretario y prosecretario.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.13.3',
+    date: '2026-03-20',
+    title: 'Correcciones de consejo iniciado y enlaces del editor',
+    summary:
+      'Se corrige el breakpoint del botón Opciones en consejos iniciados y se endurece la creación de enlaces del editor para evitar URLs inválidas y preservar mejor Debate y Acuerdo.',
+    sections: [
+      {
+        title: 'Consejos',
+        items: [
+          'El botón Opciones vuelve a renderizarse solo en resoluciones chicas y deja de aparecer en desktop.',
+          'Debate y Acuerdo mantienen una inserción de enlaces segura usando contenido tipado de TipTap en lugar de HTML crudo.',
+          'La creación de enlaces ahora valida y normaliza la URL antes de aplicarla.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.13.2',
+    date: '2026-03-20',
+    title: 'Texto precargado en el modal de enlaces',
+    summary:
+      'El dialog del editor para crear enlaces ahora toma el texto seleccionado como valor inicial y permite confirmar o ajustar el texto visible antes de aplicar el link.',
+    sections: [
+      {
+        title: 'Editor enriquecido',
+        items: [
+          'El modal de enlace suma un campo Texto separado del URL.',
+          'Si el usuario abre el dialog con texto seleccionado, ese contenido se precarga automaticamente en el formulario.',
+          'El enlace resultante usa el texto visible elegido en el modal en lugar de depender solo de la seleccion original.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.13.1',
+    date: '2026-03-20',
+    title: 'Creacion de enlaces con dialog propio del editor',
+    summary:
+      'El editor enriquecido reemplaza el prompt nativo del navegador por un dialog integrado y aplica enlaces sobre la seleccion activa sin salir de la experiencia de la app.',
+    sections: [
+      {
+        title: 'Editor enriquecido',
+        items: [
+          'Crear enlaces desde el boton o con Ctrl/Cmd + K ahora abre un dialog propio de PrimeReact en lugar del prompt del navegador.',
+          'Cuando hay texto seleccionado, el enlace se aplica directamente sobre esa seleccion sin perder el contexto de edicion.',
+          'El foco vuelve al editor al cerrar el dialog para mantener continuidad en la escritura.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.13.0',
     date: '2026-03-20',
     title: 'Detalle de cuentas de dinero con ingresos y egresos trazables',

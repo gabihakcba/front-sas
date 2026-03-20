@@ -39,6 +39,7 @@ import {
   ConsejoAsistenciaItem,
   ConsejoAsistenciaOption,
   Consejo,
+  ConsejoTemarioItem,
   ConsejoTemarioFormValues,
 } from '@/types/consejos';
 
@@ -90,6 +91,16 @@ const createEmptyTemaForm = (): ConsejoTemarioFormValues => ({
   estado: 'PENDIENTE',
 });
 
+type TemaActaDraft = {
+  debate: string;
+  acuerdo: string;
+  estado: string;
+};
+
+type TemaActaSyncPayload = TemaActaDraft & {
+  temarioId: number;
+};
+
 export default function ConsejoWorkspacePage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
@@ -97,9 +108,7 @@ export default function ConsejoWorkspacePage() {
   const consejoId = Number(params.id);
   const [consejo, setConsejo] = useState<Consejo | null>(null);
   const [selectedTemaId, setSelectedTemaId] = useState<number | null>(null);
-  const [debate, setDebate] = useState('');
-  const [acuerdo, setAcuerdo] = useState('');
-  const [estado, setEstado] = useState('PENDIENTE');
+  const [temaDrafts, setTemaDrafts] = useState<Record<number, TemaActaDraft>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -135,6 +144,8 @@ export default function ConsejoWorkspacePage() {
   const [previewTitle, setPreviewTitle] = useState('Preview PDF');
   const [previewFileName, setPreviewFileName] = useState('archivo.pdf');
   const [previewError, setPreviewError] = useState('');
+  const temarioSyncTimeoutRef = useRef<number | null>(null);
+  const lastSyncedTemarioRef = useRef<TemaActaSyncPayload | null>(null);
 
   const canManageConsejo =
     hasAdultMemberAccess(user) && hasPermissionAccess(user, 'UPDATE:CONSEJO');
@@ -173,17 +184,30 @@ export default function ConsejoWorkspacePage() {
     (consejo?.Secretario?.id === currentMemberId ||
       consejo?.Prosecretario?.id === currentMemberId)
   );
-  const temarioSyncTimeoutRef = useRef<number | null>(null);
-  const lastSyncedTemarioRef = useRef<{
-    temarioId: number;
-    debate: string;
-    acuerdo: string;
-    estado: string;
-  } | null>(null);
-
   const temas = consejo?.TemarioConsejo ?? [];
   const selectedTema =
     temas.find((tema) => tema.id === selectedTemaId) ?? temas[0] ?? null;
+  const selectedTemaDraft = selectedTema
+    ? temaDrafts[selectedTema.id] ?? {
+        debate: selectedTema.debate ?? '',
+        acuerdo: selectedTema.acuerdo ?? '',
+        estado: selectedTema.estado,
+      }
+    : null;
+
+  const buildTemaDrafts = useCallback(
+    (items: ConsejoTemarioItem[]): Record<number, TemaActaDraft> =>
+      items.reduce<Record<number, TemaActaDraft>>((acc, tema) => {
+        acc[tema.id] = {
+          debate: tema.debate ?? '',
+          acuerdo: tema.acuerdo ?? '',
+          estado: tema.estado,
+        };
+
+        return acc;
+      }, {}),
+    [],
+  );
 
   const loadConsejo = useCallback(async () => {
     if (!Number.isFinite(consejoId)) {
@@ -198,13 +222,14 @@ export default function ConsejoWorkspacePage() {
     try {
       const response = await getConsejoRequest(consejoId);
       setConsejo(response);
+      setTemaDrafts(buildTemaDrafts(response.TemarioConsejo));
       setSelectedTemaId((current) => current ?? response.TemarioConsejo[0]?.id ?? null);
     } catch (err: unknown) {
       setError(getErrorMessage(err, 'No se pudo cargar el consejo.'));
     } finally {
       setLoading(false);
     }
-  }, [consejoId]);
+  }, [buildTemaDrafts, consejoId]);
 
   useEffect(() => {
     if (!canRead) {
@@ -232,19 +257,6 @@ export default function ConsejoWorkspacePage() {
 
     void loadAsistenciasBase();
   }, [canRead, consejoId]);
-
-  useEffect(() => {
-    if (!selectedTema) {
-      setDebate('');
-      setAcuerdo('');
-      setEstado('PENDIENTE');
-      return;
-    }
-
-    setDebate(selectedTema.debate ?? '');
-    setAcuerdo(selectedTema.acuerdo ?? '');
-    setEstado(selectedTema.estado);
-  }, [selectedTema]);
 
   const openCreateTemaDialog = () => {
     setTemaDialogMode('create');
@@ -517,23 +529,53 @@ export default function ConsejoWorkspacePage() {
     setSuccessMessage('');
 
     try {
-      await updateConsejoTemarioRequest(consejoId, selectedTema.id, {
+      const payload = {
         ...(canEditActa
           ? {
-              debate,
-              acuerdo,
+              debate: selectedTemaDraft?.debate ?? '',
+              acuerdo: selectedTemaDraft?.acuerdo ?? '',
             }
           : {}),
-        estado,
+        estado: selectedTemaDraft?.estado ?? selectedTema.estado,
+      };
+      const updatedTema = await updateConsejoTemarioRequest(
+        consejoId,
+        selectedTema.id,
+        payload,
+      );
+      setConsejo((current) => {
+        if (!current) {
+          return current;
+        }
+
+        return {
+          ...current,
+          TemarioConsejo: current.TemarioConsejo.map((tema) =>
+            tema.id === updatedTema.id ? updatedTema : tema,
+          ),
+        };
       });
+      setTemaDrafts((current) => ({
+        ...current,
+        [updatedTema.id]: {
+          debate: updatedTema.debate ?? '',
+          acuerdo: updatedTema.acuerdo ?? '',
+          estado: updatedTema.estado,
+        },
+      }));
+      lastSyncedTemarioRef.current = {
+        temarioId: updatedTema.id,
+        debate: updatedTema.debate ?? '',
+        acuerdo: updatedTema.acuerdo ?? '',
+        estado: updatedTema.estado,
+      };
       setSuccessMessage('Tema guardado correctamente.');
-      await loadConsejo();
     } catch (err: unknown) {
       setError(getErrorMessage(err, 'No se pudo guardar el tema.'));
     } finally {
       setSaving(false);
     }
-  }, [acuerdo, canEditActa, consejoId, debate, estado, loadConsejo, selectedTema]);
+  }, [canEditActa, consejoId, selectedTema, selectedTemaDraft]);
 
   useEffect(() => {
     if (!canEditActa) {
@@ -558,15 +600,15 @@ export default function ConsejoWorkspacePage() {
   }, [canEditActa, handleSaveTema, saving, selectedTema]);
 
   useEffect(() => {
-    if (!canEditActa || !selectedTema) {
+    if (!canEditActa || !selectedTema || !selectedTemaDraft) {
       return;
     }
 
-    const nextPayload = {
+    const nextPayload: TemaActaSyncPayload = {
       temarioId: selectedTema.id,
-      debate: canEditActa ? debate : selectedTema.debate ?? '',
-      acuerdo: canEditActa ? acuerdo : selectedTema.acuerdo ?? '',
-      estado,
+      debate: selectedTemaDraft.debate,
+      acuerdo: selectedTemaDraft.acuerdo,
+      estado: selectedTemaDraft.estado,
     };
 
     const lastPayload = lastSyncedTemarioRef.current;
@@ -594,7 +636,7 @@ export default function ConsejoWorkspacePage() {
         window.clearTimeout(temarioSyncTimeoutRef.current);
       }
     };
-  }, [acuerdo, canEditActa, debate, emit, estado, selectedTema]);
+  }, [canEditActa, emit, selectedTema, selectedTemaDraft]);
 
   useEffect(() => {
     if (!lastTemarioUpdate) {
@@ -614,18 +656,22 @@ export default function ConsejoWorkspacePage() {
       };
     });
 
-    if (selectedTemaId === lastTemarioUpdate.id) {
-      setDebate(lastTemarioUpdate.debate ?? '');
-      setAcuerdo(lastTemarioUpdate.acuerdo ?? '');
-      setEstado(lastTemarioUpdate.estado);
-      lastSyncedTemarioRef.current = {
-        temarioId: lastTemarioUpdate.id,
+    setTemaDrafts((current) => ({
+      ...current,
+      [lastTemarioUpdate.id]: {
         debate: lastTemarioUpdate.debate ?? '',
         acuerdo: lastTemarioUpdate.acuerdo ?? '',
         estado: lastTemarioUpdate.estado,
-      };
-    }
-  }, [lastTemarioUpdate, selectedTemaId]);
+      },
+    }));
+
+    lastSyncedTemarioRef.current = {
+      temarioId: lastTemarioUpdate.id,
+      debate: lastTemarioUpdate.debate ?? '',
+      acuerdo: lastTemarioUpdate.acuerdo ?? '',
+      estado: lastTemarioUpdate.estado,
+    };
+  }, [lastTemarioUpdate]);
 
   useEffect(() => {
     if (!consejo) {
@@ -770,71 +816,74 @@ export default function ConsejoWorkspacePage() {
               size="small"
               onClick={() => startTransition(() => router.push('/dashboard/consejos'))}
             />
-            <Button
-              type="button"
-              label="Opciones"
-              icon="pi pi-ellipsis-v"
-              iconPos="right"
-              outlined
-              size="small"
-              className="md:hidden"
-              onClick={() => setMobileOptionsVisible(true)}
-            />
-            <div className="hidden flex-wrap gap-2 md:flex">
+            {!isDesktopTemas ? (
               <Button
                 type="button"
-                label="Asistencia"
-                icon="pi pi-users"
+                label="Opciones"
+                icon="pi pi-ellipsis-v"
                 iconPos="right"
                 outlined
                 size="small"
-                onClick={() => void openAsistenciaDialog()}
+                onClick={() => setMobileOptionsVisible(true)}
               />
-              {canManageAssignments ? (
+            ) : null}
+            {isDesktopTemas ? (
+              <div className="flex flex-wrap gap-2">
                 <Button
                   type="button"
-                  label="Asignar secretaria"
+                  label="Asistencia"
                   icon="pi pi-users"
                   iconPos="right"
                   outlined
                   size="small"
-                  onClick={() => void openSecretariaDialog()}
+                  onClick={() => void openAsistenciaDialog()}
                 />
-              ) : null}
-              {canManageAssignments ? (
+                {canManageAssignments ? (
+                  <Button
+                    type="button"
+                    label="Asignar secretaria"
+                    icon="pi pi-users"
+                    iconPos="right"
+                    outlined
+                    size="small"
+                    onClick={() => void openSecretariaDialog()}
+                  />
+                ) : null}
+                {canManageAssignments ? (
+                  <Button
+                    type="button"
+                    label="Asignar moderador"
+                    icon="pi pi-user-plus"
+                    iconPos="right"
+                    outlined
+                    size="small"
+                    onClick={() => void openModeradorDialog()}
+                  />
+                ) : null}
+                {canExportFullPdf ? (
+                  <Button
+                    type="button"
+                    label="PDF completo"
+                    icon={exportingAll ? 'pi pi-spin pi-spinner' : 'pi pi-download'}
+                    iconPos="right"
+                    outlined
+                    size="small"
+                    onClick={() => void handleExportPdf(true)}
+                    loading={exportingAll}
+                  />
+                ) : null}
                 <Button
                   type="button"
-                  label="Asignar moderador"
-                  icon="pi pi-user-plus"
+                  label="PDF"
+                  icon={exportingPublic ? 'pi pi-spin pi-spinner' : 'pi pi-download'}
                   iconPos="right"
                   outlined
                   size="small"
-                  onClick={() => void openModeradorDialog()}
+                  onClick={() => void handleExportPdf(false)}
+                  loading={exportingPublic}
                 />
-              ) : null}
-              {canExportFullPdf ? (
-                <Button
-                  type="button"
-                  label="PDF completo"
-                  icon={exportingAll ? 'pi pi-spin pi-spinner' : 'pi pi-download'}
-                  iconPos="right"
-                  outlined
-                  size="small"
-                  onClick={() => void handleExportPdf(true)}
-                  loading={exportingAll}
-                />
-              ) : null}
-              <Button
-                type="button"
-                label="PDF"
-                icon={exportingPublic ? 'pi pi-spin pi-spinner' : 'pi pi-download'}
-                iconPos="right"
-                outlined
-                size="small"
-                onClick={() => void handleExportPdf(false)}
-                loading={exportingPublic}
-              />
-            </div>
+              </div>
+            ) : null}
           </div>
 
           {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
@@ -885,13 +934,30 @@ export default function ConsejoWorkspacePage() {
                   </label>
                   <Dropdown
                     id="tema-estado-acta"
-                    value={estado}
+                    value={selectedTemaDraft?.estado ?? selectedTema.estado}
                     options={ESTADO_OPTIONS}
                     optionLabel="label"
                     optionValue="value"
-                    onChange={(event: DropdownChangeEvent) =>
-                      setEstado(event.value as string)
-                    }
+                    onChange={(event: DropdownChangeEvent) => {
+                      if (!selectedTema) {
+                        return;
+                      }
+
+                      setTemaDrafts((current) => ({
+                        ...current,
+                        [selectedTema.id]: {
+                          debate:
+                            current[selectedTema.id]?.debate ??
+                            selectedTema.debate ??
+                            '',
+                          acuerdo:
+                            current[selectedTema.id]?.acuerdo ??
+                            selectedTema.acuerdo ??
+                            '',
+                          estado: event.value as string,
+                        },
+                      }));
+                    }}
                     className="w-full"
                     disabled={!canEditActa}
                   />
@@ -900,34 +966,64 @@ export default function ConsejoWorkspacePage() {
 
               <div className="flex flex-col gap-2">
                 <label htmlFor="tema-debate">Debate</label>
-                 <RichTextEditor
-                   id="tema-debate"
-                   value={debate}
-                   onChange={(nextValue) => {
-                     if (!canEditActa) {
-                       return;
-                     }
-                     setDebate(nextValue);
-                   }}
-                   minHeightRem={12}
-                   disabled={!canEditActa}
-                 />
+                <div className="max-h-[32rem] overflow-auto">
+                  <RichTextEditor
+                    key={`tema-debate-${selectedTemaId}-${canEditActa ? 'edit' : 'view'}`}
+                    id="tema-debate"
+                    value={selectedTemaDraft?.debate ?? selectedTema.debate ?? ''}
+                    onChange={(nextValue) => {
+                      if (!canEditActa || !selectedTema) {
+                        return;
+                      }
+                      setTemaDrafts((current) => ({
+                        ...current,
+                        [selectedTema.id]: {
+                          debate: nextValue,
+                          acuerdo:
+                            current[selectedTema.id]?.acuerdo ??
+                            selectedTema.acuerdo ??
+                            '',
+                          estado:
+                            current[selectedTema.id]?.estado ??
+                            selectedTema.estado,
+                        },
+                      }));
+                    }}
+                    minHeightRem={12}
+                    disabled={!canEditActa}
+                  />
+                </div>
               </div>
 
               <div className="flex flex-col gap-2">
                 <label htmlFor="tema-acuerdo">Acuerdo</label>
-                 <RichTextEditor
-                   id="tema-acuerdo"
-                   value={acuerdo}
-                   onChange={(nextValue) => {
-                     if (!canEditActa) {
-                       return;
-                     }
-                     setAcuerdo(nextValue);
-                   }}
-                   minHeightRem={12}
-                   disabled={!canEditActa}
-                 />
+                <div className="max-h-[32rem] overflow-auto">
+                  <RichTextEditor
+                    key={`tema-acuerdo-${selectedTemaId}-${canEditActa ? 'edit' : 'view'}`}
+                    id="tema-acuerdo"
+                    value={selectedTemaDraft?.acuerdo ?? selectedTema.acuerdo ?? ''}
+                    onChange={(nextValue) => {
+                      if (!canEditActa || !selectedTema) {
+                        return;
+                      }
+                      setTemaDrafts((current) => ({
+                        ...current,
+                        [selectedTema.id]: {
+                          debate:
+                            current[selectedTema.id]?.debate ??
+                            selectedTema.debate ??
+                            '',
+                          acuerdo: nextValue,
+                          estado:
+                            current[selectedTema.id]?.estado ??
+                            selectedTema.estado,
+                        },
+                      }));
+                    }}
+                    minHeightRem={12}
+                    disabled={!canEditActa}
+                  />
+                </div>
               </div>
 
               {canEditActa ? (

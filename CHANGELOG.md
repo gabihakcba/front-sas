@@ -2,6 +2,72 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.13.7
+
+Fecha: 2026-03-20
+
+### Correcciones
+
+- el botón `Opciones` del consejo iniciado deja de depender solo de clases responsive y ahora se renderiza únicamente cuando la pantalla está en modo móvil real
+
+## 1.13.6
+
+Fecha: 2026-03-20
+
+### Correcciones
+
+- el botón de enlace y el atajo `Ctrl/Cmd + K` pasan a funcionar como toggle: si la selección ya tiene link, lo quitan
+- al quitar un link se remueve solo la marca de enlace, conservando el texto visible
+
+## 1.13.5
+
+Fecha: 2026-03-20
+
+### Correcciones
+
+- el diálogo de enlaces del editor se simplifica a un único campo `URL`
+- si hay texto seleccionado, ese texto pasa a precargar la `URL` y se usa como `href` del enlace al aplicar
+- si no hay selección, el enlace inserta como texto visible el valor escrito en `URL` y sanitiza automáticamente el protocolo `https://`
+
+## 1.13.4
+
+Fecha: 2026-03-20
+
+### Correcciones
+
+- `Debate`, `Acuerdo` y `Estado` del consejo iniciado pasan a manejarse con drafts aislados por tema para evitar cruces entre puntos del temario
+- la sincronización en tiempo real del acta se restablece con debounce sobre el tema activo, manteniendo los permisos exclusivos de secretario y prosecretario
+- se eliminan los logs temporales de diagnóstico agregados durante la investigación del problema
+
+## 1.13.3
+
+Fecha: 2026-03-20
+
+### Correcciones
+
+- el botón `Opciones` del consejo iniciado vuelve a mostrarse solo en resoluciones chicas y desaparece en desktop desde `md`
+- el editor valida y normaliza la URL antes de crear enlaces para evitar links inválidos como `https:`
+- la inserción de enlaces deja de usar HTML crudo y pasa a insertar contenido TipTap tipado, estabilizando la persistencia de `Debate` y `Acuerdo`
+
+## 1.13.2
+
+Fecha: 2026-03-20
+
+### Correcciones
+
+- el modal de enlaces del editor ahora precarga en el campo `Texto` el contenido seleccionado al abrirse
+- al aplicar un enlace se usa el texto visible definido en el modal, evitando perder control sobre la etiqueta mostrada
+
+## 1.13.1
+
+Fecha: 2026-03-20
+
+### Correcciones
+
+- el editor enriquecido deja de usar el prompt nativo del navegador al crear enlaces y pasa a usar un dialog propio de la interfaz
+- al aplicar un enlace con texto seleccionado, el editor conserva la selección y convierte directamente ese contenido en link
+- el atajo `Ctrl/Cmd + K` queda alineado con el nuevo flujo visual del editor
+
 ## 1.13.0
 
 Fecha: 2026-03-20

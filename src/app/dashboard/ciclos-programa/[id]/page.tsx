@@ -799,43 +799,45 @@ export default function CicloProgramaDetailPage() {
                   </div>
                 ) : null}
                 {ciclo.Evento.length > 0 ? (
-                  <div className="flex flex-col gap-2">
-                    {ciclo.Evento.map((evento) => (
-                      <Card key={evento.id}>
-                        <div className="flex flex-col gap-1">
-                          <strong>{evento.nombre}</strong>
-                          <span>Tipo: {evento.TipoEvento.nombre}</span>
-                          <span>
-                            {dayjs(evento.fecha_inicio).format('DD/MM/YYYY')} -{' '}
-                            {dayjs(evento.fecha_fin).format('DD/MM/YYYY')}
-                          </span>
-                          <span>{evento.terminado ? 'Terminado' : 'En curso'}</span>
-                          {editing && canManageEvents ? (
-                            <div className="flex flex-wrap gap-2">
-                              <Button
-                                type="button"
-                                label="Editar"
-                                icon="pi pi-pencil"
-                                iconPos="right"
-                                outlined
-                                size="small"
-                                onClick={() => void openEditEventoDialog(evento.id)}
-                              />
-                              <Button
-                                type="button"
-                                label="Quitar del ciclo"
-                                icon="pi pi-times"
-                                iconPos="right"
-                                outlined
-                                size="small"
-                                severity="danger"
-                                onClick={() => void handleUnlinkEvento(evento.id)}
-                              />
-                            </div>
-                          ) : null}
-                        </div>
-                      </Card>
-                    ))}
+                  <div className="max-h-[32rem] overflow-auto">
+                    <div className="flex flex-col gap-2">
+                      {ciclo.Evento.map((evento) => (
+                        <Card key={evento.id}>
+                          <div className="flex flex-col gap-1">
+                            <strong>{evento.nombre}</strong>
+                            <span>Tipo: {evento.TipoEvento.nombre}</span>
+                            <span>
+                              {dayjs(evento.fecha_inicio).format('DD/MM/YYYY')} -{' '}
+                              {dayjs(evento.fecha_fin).format('DD/MM/YYYY')}
+                            </span>
+                            <span>{evento.terminado ? 'Terminado' : 'En curso'}</span>
+                            {editing && canManageEvents ? (
+                              <div className="flex flex-wrap gap-2">
+                                <Button
+                                  type="button"
+                                  label="Editar"
+                                  icon="pi pi-pencil"
+                                  iconPos="right"
+                                  outlined
+                                  size="small"
+                                  onClick={() => void openEditEventoDialog(evento.id)}
+                                />
+                                <Button
+                                  type="button"
+                                  label="Quitar del ciclo"
+                                  icon="pi pi-times"
+                                  iconPos="right"
+                                  outlined
+                                  size="small"
+                                  severity="danger"
+                                  onClick={() => void handleUnlinkEvento(evento.id)}
+                                />
+                              </div>
+                            ) : null}
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
                   </div>
                 ) : (
                   <span>No hay eventos vinculados a este ciclo.</span>
@@ -875,20 +877,22 @@ export default function CicloProgramaDetailPage() {
               }
             >
               {activeStageConfig.field ? (
-                 <RichTextEditor
-                   key={`${activeTab}-${editing ? 'edit' : 'view'}`}
-                   id={`ciclo-stage-${activeTab.toLowerCase()}`}
-                   value={activeStageValue}
-                   onChange={(nextValue) => {
-                     if (!editing) {
-                       return;
-                     }
+                <div className="max-h-[32rem] overflow-auto">
+                  <RichTextEditor
+                    key={`${activeTab}-${editing ? 'edit' : 'view'}`}
+                    id={`ciclo-stage-${activeTab.toLowerCase()}`}
+                    value={activeStageValue}
+                    onChange={(nextValue) => {
+                      if (!editing) {
+                        return;
+                      }
 
-                     updateStageValue(nextValue);
-                   }}
-                   disabled={!editing}
-                   minHeightRem={12}
-                 />
+                      updateStageValue(nextValue);
+                    }}
+                    disabled={!editing}
+                    minHeightRem={12}
+                  />
+                </div>
               ) : (
                 <Message
                   severity="info"
