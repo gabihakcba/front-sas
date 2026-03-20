@@ -69,6 +69,25 @@ export const BRANCH_CASH_ACCOUNT_ACCESS: AccessRule[] = [
   { role: "AYUDANTE_RAMA", scopeType: "RAMA" },
 ];
 
+export const CUENTA_DINERO_DETAIL_ACCESS: AccessRule[] = [
+  { role: "ADM", scopeType: "GRUPO" },
+  { role: "AYUDANTE", scopeType: "GRUPO" },
+  { role: "DEV", scopeType: "GRUPO" },
+  { role: "INTENDENCIA", scopeType: "GRUPO" },
+  { role: "JEFATURA", scopeType: "GRUPO" },
+  { role: "SECRETARIA_TESORERIA", scopeType: "GRUPO" },
+  { role: "ADM", scopeType: "GLOBAL" },
+  { role: "AYUDANTE", scopeType: "GLOBAL" },
+  { role: "DEV", scopeType: "GLOBAL" },
+  { role: "INTENDENCIA", scopeType: "GLOBAL" },
+  { role: "JEFATURA", scopeType: "GLOBAL" },
+  { role: "SECRETARIA_TESORERIA", scopeType: "GLOBAL" },
+  { role: "OWN", scopeType: "OWN" },
+  { role: "OWN", scopeType: "GLOBAL" },
+  { role: "JEFATURA_RAMA", scopeType: "RAMA" },
+  { role: "AYUDANTE_RAMA", scopeType: "RAMA" },
+];
+
 export const BRANCH_EVENT_ACCESS: AccessRule[] = [
   ...GROUP_LEADERSHIP_ACCESS,
   { role: "JEFATURA_RAMA", scopeType: "RAMA" },
@@ -256,6 +275,10 @@ export const dashboardRouteAccessList: DashboardRouteAccess[] = [
   {
     pathPrefix: "/dashboard/cuentas-dinero",
     accessRules: PAYMENT_MANAGEMENT_ACCESS,
+  },
+  {
+    pathPrefix: "/dashboard/cuentas/dinero",
+    accessRules: CUENTA_DINERO_DETAIL_ACCESS,
   },
   { pathPrefix: "/dashboard/eventos", accessRules: BRANCH_EVENT_ACCESS },
   { pathPrefix: "/dashboard/reuniones", accessRules: BRANCH_MEETING_ACCESS },

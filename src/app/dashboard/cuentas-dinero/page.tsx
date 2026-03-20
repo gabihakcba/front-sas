@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
@@ -16,6 +17,7 @@ import { hasDeveloperAccess } from '@/lib/authorization';
 import { CuentaDinero } from '@/types/cuentas-dinero';
 
 export default function CuentasDineroPage() {
+  const router = useRouter();
   const { user } = useAuth();
   const {
     cuentasDinero,
@@ -74,6 +76,16 @@ export default function CuentasDineroPage() {
             label: 'Crear',
             icon: 'pi pi-plus',
             onClick: () => void openCreateDialog(),
+          },
+          {
+            label: 'Detalles',
+            icon: 'pi pi-eye',
+            onClick: () => {
+              if (selectedCuentaDinero) {
+                router.push(`/dashboard/cuentas/dinero/${selectedCuentaDinero.id}`);
+              }
+            },
+            disabled: !selectedCuentaDinero,
           },
         ]}
       />
@@ -161,6 +173,9 @@ export default function CuentasDineroPage() {
           onSelectionChange={(event) =>
             setSelectedCuentaDinero((event.value as CuentaDinero | null) ?? null)
           }
+          onRowDoubleClick={(event) =>
+            router.push(`/dashboard/cuentas/dinero/${(event.data as CuentaDinero).id}`)
+          }
           first={(page - 1) * limit}
           rows={10}
           totalRecords={total}
@@ -194,6 +209,10 @@ export default function CuentasDineroPage() {
           <Column
             header="Pagos asociados"
             body={(cuenta: CuentaDinero) => cuenta._count.Pago}
+          />
+          <Column
+            header="Movimientos"
+            body={(cuenta: CuentaDinero) => cuenta._count.MovimientoCuenta}
           />
         </DataTable>
       </Card>

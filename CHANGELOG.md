@@ -2,6 +2,18 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.13.0
+
+Fecha: 2026-03-20
+
+### Ajustes funcionales relevantes
+
+- la gestion de cuentas de dinero incorpora una vista de detalle dedicada en `/dashboard/cuentas/dinero/[id]` con saldo actual, contexto de asignacion y listado paginado de movimientos
+- los ingresos y egresos pasan a registrarse como movimientos de cuenta con tipo inferido por signo, responsable, metodo de pago, snapshots de saldo y adjuntos multiples
+- desde el listado principal de cuentas se agrega acceso directo a `Detalles` y conteo visible de movimientos asociados
+- los adjuntos de movimientos pueden previsualizarse desde la misma tabla de detalle
+- las rutas protegidas del dashboard quedan alineadas para permitir acceso directo a la nueva vista de detalle de cuentas
+
 ## 1.12.0
 
 Fecha: 2026-03-19

@@ -13,6 +13,31 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.13.0',
+    date: '2026-03-20',
+    title: 'Detalle de cuentas de dinero con ingresos y egresos trazables',
+    summary:
+      'Las cuentas de dinero suman una vista de detalle operativa con movimientos paginados, registro de ingresos y egresos, responsables, metodos y adjuntos.',
+    sections: [
+      {
+        title: 'Cuentas de dinero',
+        items: [
+          'Cada cuenta ahora expone una pantalla de detalle con saldo actual, asignacion contextual y metricas basicas de pagos y movimientos.',
+          'Desde el listado principal se puede abrir la vista detallada por accion dedicada o doble click sobre la fila.',
+          'La tabla principal agrega el conteo de movimientos asociados a cada cuenta.',
+        ],
+      },
+      {
+        title: 'Movimientos financieros',
+        items: [
+          'Los movimientos admiten montos positivos y negativos, con tipo inferido automaticamente como INGRESO o EGRESO.',
+          'Cada alta registra responsable, metodo de pago, fecha operativa, detalle libre y multiples adjuntos de respaldo.',
+          'La tabla de detalle permite filtrar movimientos y previsualizar comprobantes cargados sobre cada registro.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.12.0',
     date: '2026-03-19',
     title: 'Nueva seccion Reuniones con invitaciones por miembro',
