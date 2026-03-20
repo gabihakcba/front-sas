@@ -22,7 +22,7 @@ import {
   UpdateTemplatePayload,
 } from '@/types/formacion';
 
-const MAX_ADJUNTO_SIZE_BYTES = 50 * 1024 * 1024;
+const MAX_ADJUNTO_SIZE_BYTES = 100 * 1024 * 1024;
 
 type TemplateDraft = {
   nombre: string;
@@ -127,7 +127,7 @@ const fileToBase64 = (file: File) =>
 const validateAdjuntoFile = (file: File) => {
   if (file.size > MAX_ADJUNTO_SIZE_BYTES) {
     throw new Error(
-      'El archivo seleccionado supera el tamaño máximo permitido de 50 MB.',
+      'El archivo seleccionado supera el tamaño máximo permitido de 100 MB.',
     );
   }
 };
