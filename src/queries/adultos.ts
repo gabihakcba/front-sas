@@ -8,6 +8,7 @@ import {
   PaginatedAdultosResponse,
   UpdateAdultoPayload,
 } from '@/types/adultos';
+import { SpreadsheetImportResult } from '@/types/imports';
 
 interface GetAdultosParams {
   page?: number;
@@ -86,4 +87,25 @@ export const updateAdultoFirmaRequest = async (
 
 export const deleteAdultoRequest = async (id: number): Promise<void> => {
   await api.delete(`/adultos/${id}`);
+};
+
+export const importAdultosSpreadsheetRequest = async (
+  file: File,
+  idRama?: number | null,
+): Promise<SpreadsheetImportResult> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  if (idRama) {
+    formData.append('idRama', String(idRama));
+  }
+  const response = await api.post<SpreadsheetImportResult>(
+    '/adultos/import',
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    },
+  );
+  return response.data;
 };

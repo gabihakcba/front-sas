@@ -13,6 +13,31 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.14.0',
+    date: '2026-03-20',
+    title: 'Importación masiva desde planillas',
+    summary:
+      'Los módulos de protagonistas, adultos y responsables ahora permiten cargar altas masivas desde archivos .xlsx, .csv o .tsv con un resumen final de filas creadas y errores detectados.',
+    sections: [
+      {
+        title: 'Carga operativa',
+        items: [
+          'Cada listado suma una acción Importar con diálogo propio para adjuntar la planilla.',
+          'La interfaz muestra cuántas filas se crearon y cuáles fallaron, indicando el motivo por fila.',
+          'Los listados se refrescan automáticamente al finalizar una importación exitosa.',
+        ],
+      },
+      {
+        title: 'Backend',
+        items: [
+          'La API incorpora endpoints de importación para protagonistas, adultos y responsables.',
+          'La lectura soporta .xlsx, .csv y .tsv usando la primera hoja disponible del archivo.',
+          'La resolución de rama, área, posición, rol y scope respeta el alcance del usuario autenticado.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.13.9',
     date: '2026-03-20',
     title: 'Fechas y horas unificadas con timezone Argentina',

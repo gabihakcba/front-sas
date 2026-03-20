@@ -1,7 +1,7 @@
 'use client';
 
 import dayjs from 'dayjs';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
@@ -14,7 +14,9 @@ import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
 import { ResponsiveTableActions } from '@/components/common/ResponsiveTableActions';
+import { SpreadsheetImportDialog } from '@/components/common/SpreadsheetImportDialog';
 import {
+  hasAdultMemberAccess,
   hasDeletedAuditAccess,
   hasDeveloperAccess,
   hasPermissionAccess,
@@ -22,6 +24,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useResponsablesHook } from '@/hooks/useResponsablesHooks';
+import { SpreadsheetImportResult } from '@/types/imports';
 import { Responsable } from '@/types/responsables';
 import { ResponsableAsignacionDialog } from '@/components/responsables/ResponsableAsignacionDialog';
 import { ResponsableFormDialog } from '@/components/responsables/ResponsableFormDialog';
@@ -36,6 +39,12 @@ export default function ResponsablesPage() {
   const router = useRouter();
   const { user } = useAuth();
   const { confirmDelete, deleteConfirmDialog } = useDeleteConfirm();
+  const [importVisible, setImportVisible] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState('');
+  const [importResult, setImportResult] = useState<SpreadsheetImportResult | null>(
+    null,
+  );
   const {
     responsables,
     selectedResponsable,
@@ -67,6 +76,7 @@ export default function ResponsablesPage() {
     submitForm,
     submitAssignments,
     deleteSelected,
+    importSpreadsheet,
   } = useResponsablesHook();
 
   const canCreate = hasPermissionAccess(user, 'CREATE:RESPONSABLE');
@@ -75,6 +85,7 @@ export default function ResponsablesPage() {
   const canAssign = hasPermissionAccess(user, 'UPDATE:RESPONSABLE');
   const canAuditDeleted = hasDeletedAuditAccess(user);
   const canSeeId = hasDeveloperAccess(user);
+  const canUseImport = hasAdultMemberAccess(user) && canCreate;
 
   const handlePage = (event: DataTablePageEvent) => {
     const nextPage = Math.floor(event.first / event.rows) + 1;
@@ -91,6 +102,22 @@ export default function ResponsablesPage() {
         'El responsable dejará de estar disponible en listados operativos y puede impactar asignaciones, pagos asociados y referencias visibles sobre protagonistas a cargo.',
       onAccept: () => void deleteSelected(),
     });
+  };
+
+  const handleImport = async (file: File) => {
+    setImporting(true);
+    setImportError('');
+
+    try {
+      const result = await importSpreadsheet(file);
+      setImportResult(result);
+    } catch (err) {
+      setImportError(
+        err instanceof Error ? err.message : 'No se pudo importar la planilla.',
+      );
+    } finally {
+      setImporting(false);
+    }
   };
 
   const filterControls = (
@@ -157,12 +184,21 @@ export default function ResponsablesPage() {
             : []
         }
         crudActions={[
-          ...(canCreate
+          ...(canUseImport
             ? [
                 {
                   label: 'Crear',
                   icon: 'pi pi-plus',
                   onClick: () => void openCreateDialog(),
+                },
+                {
+                  label: 'Importar',
+                  icon: 'pi pi-upload',
+                  onClick: () => {
+                    setImportError('');
+                    setImportResult(null);
+                    setImportVisible(true);
+                  },
                 },
               ]
             : []),
@@ -320,6 +356,17 @@ export default function ResponsablesPage() {
           onSubmit={() => void submitAssignments()}
         />
       ) : null}
+      <SpreadsheetImportDialog
+        visible={importVisible}
+        title="Importar responsables"
+        loading={importing}
+        error={importError}
+        result={importResult}
+        exampleFilePath="/documentos-xlsl/plantilla-import-responsables.xlsx"
+        exampleFileName="plantilla-import-responsables.xlsx"
+        onHide={() => setImportVisible(false)}
+        onSubmit={handleImport}
+      />
       {deleteConfirmDialog}
     </Card>
   );

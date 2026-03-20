@@ -7,6 +7,7 @@ import {
   ResponsableOptionsResponse,
   UpdateResponsablePayload,
 } from '@/types/responsables';
+import { SpreadsheetImportResult } from '@/types/imports';
 
 interface GetResponsablesParams {
   page?: number;
@@ -70,4 +71,21 @@ export const updateResponsabilidadesRequest = async (
 
 export const deleteResponsableRequest = async (id: number): Promise<void> => {
   await api.delete(`/responsables/${id}`);
+};
+
+export const importResponsablesSpreadsheetRequest = async (
+  file: File,
+): Promise<SpreadsheetImportResult> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await api.post<SpreadsheetImportResult>(
+    '/responsables/import',
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    },
+  );
+  return response.data;
 };

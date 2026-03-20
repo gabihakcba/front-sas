@@ -1,6 +1,7 @@
 'use client';
 
 import dayjs from 'dayjs';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
@@ -14,25 +15,51 @@ import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
 import { ResponsiveTableActions } from '@/components/common/ResponsiveTableActions';
+import { SpreadsheetImportDialog } from '@/components/common/SpreadsheetImportDialog';
 import { ProtagonistaFormDialog } from '@/components/protagonistas/ProtagonistaFormDialog';
 import { ProtagonistaPaseDialog } from '@/components/protagonistas/ProtagonistaPaseDialog';
 import { useAuth } from '@/context/AuthContext';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useProtagonistasHook } from '@/hooks/useProtagonistasHooks';
 import {
+  hasAdultMemberAccess,
   hasDeletedAuditAccess,
   hasDeveloperAccess,
   hasPermissionAccess,
 } from '@/lib/authorization';
+import { SpreadsheetImportResult } from '@/types/imports';
 import { Protagonista } from '@/types/protagonistas';
 
 const getRamaActual = (protagonista: Protagonista) =>
   protagonista.Miembro.MiembroRama[0] ?? null;
 
+const getSingleScopedRamaId = (
+  scopes: Array<{ scopeType: string; scopeId: number | null }> | undefined,
+) => {
+  const ramaIds = Array.from(
+    new Set(
+      (scopes ?? [])
+        .filter((scope) => scope.scopeType === 'RAMA' && scope.scopeId != null)
+        .map((scope) => scope.scopeId as number),
+    ),
+  );
+
+  return ramaIds.length === 1 ? ramaIds[0] : null;
+};
+
 export default function ProtagonistasPage() {
   const router = useRouter();
   const { user } = useAuth();
   const { confirmDelete, deleteConfirmDialog } = useDeleteConfirm();
+  const [importVisible, setImportVisible] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState('');
+  const [selectedImportRamaId, setSelectedImportRamaId] = useState<number | null>(
+    null,
+  );
+  const [importResult, setImportResult] = useState<SpreadsheetImportResult | null>(
+    null,
+  );
   const {
     protagonistas,
     ramas,
@@ -63,6 +90,7 @@ export default function ProtagonistasPage() {
     submitForm,
     submitPase,
     deleteSelected,
+    importSpreadsheet,
   } = useProtagonistasHook();
   const canCreate = hasPermissionAccess(user, 'CREATE:PROTAGONISTA');
   const canEdit = hasPermissionAccess(user, 'UPDATE:PROTAGONISTA');
@@ -71,6 +99,8 @@ export default function ProtagonistasPage() {
   const canSeeOperationalColumns = canEdit || canDelete;
   const canAuditDeleted = hasDeletedAuditAccess(user);
   const canSeeId = hasDeveloperAccess(user);
+  const canUseImport = hasAdultMemberAccess(user) && canCreate;
+  const scopedRamaId = getSingleScopedRamaId(user?.scopes);
 
   const handlePage = (event: DataTablePageEvent) => {
     const nextPage = Math.floor(event.first / event.rows) + 1;
@@ -87,6 +117,22 @@ export default function ProtagonistasPage() {
         'La persona protagonista dejará de aparecer en los listados operativos y esto puede afectar relaciones, pagos, asistencias e históricos visibles vinculados.',
       onAccept: () => void deleteSelected(),
     });
+  };
+
+  const handleImport = async (file: File) => {
+    setImporting(true);
+    setImportError('');
+
+    try {
+      const result = await importSpreadsheet(file, scopedRamaId ?? selectedImportRamaId);
+      setImportResult(result);
+    } catch (err) {
+      setImportError(
+        err instanceof Error ? err.message : 'No se pudo importar la planilla.',
+      );
+    } finally {
+      setImporting(false);
+    }
   };
 
   const filterControls = (
@@ -129,17 +175,33 @@ export default function ProtagonistasPage() {
       <ResponsiveTableActions
         filtersContent={filterControls}
         specialActions={
-          canRegisterPase
-            ? [
-                {
-                  label: 'Pase',
-                  icon: 'pi pi-arrow-right-arrow-left',
-                  onClick: () => void openPaseDialog(),
-                  disabled:
-                    !selectedProtagonista || Boolean(selectedProtagonista.borrado),
-                },
-              ]
-            : []
+          [
+            ...(canRegisterPase
+              ? [
+                  {
+                    label: 'Pase',
+                    icon: 'pi pi-arrow-right-arrow-left',
+                    onClick: () => void openPaseDialog(),
+                    disabled:
+                      !selectedProtagonista || Boolean(selectedProtagonista.borrado),
+                  },
+                ]
+              : []),
+            ...(canUseImport
+              ? [
+                  {
+                    label: 'Importar',
+                    icon: 'pi pi-upload',
+                    onClick: () => {
+                      setImportError('');
+                      setImportResult(null);
+                      setSelectedImportRamaId(scopedRamaId);
+                      setImportVisible(true);
+                    },
+                  },
+                ]
+              : []),
+          ]
         }
         crudActions={[
           ...(canCreate
@@ -363,6 +425,21 @@ export default function ProtagonistasPage() {
         onHide={closePaseDialog}
         onSubmit={() => void submitPase()}
         onChange={setPaseValues}
+      />
+      <SpreadsheetImportDialog
+        visible={importVisible}
+        title="Importar protagonistas"
+        loading={importing}
+        error={importError}
+        result={importResult}
+        exampleFilePath="/documentos-xlsl/plantilla-import-protagonistas.xlsx"
+        exampleFileName="plantilla-import-protagonistas.xlsx"
+        ramaOptions={ramas}
+        selectedRamaId={selectedImportRamaId}
+        requireRamaSelection={!scopedRamaId}
+        onRamaChange={setSelectedImportRamaId}
+        onHide={() => setImportVisible(false)}
+        onSubmit={handleImport}
       />
       {deleteConfirmDialog}
     </div>

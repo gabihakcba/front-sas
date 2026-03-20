@@ -9,9 +9,11 @@ import {
   getProtagonistaRequest,
   getProtagonistasRequest,
   getRamasRequest,
+  importProtagonistasSpreadsheetRequest,
   registerPaseProtagonistaRequest,
   updateProtagonistaRequest,
 } from '@/queries/protagonistas';
+import { SpreadsheetImportResult } from '@/types/imports';
 import { PaginatedResponseMeta } from '@/types/pagination';
 import {
   CreateProtagonistaPayload,
@@ -90,6 +92,10 @@ interface UseProtagonistasHookResult {
   submitForm: (values: ProtagonistaFormValues) => Promise<void>;
   submitPase: () => Promise<void>;
   deleteSelected: () => Promise<void>;
+  importSpreadsheet: (
+    file: File,
+    idRama?: number | null,
+  ) => Promise<SpreadsheetImportResult>;
 }
 
 const getErrorMessage = (err: unknown, fallback: string): string => {
@@ -441,6 +447,17 @@ export const useProtagonistasHook = (): UseProtagonistasHookResult => {
     }
   };
 
+  const importSpreadsheet = async (file: File, idRama?: number | null) => {
+    setError('');
+    setSuccessMessage('');
+    const result = await importProtagonistasSpreadsheetRequest(file, idRama);
+    setSuccessMessage(
+      `Importación finalizada: ${result.createdCount} filas creadas y ${result.errorCount} con error.`,
+    );
+    await fetchProtagonistas(1);
+    return result;
+  };
+
   return {
     protagonistas,
     ramas,
@@ -472,5 +489,6 @@ export const useProtagonistasHook = (): UseProtagonistasHookResult => {
     submitForm,
     submitPase,
     deleteSelected,
+    importSpreadsheet,
   };
 };

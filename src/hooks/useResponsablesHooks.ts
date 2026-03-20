@@ -9,9 +9,11 @@ import {
   getResponsableRequest,
   getResponsablesOptionsRequest,
   getResponsablesRequest,
+  importResponsablesSpreadsheetRequest,
   updateResponsabilidadesRequest,
   updateResponsableRequest,
 } from '@/queries/responsables';
+import { SpreadsheetImportResult } from '@/types/imports';
 import {
   CreateResponsablePayload,
   PaginatedResponsablesResponse,
@@ -147,6 +149,7 @@ interface UseResponsablesHookResult {
   submitForm: (values: ResponsableFormValues) => Promise<void>;
   submitAssignments: () => Promise<void>;
   deleteSelected: () => Promise<void>;
+  importSpreadsheet: (file: File) => Promise<SpreadsheetImportResult>;
 }
 
 export const useResponsablesHook = (): UseResponsablesHookResult => {
@@ -369,6 +372,20 @@ export const useResponsablesHook = (): UseResponsablesHookResult => {
     }
   }, [fetchResponsables, page, selectedResponsable]);
 
+  const importSpreadsheet = useCallback(
+    async (file: File) => {
+      setError('');
+      setSuccessMessage('');
+      const result = await importResponsablesSpreadsheetRequest(file);
+      setSuccessMessage(
+        `Importación finalizada: ${result.createdCount} filas creadas y ${result.errorCount} con error.`,
+      );
+      await fetchResponsables(1);
+      return result;
+    },
+    [fetchResponsables],
+  );
+
   return {
     responsables,
     selectedResponsable,
@@ -400,5 +417,6 @@ export const useResponsablesHook = (): UseResponsablesHookResult => {
     submitForm,
     submitAssignments,
     deleteSelected,
+    importSpreadsheet,
   };
 };

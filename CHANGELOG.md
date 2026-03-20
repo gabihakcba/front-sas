@@ -2,6 +2,21 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.14.0
+
+Fecha: 2026-03-20
+
+### Funcionalidades
+
+- se agrega importación masiva de protagonistas, adultos y responsables desde planillas `.xlsx`, `.csv` o `.tsv`
+- cada módulo muestra un diálogo de importación con resumen de filas creadas y errores por fila
+- la carga acepta encabezados operativos como `rama`, `area`, `posicion`, `rol` y `scope`, alineados con el backend
+
+### Notas
+
+- el backend procesa la planilla por filas, crea las válidas y devuelve el detalle de las que fallan sin cortar todo el lote
+- las resoluciones de rama, área y demás referencias respetan el scope del usuario autenticado
+
 ## 1.13.9
 
 Fecha: 2026-03-20

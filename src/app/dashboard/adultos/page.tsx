@@ -1,6 +1,7 @@
 'use client';
 
 import dayjs from 'dayjs';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
@@ -15,14 +16,17 @@ import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
 import { AdultoFormDialog } from '@/components/adultos/AdultoFormDialog';
 import { ResponsiveTableActions } from '@/components/common/ResponsiveTableActions';
+import { SpreadsheetImportDialog } from '@/components/common/SpreadsheetImportDialog';
 import { useAuth } from '@/context/AuthContext';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useAdultosHook } from '@/hooks/useAdultosHooks';
 import {
+  hasAdultMemberAccess,
   hasDeletedAuditAccess,
   hasDeveloperAccess,
   hasPermissionAccess,
 } from '@/lib/authorization';
+import { SpreadsheetImportResult } from '@/types/imports';
 import { Adulto } from '@/types/adultos';
 
 const getAsignacionActual = (adulto: Adulto) => adulto.EquipoArea[0] ?? null;
@@ -32,10 +36,33 @@ const getRolesActuales = (adulto: Adulto) =>
     ', ',
   );
 
+const getSingleScopedRamaId = (
+  scopes: Array<{ scopeType: string; scopeId: number | null }> | undefined,
+) => {
+  const ramaIds = Array.from(
+    new Set(
+      (scopes ?? [])
+        .filter((scope) => scope.scopeType === 'RAMA' && scope.scopeId != null)
+        .map((scope) => scope.scopeId as number),
+    ),
+  );
+
+  return ramaIds.length === 1 ? ramaIds[0] : null;
+};
+
 export default function AdultosPage() {
   const router = useRouter();
   const { user } = useAuth();
   const { confirmDelete, deleteConfirmDialog } = useDeleteConfirm();
+  const [importVisible, setImportVisible] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importError, setImportError] = useState('');
+  const [selectedImportRamaId, setSelectedImportRamaId] = useState<number | null>(
+    null,
+  );
+  const [importResult, setImportResult] = useState<SpreadsheetImportResult | null>(
+    null,
+  );
   const {
     adultos,
     selectedAdulto,
@@ -60,6 +87,7 @@ export default function AdultosPage() {
     closeDialog,
     submitForm,
     deleteSelected,
+    importSpreadsheet,
   } = useAdultosHook();
   const canCreate = hasPermissionAccess(user, 'CREATE:ADULTO');
   const canEdit = hasPermissionAccess(user, 'UPDATE:ADULTO');
@@ -67,6 +95,8 @@ export default function AdultosPage() {
   const canSeeOperationalColumns = canEdit || canDelete;
   const canAuditDeleted = hasDeletedAuditAccess(user);
   const canSeeId = hasDeveloperAccess(user);
+  const canUseImport = hasAdultMemberAccess(user) && canCreate;
+  const scopedRamaId = getSingleScopedRamaId(user?.scopes);
 
   const handlePage = (event: DataTablePageEvent) => {
     const nextPage = Math.floor(event.first / event.rows) + 1;
@@ -83,6 +113,22 @@ export default function AdultosPage() {
         'La persona adulta dejará de aparecer en los listados operativos y esto puede repercutir en equipos, formación, pagos, firmas y otros vínculos visibles.',
       onAccept: () => void deleteSelected(),
     });
+  };
+
+  const handleImport = async (file: File) => {
+    setImporting(true);
+    setImportError('');
+
+    try {
+      const result = await importSpreadsheet(file, scopedRamaId ?? selectedImportRamaId);
+      setImportResult(result);
+    } catch (err) {
+      setImportError(
+        err instanceof Error ? err.message : 'No se pudo importar la planilla.',
+      );
+    } finally {
+      setImporting(false);
+    }
   };
 
   const filterControls = (
@@ -125,12 +171,22 @@ export default function AdultosPage() {
       <ResponsiveTableActions
         filtersContent={filterControls}
         crudActions={[
-          ...(canCreate
+          ...(canUseImport
             ? [
                 {
                   label: 'Crear',
                   icon: 'pi pi-plus',
                   onClick: () => void openCreateDialog(),
+                },
+                {
+                  label: 'Importar',
+                  icon: 'pi pi-upload',
+                  onClick: () => {
+                    setImportError('');
+                    setImportResult(null);
+                    setSelectedImportRamaId(scopedRamaId);
+                    setImportVisible(true);
+                  },
                 },
               ]
             : []),
@@ -382,6 +438,21 @@ export default function AdultosPage() {
         error={error}
         onHide={closeDialog}
         onSubmit={(values) => void submitForm(values)}
+      />
+      <SpreadsheetImportDialog
+        visible={importVisible}
+        title="Importar adultos"
+        loading={importing}
+        error={importError}
+        result={importResult}
+        exampleFilePath="/documentos-xlsl/plantilla-import-adultos.xlsx"
+        exampleFileName="plantilla-import-adultos.xlsx"
+        ramaOptions={options.ramas}
+        selectedRamaId={selectedImportRamaId}
+        requireRamaSelection={!scopedRamaId}
+        onRamaChange={setSelectedImportRamaId}
+        onHide={() => setImportVisible(false)}
+        onSubmit={handleImport}
       />
       {deleteConfirmDialog}
     </div>

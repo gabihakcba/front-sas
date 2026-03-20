@@ -10,9 +10,11 @@ import {
   getAdultoFirmaRequest,
   getAdultosOptionsRequest,
   getAdultosRequest,
+  importAdultosSpreadsheetRequest,
   updateAdultoFirmaRequest,
   updateAdultoRequest,
 } from '@/queries/adultos';
+import { SpreadsheetImportResult } from '@/types/imports';
 import {
   Adulto,
   AdultoFilters,
@@ -191,6 +193,10 @@ interface UseAdultosHookResult {
   closeDialog: () => void;
   submitForm: (values: AdultoFormValues) => Promise<void>;
   deleteSelected: () => Promise<void>;
+  importSpreadsheet: (
+    file: File,
+    idRama?: number | null,
+  ) => Promise<SpreadsheetImportResult>;
 }
 
 export const useAdultosHook = (): UseAdultosHookResult => {
@@ -392,6 +398,17 @@ export const useAdultosHook = (): UseAdultosHookResult => {
     }
   };
 
+  const importSpreadsheet = async (file: File, idRama?: number | null) => {
+    setError('');
+    setSuccessMessage('');
+    const result = await importAdultosSpreadsheetRequest(file, idRama);
+    setSuccessMessage(
+      `Importación finalizada: ${result.createdCount} filas creadas y ${result.errorCount} con error.`,
+    );
+    await fetchAdultos(1);
+    return result;
+  };
+
   return {
     adultos,
     selectedAdulto,
@@ -422,5 +439,6 @@ export const useAdultosHook = (): UseAdultosHookResult => {
     closeDialog,
     submitForm,
     deleteSelected,
+    importSpreadsheet,
   };
 };

@@ -8,6 +8,7 @@ import {
   RamaOption,
   UpdateProtagonistaPayload,
 } from '@/types/protagonistas';
+import { SpreadsheetImportResult } from '@/types/imports';
 
 interface GetProtagonistasParams {
   page?: number;
@@ -74,5 +75,26 @@ export const registerPaseProtagonistaRequest = async (
 
 export const getRamasRequest = async (): Promise<RamaOption[]> => {
   const response = await api.get<RamaOption[]>('/ramas');
+  return response.data;
+};
+
+export const importProtagonistasSpreadsheetRequest = async (
+  file: File,
+  idRama?: number | null,
+): Promise<SpreadsheetImportResult> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  if (idRama) {
+    formData.append('idRama', String(idRama));
+  }
+  const response = await api.post<SpreadsheetImportResult>(
+    '/protagonistas/import',
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    },
+  );
   return response.data;
 };
