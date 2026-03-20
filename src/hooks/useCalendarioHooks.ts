@@ -11,6 +11,7 @@ import {
   getEventosOptionsRequest,
 } from '@/queries/eventos';
 import { getCalendarReunionesRequest } from '@/queries/reuniones';
+import { getCalendarSabatinosRequest } from '@/queries/sabatinos';
 import {
   CalendarBirthday,
   CalendarConsejo,
@@ -18,7 +19,7 @@ import {
   EventoRamaOption,
 } from '@/types/eventos';
 
-export type CalendarSource = 'eventos' | 'consejos' | 'cumpleanios' | 'reuniones';
+export type CalendarSource = 'eventos' | 'consejos' | 'cumpleanios' | 'reuniones' | 'sabatinos';
 export type CalendarBirthdayMemberType =
   | 'protagonista'
   | 'responsable'
@@ -30,10 +31,11 @@ type CalendarSourceOption = {
   value: CalendarSource;
 };
 
-const DEFAULT_CALENDAR_SOURCES: CalendarSource[] = ['eventos', 'reuniones', 'consejos'];
+const DEFAULT_CALENDAR_SOURCES: CalendarSource[] = ['eventos', 'sabatinos', 'reuniones', 'consejos'];
 
 const calendarSourceOptions: CalendarSourceOption[] = [
   { label: 'Eventos', value: 'eventos' },
+  { label: 'Sabatinos', value: 'sabatinos' },
   { label: 'Reuniones', value: 'reuniones' },
   { label: 'Consejos', value: 'consejos' },
   { label: 'Cumpleaños', value: 'cumpleanios' },
@@ -59,6 +61,7 @@ const ramaBirthdayColors: Record<string, string> = {
 
 const ramaStripeOrder = ['Castores', 'Manada', 'Unidad', 'Caminantes', 'Rovers'];
 const eventCalendarColor = '#b8f2e6';
+const sabatinoCalendarColor = '#fef3c7'; // Amber
 const reunionCalendarColor = '#fee2e2';
 const consejoCalendarColor = '#c7d2fe';
 const adultBirthdayColor = '#a855f7';
@@ -195,6 +198,27 @@ export const useCalendarioHook = () => {
                 lugar: item.lugar_fisico,
                 url: item.url_virtual,
                 descripcion: item.descripcion,
+              },
+            })),
+          ),
+        );
+      }
+
+      if (sources.includes('sabatinos')) {
+        requests.push(
+          getCalendarSabatinosRequest({ from, to }).then((response) =>
+            response.map((item) => ({
+              id: `sabatino-${item.id}`,
+              title: `Sabatino: ${item.titulo}`,
+              start: item.fecha_inicio,
+              end: item.fecha_fin,
+              allDay: false,
+              backgroundColor: sabatinoCalendarColor,
+              borderColor: sabatinoCalendarColor,
+              textColor: '#92400e',
+              extendedProps: {
+                source: 'sabatinos',
+                ramas: item.RamasAfectadas.map((r) => r.Rama.nombre).join(', '),
               },
             })),
           ),

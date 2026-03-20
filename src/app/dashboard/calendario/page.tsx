@@ -59,7 +59,7 @@ type ViewOption = {
 };
 
 interface CalendarExtendedProps {
-  source?: 'eventos' | 'consejos' | 'cumpleanios' | 'reuniones';
+  source?: 'eventos' | 'consejos' | 'cumpleanios' | 'reuniones' | 'sabatinos';
   tipo?: string;
   lugar?: string | null;
   descripcion?: string | null;
@@ -71,6 +71,7 @@ interface CalendarExtendedProps {
   areaNombre?: string | null;
   modalidad?: string;
   url?: string | null;
+  ramas?: string;
 }
 
 interface CalendarDayListItem {
@@ -523,6 +524,17 @@ export default function CalendarioPage() {
                     {item.extendedProps.descripcion ? (
                       <span>Descripción: {item.extendedProps.descripcion}</span>
                     ) : null}
+                  </div>
+                ) : item.extendedProps?.source === 'sabatinos' ? (
+                  <div className="flex flex-col gap-1 text-sm break-words whitespace-normal">
+                    <span>Tipo: Sabatino</span>
+                    {item.extendedProps.ramas ? (
+                      <span>Ramas: {item.extendedProps.ramas}</span>
+                    ) : null}
+                    <span>
+                      Hora: {dayjs(item.start).format('HH:mm')} -{' '}
+                      {dayjs(item.end).format('HH:mm')}
+                    </span>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-1 text-sm break-words whitespace-normal">

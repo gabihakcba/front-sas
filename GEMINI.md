@@ -7,7 +7,7 @@ Aplicación cliente desarrollada con la última versión de Next.js (App Router)
 ## Code Style Guidelines
 
 - **TypeScript Estricto:** Está estrictamente prohibido el uso del tipo `any`. Siempre debes crear `Interfaces` o `Types` específicos para tipar las propiedades de los componentes, las respuestas de Axios y el estado local.
-- **Estándar de Botones (PrimeReact):** Para mantener la consistencia visual, todos los componentes `<Button />` deben ser pequeños y delineados por defecto. Siempre que se renderice un botón, debe incluir las propiedades: `size="small"` y `outlined`. Si el botón lleva un icono, este debe renderizarse a la derecha utilizando `iconPos="right"`.
+- **Estándar de Botones (PrimeReact):** Todos los componentes `<Button />` deben ser pequeños y delineados por defecto (`size="small"` y `outlined`). Si el botón lleva un icono, este debe renderizarse a la derecha utilizando `iconPos="right"`.
 - **Manejo de Fechas:** Está absolutamente prohibido importar o instalar `moment`. Todo el manejo, formateo y manipulación de fechas debe realizarse utilizando `dayjs`.
 - **Selección y Formato de Fechas:** Todo selector de fecha debe usar `Calendar` de PrimeReact con estilos por defecto, `showButtonBar` habilitado y formato visible `DD/MM/YYYY`. No se deben usar `input type="date"` en la interfaz.
 - **Comunicación HTTP:** Utilizar `axios` configurado con interceptores para enviar el token de sesión en cada petición.

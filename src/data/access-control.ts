@@ -85,6 +85,18 @@ export const BRANCH_MEETING_ACCESS: AccessRule[] = [
   ...RESPONSABLE_ACCESS,
 ];
 
+export const BRANCH_SABATINO_ACCESS: AccessRule[] = [
+  ...GROUP_LEADERSHIP_ACCESS,
+  { role: "JEFATURA_RAMA", scopeType: "RAMA" },
+  { role: "AYUDANTE_RAMA", scopeType: "RAMA" },
+  ...PROTAGONISTA_ACCESS,
+  ...RESPONSABLE_ACCESS,
+];
+
+export const ACTIVITY_MANAGEMENT_ACCESS: AccessRule[] = [
+  ...GROUP_LEADERSHIP_ACCESS,
+];
+
 export const EVENT_MANAGEMENT_ACCESS: AccessRule[] = [
   ...GROUP_LEADERSHIP_ACCESS,
   { role: "JEFATURA_RAMA", scopeType: "RAMA" },
@@ -172,6 +184,18 @@ export const dashboardSidebarItems: DashboardSidebarItem[] = [
     accessRules: BRANCH_MEETING_ACCESS,
   },
   {
+    label: "Sabatinos",
+    icon: "pi pi-sun",
+    path: "/dashboard/sabatinos",
+    accessRules: BRANCH_SABATINO_ACCESS,
+  },
+  {
+    label: "Actividades",
+    icon: "pi pi-list",
+    path: "/dashboard/actividades",
+    accessRules: ACTIVITY_MANAGEMENT_ACCESS,
+  },
+  {
     label: "Formaciones",
     icon: "pi pi-book",
     path: "/dashboard/formaciones",
@@ -235,6 +259,8 @@ export const dashboardRouteAccessList: DashboardRouteAccess[] = [
   },
   { pathPrefix: "/dashboard/eventos", accessRules: BRANCH_EVENT_ACCESS },
   { pathPrefix: "/dashboard/reuniones", accessRules: BRANCH_MEETING_ACCESS },
+  { pathPrefix: "/dashboard/sabatinos", accessRules: BRANCH_SABATINO_ACCESS },
+  { pathPrefix: "/dashboard/actividades", accessRules: ACTIVITY_MANAGEMENT_ACCESS },
   {
     pathPrefix: "/dashboard/tipos-evento",
     accessRules: EVENT_MANAGEMENT_ACCESS,
