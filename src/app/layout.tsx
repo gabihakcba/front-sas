@@ -11,7 +11,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Sistema de Administración Scout',
-  description: 'Gestión eficiente para el Grupo Scout Adalberto O. Lopez',
+  description: 'Gestión eficiente para el Grupo Scout',
 };
 
 export default function RootLayout({
