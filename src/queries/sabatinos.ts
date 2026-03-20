@@ -101,6 +101,20 @@ export const getTipoActividadesRequest = async () => {
   return response.data;
 };
 
+export const createTipoActividadRequest = async (payload: { nombre: string; color?: string }) => {
+  const response = await api.post<TipoActividad>('/actividades/tipos', payload);
+  return response.data;
+};
+
+export const updateTipoActividadRequest = async (id: number, payload: { nombre?: string; color?: string }) => {
+  const response = await api.patch<TipoActividad>(`/actividades/tipos/${id}`, payload);
+  return response.data;
+};
+
+export const deleteTipoActividadRequest = async (id: number) => {
+  await api.delete(`/actividades/tipos/${id}`);
+};
+
 export const createActividadRequest = async (payload: CreateActividadPayload) => {
   const response = await api.post<Actividad>('/actividades', payload);
   return response.data;

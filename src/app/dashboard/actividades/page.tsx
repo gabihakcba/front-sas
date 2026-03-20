@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
@@ -24,6 +25,7 @@ import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { ActividadFormDialog } from '@/components/sabatinos/ActividadFormDialog';
 
 export default function ActividadesPage() {
+  const router = useRouter();
   const { user } = useAuth();
   const toast = useRef<Toast>(null);
   const {
@@ -128,6 +130,14 @@ export default function ActividadesPage() {
             onClick: handleDelete,
             disabled: !selectedActividad,
             severity: 'danger',
+          },
+        ]}
+        specialActions={[
+          {
+            label: 'Gestionar Tipos',
+            icon: 'pi pi-tag',
+            onClick: () => router.push('/dashboard/tipo-actividad'),
+            severity: 'secondary',
           },
         ]}
       />
