@@ -34,6 +34,8 @@ export function ActividadFormDialog({
   loading,
   options,
 }: Props) {
+  const showContextFields = Boolean(initialValues?.id_sabatino || initialValues?.fecha);
+
   const {
     control,
     handleSubmit,
@@ -105,32 +107,34 @@ export function ActividadFormDialog({
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="flex flex-col gap-2">
-            <label htmlFor="fecha">Fecha y Hora *</label>
-            <Controller
-              name="fecha"
-              control={control}
-              rules={{ required: 'La fecha es obligatoria.' }}
-              render={({ field, fieldState }) => (
-                <>
-                  <Calendar
-                    id={field.name}
-                    value={field.value ? dayjs(field.value).toDate() : null}
-                    onChange={(e) => field.onChange(e.value ? dayjs(e.value).toISOString() : '')}
-                    showTime
-                    hourFormat="24"
-                    dateFormat="dd/mm/yy"
-                    showIcon
-                    className={`w-full ${fieldState.invalid ? 'p-invalid' : ''}`}
-                  />
-                  {fieldState.error && (
-                    <small className="p-error">{fieldState.error.message}</small>
-                  )}
-                </>
-              )}
-            />
-          </div>
+        <div className={showContextFields ? 'grid grid-cols-1 md:grid-cols-2 gap-4' : ''}>
+          {showContextFields && (
+            <div className="flex flex-col gap-2">
+              <label htmlFor="fecha">Fecha y Hora *</label>
+              <Controller
+                name="fecha"
+                control={control}
+                rules={{ required: 'La fecha es obligatoria.' }}
+                render={({ field, fieldState }) => (
+                  <>
+                    <Calendar
+                      id={field.name}
+                      value={field.value ? dayjs(field.value).toDate() : null}
+                      onChange={(e) => field.onChange(e.value ? dayjs(e.value).toISOString() : '')}
+                      showTime
+                      hourFormat="24"
+                      dateFormat="dd/mm/yy"
+                      showIcon
+                      className={`w-full ${fieldState.invalid ? 'p-invalid' : ''}`}
+                    />
+                    {fieldState.error && (
+                      <small className="p-error">{fieldState.error.message}</small>
+                    )}
+                  </>
+                )}
+              />
+            </div>
+          )}
           <div className="flex flex-col gap-2">
             <label htmlFor="id_tipo">Tipo de Actividad *</label>
             <Controller
@@ -209,26 +213,28 @@ export function ActividadFormDialog({
           />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <label htmlFor="responsableIds">Responsables (Adultos)</label>
-          <Controller
-            name="responsableIds"
-            control={control}
-            render={({ field }) => (
-              <MultiSelect
-                id={field.name}
-                value={field.value}
-                options={options.adultos}
-                optionLabel="label"
-                optionValue="id"
-                onChange={(e) => field.onChange(e.value)}
-                placeholder="Seleccionar responsables"
-                filter
-                className="w-full"
-              />
-            )}
-          />
-        </div>
+        {showContextFields && (
+          <div className="flex flex-col gap-2">
+            <label htmlFor="responsableIds">Responsables (Adultos)</label>
+            <Controller
+              name="responsableIds"
+              control={control}
+              render={({ field }) => (
+                <MultiSelect
+                  id={field.name}
+                  value={field.value}
+                  options={options.adultos}
+                  optionLabel="label"
+                  optionValue="id"
+                  onChange={(e) => field.onChange(e.value)}
+                  placeholder="Seleccionar responsables"
+                  filter
+                  className="w-full"
+                />
+              )}
+            />
+          </div>
+        )}
       </form>
     </Dialog>
   );
