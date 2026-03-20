@@ -13,6 +13,22 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.13.8',
+    date: '2026-03-20',
+    title: 'Toolbar fijo en campos enriquecidos',
+    summary:
+      'Los editores enriquecidos de consejos y ciclos de programa mueven el scroll al área de contenido para que la barra de herramientas permanezca siempre visible.',
+    sections: [
+      {
+        title: 'Editor enriquecido',
+        items: [
+          'El componente RichTextEditor suma soporte nativo para altura máxima del área editable.',
+          'Consejos y ciclos dejan de envolver el editor en contenedores externos que hacían scrollear también el toolbar.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.13.7',
     date: '2026-03-20',
     title: 'Opciones del consejo ajustadas al modo móvil real',

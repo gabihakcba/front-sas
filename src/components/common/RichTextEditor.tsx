@@ -25,6 +25,7 @@ type RichTextEditorProps = {
   onChange: (value: string) => void;
   disabled?: boolean;
   minHeightRem?: number;
+  maxHeightRem?: number;
 };
 
 type LinkSelectionState = {
@@ -153,6 +154,7 @@ export function RichTextEditor({
   onChange,
   disabled = false,
   minHeightRem = 16,
+  maxHeightRem,
 }: RichTextEditorProps) {
   const textColorPanelRef = useRef<OverlayPanel>(null);
   const highlightPanelRef = useRef<OverlayPanel>(null);
@@ -521,7 +523,13 @@ export function RichTextEditor({
       {/* ── Editor area ──────────────────────────────────────── */}
       <div
         id={id}
-        style={{ minHeight: `${minHeightRem}rem`, background: 'var(--surface-card)', cursor: 'text', overflowY: 'auto' }}
+        style={{
+          minHeight: `${minHeightRem}rem`,
+          ...(maxHeightRem ? { maxHeight: `${maxHeightRem}rem` } : {}),
+          background: 'var(--surface-card)',
+          cursor: 'text',
+          overflowY: 'auto',
+        }}
         onClick={() => editor.chain().focus().run()}
       >
         <EditorContent

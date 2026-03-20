@@ -966,64 +966,62 @@ export default function ConsejoWorkspacePage() {
 
               <div className="flex flex-col gap-2">
                 <label htmlFor="tema-debate">Debate</label>
-                <div className="max-h-[32rem] overflow-auto">
-                  <RichTextEditor
-                    key={`tema-debate-${selectedTemaId}-${canEditActa ? 'edit' : 'view'}`}
-                    id="tema-debate"
-                    value={selectedTemaDraft?.debate ?? selectedTema.debate ?? ''}
-                    onChange={(nextValue) => {
-                      if (!canEditActa || !selectedTema) {
-                        return;
-                      }
-                      setTemaDrafts((current) => ({
-                        ...current,
-                        [selectedTema.id]: {
-                          debate: nextValue,
-                          acuerdo:
-                            current[selectedTema.id]?.acuerdo ??
-                            selectedTema.acuerdo ??
-                            '',
-                          estado:
-                            current[selectedTema.id]?.estado ??
-                            selectedTema.estado,
-                        },
-                      }));
-                    }}
-                    minHeightRem={12}
-                    disabled={!canEditActa}
-                  />
-                </div>
+                <RichTextEditor
+                  key={`tema-debate-${selectedTemaId}-${canEditActa ? 'edit' : 'view'}`}
+                  id="tema-debate"
+                  value={selectedTemaDraft?.debate ?? selectedTema.debate ?? ''}
+                  onChange={(nextValue) => {
+                    if (!canEditActa || !selectedTema) {
+                      return;
+                    }
+                    setTemaDrafts((current) => ({
+                      ...current,
+                      [selectedTema.id]: {
+                        debate: nextValue,
+                        acuerdo:
+                          current[selectedTema.id]?.acuerdo ??
+                          selectedTema.acuerdo ??
+                          '',
+                        estado:
+                          current[selectedTema.id]?.estado ??
+                          selectedTema.estado,
+                      },
+                    }));
+                  }}
+                  minHeightRem={12}
+                  maxHeightRem={32}
+                  disabled={!canEditActa}
+                />
               </div>
 
               <div className="flex flex-col gap-2">
                 <label htmlFor="tema-acuerdo">Acuerdo</label>
-                <div className="max-h-[32rem] overflow-auto">
-                  <RichTextEditor
-                    key={`tema-acuerdo-${selectedTemaId}-${canEditActa ? 'edit' : 'view'}`}
-                    id="tema-acuerdo"
-                    value={selectedTemaDraft?.acuerdo ?? selectedTema.acuerdo ?? ''}
-                    onChange={(nextValue) => {
-                      if (!canEditActa || !selectedTema) {
-                        return;
-                      }
-                      setTemaDrafts((current) => ({
-                        ...current,
-                        [selectedTema.id]: {
-                          debate:
-                            current[selectedTema.id]?.debate ??
-                            selectedTema.debate ??
-                            '',
-                          acuerdo: nextValue,
-                          estado:
-                            current[selectedTema.id]?.estado ??
-                            selectedTema.estado,
-                        },
-                      }));
-                    }}
-                    minHeightRem={12}
-                    disabled={!canEditActa}
-                  />
-                </div>
+                <RichTextEditor
+                  key={`tema-acuerdo-${selectedTemaId}-${canEditActa ? 'edit' : 'view'}`}
+                  id="tema-acuerdo"
+                  value={selectedTemaDraft?.acuerdo ?? selectedTema.acuerdo ?? ''}
+                  onChange={(nextValue) => {
+                    if (!canEditActa || !selectedTema) {
+                      return;
+                    }
+                    setTemaDrafts((current) => ({
+                      ...current,
+                      [selectedTema.id]: {
+                        debate:
+                          current[selectedTema.id]?.debate ??
+                          selectedTema.debate ??
+                          '',
+                        acuerdo: nextValue,
+                        estado:
+                          current[selectedTema.id]?.estado ??
+                          selectedTema.estado,
+                      },
+                    }));
+                  }}
+                  minHeightRem={12}
+                  maxHeightRem={32}
+                  disabled={!canEditActa}
+                />
               </div>
 
               {canEditActa ? (

@@ -877,22 +877,21 @@ export default function CicloProgramaDetailPage() {
               }
             >
               {activeStageConfig.field ? (
-                <div className="max-h-[32rem] overflow-auto">
-                  <RichTextEditor
-                    key={`${activeTab}-${editing ? 'edit' : 'view'}`}
-                    id={`ciclo-stage-${activeTab.toLowerCase()}`}
-                    value={activeStageValue}
-                    onChange={(nextValue) => {
-                      if (!editing) {
-                        return;
-                      }
+                <RichTextEditor
+                  key={`${activeTab}-${editing ? 'edit' : 'view'}`}
+                  id={`ciclo-stage-${activeTab.toLowerCase()}`}
+                  value={activeStageValue}
+                  onChange={(nextValue) => {
+                    if (!editing) {
+                      return;
+                    }
 
-                      updateStageValue(nextValue);
-                    }}
-                    disabled={!editing}
-                    minHeightRem={12}
-                  />
-                </div>
+                    updateStageValue(nextValue);
+                  }}
+                  disabled={!editing}
+                  minHeightRem={12}
+                  maxHeightRem={32}
+                />
               ) : (
                 <Message
                   severity="info"

@@ -2,6 +2,15 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.13.8
+
+Fecha: 2026-03-20
+
+### Correcciones
+
+- el scroll de los campos enriquecidos pasa a vivir dentro del área editable del `RichTextEditor`
+- el toolbar de formato queda fuera de la zona scrolleable en consejos y ciclos de programa
+
 ## 1.13.7
 
 Fecha: 2026-03-20
