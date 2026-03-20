@@ -1,7 +1,6 @@
 'use client';
 
 import { startTransition } from 'react';
-import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
 import { Card } from 'primereact/card';
 import { Checkbox } from 'primereact/checkbox';
@@ -22,6 +21,10 @@ import {
   hasDeveloperAccess,
   hasPermissionAccess,
 } from '@/lib/authorization';
+import {
+  formatArgentinaDate,
+  formatArgentinaTimeRange,
+} from '@/lib/argentina-datetime';
 import { Consejo } from '@/types/consejos';
 
 export default function ConsejosPage() {
@@ -207,7 +210,7 @@ export default function ConsejosPage() {
           <Column field="nombre" header="Nombre" />
           <Column
             header="Fecha"
-            body={(consejo: Consejo) => dayjs(consejo.fecha).format('DD/MM/YYYY')}
+            body={(consejo: Consejo) => formatArgentinaDate(consejo.fecha)}
           />
           <Column
             header="Tipo"
@@ -217,20 +220,9 @@ export default function ConsejosPage() {
           />
           <Column
             header="Horario"
-            body={(consejo: Consejo) => {
-              if (!consejo.hora_inicio && !consejo.hora_fin) {
-                return '-';
-              }
-
-              const inicio = consejo.hora_inicio
-                ? dayjs(consejo.hora_inicio).format('HH:mm')
-                : '--:--';
-              const fin = consejo.hora_fin
-                ? dayjs(consejo.hora_fin).format('HH:mm')
-                : '--:--';
-
-              return `${inicio} - ${fin}`;
-            }}
+            body={(consejo: Consejo) =>
+              formatArgentinaTimeRange(consejo.hora_inicio, consejo.hora_fin)
+            }
           />
           <Column
             header="Temas"

@@ -18,6 +18,11 @@ import { FormEvent } from 'primereact/ts-helpers';
 import { EventContentArg } from '@fullcalendar/core';
 import CalendarioFiltersSidebar from '@/components/calendario/CalendarioFiltersSidebar';
 import { useCalendarioHook } from '@/hooks/useCalendarioHooks';
+import {
+  formatArgentinaClockValue,
+  formatArgentinaDate,
+  formatArgentinaTime,
+} from '@/lib/argentina-datetime';
 import { getResponsiveDialogProps } from '@/lib/dialog';
 
 function renderCalendarEventContent(eventInfo: EventContentArg) {
@@ -474,8 +479,10 @@ export default function CalendarioPage() {
                       <span>Lugar: {item.extendedProps.lugar}</span>
                     ) : null}
                     <span>
-                      Fecha: {dayjs(item.start).format('DD/MM/YYYY')} -{' '}
-                      {dayjs(item.end ?? item.start).subtract(1, 'day').format('DD/MM/YYYY')}
+                      Fecha: {formatArgentinaDate(item.start as string)} -{' '}
+                      {formatArgentinaDate(
+                        dayjs(item.end ?? item.start).subtract(1, 'day').toDate(),
+                      )}
                     </span>
                     {item.extendedProps.descripcion ? (
                       <span>Descripción: {item.extendedProps.descripcion}</span>
@@ -488,17 +495,17 @@ export default function CalendarioPage() {
                       Modalidad:{' '}
                       {item.extendedProps.esOrdinario ? 'Ordinario' : 'Extraordinario'}
                     </span>
-                    <span>Fecha: {dayjs(item.start).format('DD/MM/YYYY')}</span>
+                    <span>Fecha: {formatArgentinaDate(item.start as string)}</span>
                     {item.extendedProps.horaInicio ? (
                       <span>
                         Hora inicio:{' '}
-                        {dayjs(`1970-01-01T${item.extendedProps.horaInicio}`).format('HH:mm')}
+                        {formatArgentinaClockValue(item.extendedProps.horaInicio)}
                       </span>
                     ) : null}
                     {item.extendedProps.horaFin ? (
                       <span>
                         Hora fin:{' '}
-                        {dayjs(`1970-01-01T${item.extendedProps.horaFin}`).format('HH:mm')}
+                        {formatArgentinaClockValue(item.extendedProps.horaFin)}
                       </span>
                     ) : null}
                     {item.extendedProps.descripcion ? (
@@ -518,8 +525,8 @@ export default function CalendarioPage() {
                       </span>
                     ) : null}
                     <span>
-                      Hora: {dayjs(item.start).format('HH:mm')} -{' '}
-                      {dayjs(item.end).format('HH:mm')}
+                      Hora: {formatArgentinaTime(item.start as string)} -{' '}
+                      {formatArgentinaTime(item.end as string)}
                     </span>
                     {item.extendedProps.descripcion ? (
                       <span>Descripción: {item.extendedProps.descripcion}</span>
@@ -532,8 +539,8 @@ export default function CalendarioPage() {
                       <span>Ramas: {item.extendedProps.ramas}</span>
                     ) : null}
                     <span>
-                      Hora: {dayjs(item.start).format('HH:mm')} -{' '}
-                      {dayjs(item.end).format('HH:mm')}
+                      Hora: {formatArgentinaTime(item.start as string)} -{' '}
+                      {formatArgentinaTime(item.end as string)}
                     </span>
                   </div>
                 ) : (

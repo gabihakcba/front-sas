@@ -2,6 +2,16 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.13.9
+
+Fecha: 2026-03-20
+
+### Correcciones
+
+- vistas de consejos, sabatinos, pagos y calendario pasan a mostrar fechas y horas con timezone de Argentina
+- los horarios visibles relacionados con PDFs y comprobantes quedan unificados en formato 24 hs
+- se agrega una utilidad compartida para evitar diferencias entre navegador y documentos exportados
+
 ## 1.13.8
 
 Fecha: 2026-03-20

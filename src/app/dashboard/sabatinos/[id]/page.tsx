@@ -2,7 +2,6 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
-import dayjs from 'dayjs';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { Divider } from 'primereact/divider';
@@ -16,12 +15,16 @@ import { useAuth } from '@/context/AuthContext';
 import { useSabatinosHook } from '@/hooks/useSabatinosHooks';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { hasAdultMemberAccess } from '@/lib/authorization';
+import {
+  formatArgentinaDateTimeRange,
+  formatArgentinaTime,
+} from '@/lib/argentina-datetime';
 import { getResponsiveDialogProps } from '@/lib/dialog';
 import { SabatinoFormDialog } from '@/components/sabatinos/SabatinoFormDialog';
 import { ActividadFormDialog } from '@/components/sabatinos/ActividadFormDialog';
 import { AssignActividadDialog } from '@/components/sabatinos/AssignActividadDialog';
 import { getSabatinoRequest } from '@/queries/sabatinos';
-import { Sabatino, Actividad } from '@/types/sabatinos';
+import { Sabatino } from '@/types/sabatinos';
 import { ResponsiveTableActions } from '@/components/common/ResponsiveTableActions';
 import { FilePreviewDialog } from '@/components/common/FilePreviewDialog';
 
@@ -272,7 +275,10 @@ export default function SabatinoDetailsPage() {
             <div className="flex flex-col gap-1">
               <label className="font-bold text-sm text-color-secondary">Fecha y Hora</label>
               <span className="text-lg">
-                {dayjs(sabatino.fecha_inicio).format('DD/MM/YYYY HH:mm')} - {dayjs(sabatino.fecha_fin).format('HH:mm')}
+                {formatArgentinaDateTimeRange(
+                  sabatino.fecha_inicio,
+                  sabatino.fecha_fin,
+                )}
               </span>
             </div>
             
@@ -342,7 +348,7 @@ export default function SabatinoDetailsPage() {
             <Column field="numero" header="N°" style={{ width: '4rem' }} />
             <Column 
               header="Hora" 
-              body={(row: any) => dayjs(row.fecha).format('HH:mm')} 
+              body={(row: any) => formatArgentinaTime(row.fecha)} 
               style={{ width: '6rem' }}
             />
             <Column 
@@ -466,7 +472,7 @@ export default function SabatinoDetailsPage() {
               </div>
               <div>
                 <label className="font-bold block text-sm text-color-secondary">Hora</label>
-                <span>{dayjs(detailActividad.fecha).format('HH:mm')}</span>
+                <span>{formatArgentinaTime(detailActividad.fecha)}</span>
               </div>
               <div>
                 <label className="font-bold block text-sm text-color-secondary">Tipo</label>

@@ -2,7 +2,6 @@
 
 import { AxiosError } from 'axios';
 import { useCallback, useEffect, useRef, useState, startTransition } from 'react';
-import dayjs from 'dayjs';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
@@ -23,6 +22,7 @@ import {
   hasAdultMemberAccess,
   hasPermissionAccess,
 } from '@/lib/authorization';
+import { formatArgentinaDate } from '@/lib/argentina-datetime';
 import { getResponsiveDialogProps } from '@/lib/dialog';
 import {
   createConsejoAsistenciaRequest,
@@ -804,7 +804,11 @@ export default function ConsejoWorkspacePage() {
       </Sidebar>
       <div>
         <Card
-          title={consejo ? `${consejo.nombre} - ${dayjs(consejo.fecha).format('DD/MM/YYYY')}` : 'Consejo'}
+          title={
+            consejo
+              ? `${consejo.nombre} - ${formatArgentinaDate(consejo.fecha)}`
+              : 'Consejo'
+          }
         >
           <div className="mb-4 flex flex-wrap gap-2">
             <Button

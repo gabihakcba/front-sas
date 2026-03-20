@@ -1,6 +1,5 @@
 'use client';
 
-import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card } from 'primereact/card';
@@ -25,6 +24,7 @@ import {
   hasDeveloperAccess,
   hasPermissionAccess,
 } from '@/lib/authorization';
+import { formatArgentinaDateTime } from '@/lib/argentina-datetime';
 import {
   exportPagoReceiptRequest,
   getPagoAttachmentRequest,
@@ -415,11 +415,11 @@ export default function PagosPage() {
           {canSeeId ? <Column field="id" header="ID" /> : null}
           <Column
             header="Fecha"
-            body={(pago: Pago) => dayjs(pago.fecha_pago).format('DD/MM/YYYY')}
+            body={(pago: Pago) => formatArgentinaDateTime(pago.fecha_pago)}
           />
           <Column
             header="Creado"
-            body={(pago: Pago) => dayjs(pago.createdAt).format('DD/MM/YYYY')}
+            body={(pago: Pago) => formatArgentinaDateTime(pago.createdAt)}
           />
           <Column field="monto" header="Monto" />
           <Column

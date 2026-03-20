@@ -13,6 +13,30 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.13.9',
+    date: '2026-03-20',
+    title: 'Fechas y horas unificadas con timezone Argentina',
+    summary:
+      'Las pantallas vinculadas a consejos, sabatinos, pagos y calendario dejan de depender del huso horario del navegador y pasan a mostrar fechas y horas con criterio fijo de Argentina en formato 24 hs.',
+    sections: [
+      {
+        title: 'Documentos y vistas previas',
+        items: [
+          'Consejos y sabatinos alinean sus horarios visibles con los PDFs exportados.',
+          'Pagos muestra fecha y hora tanto del pago como del alta usando el mismo criterio que el comprobante.',
+          'El calendario usa el mismo formato para consejos, reuniones y sabatinos al abrir el detalle de cada evento.',
+        ],
+      },
+      {
+        title: 'Infraestructura',
+        items: [
+          'Se agrega una utilidad compartida de formateo con timezone America/Argentina/Buenos_Aires.',
+          'Las vistas dejan de depender del timezone local del dispositivo del usuario para estos datos operativos.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.13.8',
     date: '2026-03-20',
     title: 'Toolbar fijo en campos enriquecidos',

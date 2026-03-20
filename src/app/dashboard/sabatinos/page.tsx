@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
-import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
@@ -21,6 +20,7 @@ import {
   hasAdultMemberAccess,
   hasDeveloperAccess,
 } from '@/lib/authorization';
+import { formatArgentinaDateTimeRange } from '@/lib/argentina-datetime';
 import { ResponsiveTableActions } from '@/components/common/ResponsiveTableActions';
 import { Sabatino } from '@/types/sabatinos';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
@@ -200,8 +200,11 @@ export default function SabatinosPage() {
           <Column field="titulo" header="Título" sortable />
           <Column
             header="Fecha"
-            body={(rowData: Sabatino) => 
-              `${dayjs(rowData.fecha_inicio).format('DD/MM/YYYY HH:mm')} - ${dayjs(rowData.fecha_fin).format('HH:mm')}`
+            body={(rowData: Sabatino) =>
+              formatArgentinaDateTimeRange(
+                rowData.fecha_inicio,
+                rowData.fecha_fin,
+              )
             }
           />
           <Column
