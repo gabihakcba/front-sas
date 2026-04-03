@@ -2,6 +2,16 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.14.2
+
+Fecha: 2026-04-03
+
+### Correcciones
+
+- `AYUDANTE_RAMA` vuelve a tener acceso visual a `/dashboard/protagonistas` desde la sidebar y desde la compuerta de rutas del dashboard
+- el login refuerza para roles de liderazgo de rama los permisos CRUD mínimos de `MIEMBRO` y `PROTAGONISTA`, evitando que desaparezca el botón `Crear` por permisos desalineados
+- la sección Protagonistas queda nuevamente operable para ayudantías de rama dentro de su scope de rama
+
 ## 1.14.1
 
 Fecha: 2026-04-03

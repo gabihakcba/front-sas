@@ -13,6 +13,23 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.14.2',
+    date: '2026-04-03',
+    title: 'Ayudantía de rama habilitada en protagonistas',
+    summary:
+      'La sección Protagonistas vuelve a reconocer correctamente a AYUDANTE_RAMA tanto en la visibilidad del módulo como en los permisos funcionales mínimos para operar dentro de su rama.',
+    sections: [
+      {
+        title: 'Protagonistas',
+        items: [
+          'AYUDANTE_RAMA recupera acceso visual a la sección Protagonistas desde la sidebar y por validación de ruta.',
+          'La cuenta autenticada asegura permisos CRUD mínimos de Miembro y Protagonista cuando actúa como liderazgo de rama.',
+          'El botón Crear vuelve a mostrarse para ayudantías de rama con scope RAMA válido.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.14.1',
     date: '2026-04-03',
     title: 'Edición del acta de consejo sin rollback al escribir',

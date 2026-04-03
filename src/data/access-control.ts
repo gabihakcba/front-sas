@@ -42,6 +42,13 @@ export const BRANCH_ADULT_ACCESS: AccessRule[] = [
   ...RESPONSABLE_ACCESS,
 ];
 
+export const BRANCH_PROTAGONISTA_ACCESS: AccessRule[] = [
+  ...GROUP_LEADERSHIP_ACCESS,
+  { role: "JEFATURA_RAMA", scopeType: "RAMA" },
+  { role: "AYUDANTE_RAMA", scopeType: "RAMA" },
+  ...RESPONSABLE_ACCESS,
+];
+
 export const BRANCH_RESPONSABLE_ACCESS: AccessRule[] = [
   ...GROUP_LEADERSHIP_ACCESS,
   { role: "JEFATURA_RAMA", scopeType: "RAMA" },
@@ -170,7 +177,7 @@ export const dashboardSidebarItems: DashboardSidebarItem[] = [
     label: "Protagonistas",
     icon: "pi pi-id-card",
     path: "/dashboard/protagonistas",
-    accessRules: DASHBOARD_MANAGEMENT_ACCESS,
+    accessRules: BRANCH_PROTAGONISTA_ACCESS,
   },
   {
     label: "Adultos",
@@ -260,7 +267,7 @@ export const dashboardSidebarItems: DashboardSidebarItem[] = [
 
 export const dashboardRouteAccessList: DashboardRouteAccess[] = [
   { pathPrefix: "/dashboard/perfil/", accessRules: [] },
-  { pathPrefix: "/dashboard/protagonistas", accessRules: DASHBOARD_MANAGEMENT_ACCESS },
+  { pathPrefix: "/dashboard/protagonistas", accessRules: BRANCH_PROTAGONISTA_ACCESS },
   { pathPrefix: "/dashboard/adultos", accessRules: BRANCH_ADULT_ACCESS },
   { pathPrefix: "/dashboard/responsables", accessRules: BRANCH_RESPONSABLE_ACCESS },
   { pathPrefix: "/dashboard/pagos", accessRules: BRANCH_PAYMENT_ACCESS },
