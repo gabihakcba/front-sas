@@ -2,6 +2,16 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.14.1
+
+Fecha: 2026-04-03
+
+### Correcciones
+
+- la edición de `Debate` y `Acuerdo` en `/dashboard/consejos/[id]` deja de recibir el eco inmediato de su propio sync en tiempo real
+- al escribir rápido, usar autocorrección del teclado móvil o borrar texto, el contenido ya no vuelve a un estado anterior por una resincronización local
+- el modo lista del editor deja de perder estabilidad por resets de contenido disparados por el mismo cliente
+
 ## 1.14.0
 
 Fecha: 2026-03-20

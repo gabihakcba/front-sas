@@ -13,6 +13,23 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.14.1',
+    date: '2026-04-03',
+    title: 'Edición del acta de consejo sin rollback al escribir',
+    summary:
+      'La edición de Debate y Acuerdo en consejos iniciados deja de recibir su propio eco de tiempo real, evitando saltos de cursor, listas inestables y pérdida de texto al escribir rápido o con autocorrección móvil.',
+    sections: [
+      {
+        title: 'Consejos',
+        items: [
+          'La sincronización en tiempo real del temario ya no reinyecta en el mismo cliente la actualización que acaba de emitir.',
+          'Los campos Debate y Acuerdo conservan mejor el cursor y el contenido al usar teclado móvil, autocorrección o escritura rápida.',
+          'El modo lista deja de resetearse por una resincronización inmediata del mismo texto desde socket.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.14.0',
     date: '2026-03-20',
     title: 'Importación masiva desde planillas',
