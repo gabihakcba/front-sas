@@ -103,6 +103,17 @@ export const BRANCH_EVENT_ACCESS: AccessRule[] = [
   ...RESPONSABLE_ACCESS,
 ];
 
+export const SALES_EVENT_ACCESS: AccessRule[] = [
+  { role: "ADM", scopeType: "GRUPO" },
+  { role: "AYUDANTE", scopeType: "GRUPO" },
+  { role: "DEV", scopeType: "GRUPO" },
+  { role: "JEFATURA", scopeType: "GRUPO" },
+  { role: "INTENDENCIA", scopeType: "GRUPO" },
+  { role: "SECRETARIA_TESORERIA", scopeType: "GRUPO" },
+  { role: "JEFATURA_RAMA", scopeType: "RAMA" },
+  { role: "AYUDANTE_RAMA", scopeType: "RAMA" },
+];
+
 export const BRANCH_MEETING_ACCESS: AccessRule[] = [
   ...GROUP_LEADERSHIP_ACCESS,
   { role: "JEFATURA_RAMA", scopeType: "RAMA" },
@@ -204,6 +215,12 @@ export const dashboardSidebarItems: DashboardSidebarItem[] = [
     accessRules: BRANCH_EVENT_ACCESS,
   },
   {
+    label: "Eventos Ventas",
+    icon: "pi pi-shopping-cart",
+    path: "/dashboard/eventos-venta",
+    accessRules: SALES_EVENT_ACCESS,
+  },
+  {
     label: "Reuniones",
     icon: "pi pi-video",
     path: "/dashboard/reuniones",
@@ -288,6 +305,7 @@ export const dashboardRouteAccessList: DashboardRouteAccess[] = [
     accessRules: CUENTA_DINERO_DETAIL_ACCESS,
   },
   { pathPrefix: "/dashboard/eventos", accessRules: BRANCH_EVENT_ACCESS },
+  { pathPrefix: "/dashboard/eventos-venta", accessRules: SALES_EVENT_ACCESS },
   { pathPrefix: "/dashboard/reuniones", accessRules: BRANCH_MEETING_ACCESS },
   { pathPrefix: "/dashboard/sabatinos", accessRules: BRANCH_SABATINO_ACCESS },
   { pathPrefix: "/dashboard/actividades", accessRules: ACTIVITY_MANAGEMENT_ACCESS },

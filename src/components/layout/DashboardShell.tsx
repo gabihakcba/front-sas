@@ -29,7 +29,7 @@ function SidebarNavigation({
       .filter((item) => hasAccessRule(user?.scopes, item.accessRules))
       .map((item) => ({
         ...item,
-        active: pathname.startsWith(item.path),
+        active: pathname === item.path || pathname.startsWith(`${item.path}/`),
       }));
   }, [pathname, user]);
 

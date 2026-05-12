@@ -13,6 +13,39 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.15.0',
+    date: '2026-05-12',
+    title: 'Entrega inicial completa de eventos de venta',
+    summary:
+      'Eventos Ventas queda consolidado como un módulo operativo completo para gestionar reservas, cobros, gastos, rendiciones, balance y exportación Excel dentro de un flujo propio separado del subsistema actual de pagos.',
+    sections: [
+      {
+        title: 'Operación',
+        items: [
+          'La pantalla del evento se organiza en las tabs Planilla del evento, Gastos, Balance general e Items configurados.',
+          'La planilla suma vista Todos, buscador global, carga rápida y edición inline de reservas por celda.',
+          'Cada tab sectorial resume porciones, cobros, pendientes y rendición por rama, Extras o consolidado.',
+        ],
+      },
+      {
+        title: 'Economía',
+        items: [
+          'Los gastos se administran en una grilla propia con nombre, descripción, unidad de medida, costo por unidad y cantidad.',
+          'Costos y cantidades admiten hasta cuatro decimales en frontend y se persisten como enteros escalados por 10000.',
+          'El módulo incorpora balance general con ingresos, gastos, rendición, saldo pendiente y resultado cobrado o proyectado.',
+        ],
+      },
+      {
+        title: 'Exportación',
+        items: [
+          'La exportación XLSX refleja la estructura actual del módulo con hojas BALANCE, GASTOS, TODOS, ITEMS y una hoja por rama o Extras.',
+          'Las hojas exportadas usan resúmenes equivalentes a la UI, anchos de columna ajustados por tipo de dato y encabezados coloreados.',
+          'Los items configurados y las ofertas quedan incluidos también en la planilla exportada.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.14.2',
     date: '2026-04-03',
     title: 'Ayudantía de rama habilitada en protagonistas',

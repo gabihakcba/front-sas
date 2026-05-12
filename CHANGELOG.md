@@ -2,6 +2,24 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.15.0
+
+Fecha: 2026-05-12
+
+### Funcionalidades
+
+- se agrega el módulo `Eventos de venta` para gestionar ventas tipo locro sin depender del subsistema actual de pagos y cuentas
+- cada evento de venta permite configurar items con precio unitario y ofertas opcionales, y exportarlos en una hoja `ITEMS`
+- la operación del evento se organiza en tabs generales: `Planilla del evento`, `Gastos`, `Balance general` e `Items configurados`
+- la planilla incorpora una vista `Todos`, buscador global por comprador y vendedor, edición inline de reservas y carga rápida desde la propia tabla
+- cada tab sectorial resume porciones, cobros, pendientes y rendición, diferenciando lo ya rendido al grupo de lo que todavía falta rendir
+- los gastos se administran en una grilla propia con alta, edición y baja lógica, soportando costos y cantidades con hasta 4 decimales persistidos como enteros escalados por `10000`
+- el detalle incorpora un balance general resumido con porciones, ingresos, gastos, rendición y resultado proyectado/cobrado
+- la exportación `.xlsx` refleja la estructura actual del módulo con hojas `BALANCE`, `GASTOS`, `TODOS`, `ITEMS` y una hoja por rama o `EXTRAS`
+
+### Notas
+- el módulo utiliza un subdominio propio separado del sistema actual de pagos y cuentas
+
 ## 1.14.2
 
 Fecha: 2026-04-03
