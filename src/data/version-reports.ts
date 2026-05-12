@@ -13,11 +13,35 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.15.1',
+    date: '2026-05-12',
+    title: 'Representante juvenil con lectura restringida en consejos',
+    summary:
+      'El módulo Consejos suma la figura dinámica de representante juvenil con acceso de solo lectura, exclusión de temas privados y exportación limitada al PDF público.',
+    sections: [
+      {
+        title: 'Acceso',
+        items: [
+          'REPRESENTANTE_JUVENIL obtiene acceso visual al módulo Consejos y al consejo iniciado en modo lectura.',
+          'El botón PDF completo deja de estar disponible para este rol, manteniendo únicamente el PDF público.',
+          'La asignación del rol se administra desde la propia sección Consejos.',
+        ],
+      },
+      {
+        title: 'Privacidad',
+        items: [
+          'Los temas marcados como sin_mp se ocultan automáticamente para representantes juveniles.',
+          'La misma restricción se mantiene al exportar el consejo en formato PDF visible para ese rol.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.15.0',
     date: '2026-05-12',
-    title: 'Entrega inicial completa de eventos de venta',
+    title: 'Eventos de venta y permisos de lectura en consejos',
     summary:
-      'Eventos Ventas queda consolidado como un módulo operativo completo para gestionar reservas, cobros, gastos, rendiciones, balance y exportación Excel dentro de un flujo propio separado del subsistema actual de pagos.',
+      'Eventos Ventas queda consolidado como un módulo operativo completo para gestionar reservas, cobros, gastos, rendiciones, balance y exportación Excel, y Consejos suma la figura dinámica de representante juvenil con acceso restringido de lectura.',
     sections: [
       {
         title: 'Operación',
@@ -25,6 +49,14 @@ export const versionReports: VersionReport[] = [
           'La pantalla del evento se organiza en las tabs Planilla del evento, Gastos, Balance general e Items configurados.',
           'La planilla suma vista Todos, buscador global, carga rápida y edición inline de reservas por celda.',
           'Cada tab sectorial resume porciones, cobros, pendientes y rendición por rama, Extras o consolidado.',
+        ],
+      },
+      {
+        title: 'Consejos',
+        items: [
+          'Se incorpora el rol dinámico REPRESENTANTE_JUVENIL para habilitar acceso de lectura al módulo Consejos.',
+          'Los representantes juveniles pueden ingresar al consejo iniciado y usar el PDF público, pero quedan excluidos del PDF completo y de toda edición operativa.',
+          'Los temas marcados como sin_mp se filtran automáticamente en listados, detalle operativo y exportaciones visibles para ese rol.',
         ],
       },
       {

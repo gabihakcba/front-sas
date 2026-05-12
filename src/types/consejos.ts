@@ -42,6 +42,15 @@ export interface ConsejoAsistenciaOption extends ConsejoAsistenciaMember {
   sortOrder: number;
 }
 
+export interface ConsejoRepresentanteJuvenilItem {
+  id: number;
+  nombre: string;
+  apellidos: string;
+  dni: string;
+  ramaActualNombre: string | null;
+  alreadyAssigned: boolean;
+}
+
 export interface ConsejoTemarioFormValues {
   titulo: string;
   descripcion: string;

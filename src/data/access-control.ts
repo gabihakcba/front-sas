@@ -146,6 +146,12 @@ export const ADULT_COUNCIL_ACCESS: AccessRule[] = [
   { role: "AYUDANTE_RAMA", scopeType: "RAMA" },
 ];
 
+export const COUNCIL_READ_ACCESS: AccessRule[] = [
+  ...ADULT_COUNCIL_ACCESS,
+  { role: "REPRESENTANTE_JUVENIL", scopeType: "GRUPO" },
+  { role: "REPRESENTANTE_JUVENIL", scopeType: "GLOBAL" },
+];
+
 export const DASHBOARD_MANAGEMENT_ACCESS: AccessRule[] = [
   ...GROUP_LEADERSHIP_ACCESS,
   ...BRANCH_LEADERSHIP_ACCESS,
@@ -254,7 +260,7 @@ export const dashboardSidebarItems: DashboardSidebarItem[] = [
     label: "Consejos",
     icon: "pi pi-comments",
     path: "/dashboard/consejos",
-    accessRules: ADULT_COUNCIL_ACCESS,
+    accessRules: COUNCIL_READ_ACCESS,
   },
   {
     label: "Calendario",
@@ -318,7 +324,7 @@ export const dashboardRouteAccessList: DashboardRouteAccess[] = [
     pathPrefix: "/dashboard/comisiones",
     accessRules: BRANCH_EVENT_ACCESS,
   },
-  { pathPrefix: "/dashboard/consejos", accessRules: ADULT_COUNCIL_ACCESS },
+  { pathPrefix: "/dashboard/consejos", accessRules: COUNCIL_READ_ACCESS },
   { pathPrefix: "/dashboard/calendario", accessRules: [] },
   { pathPrefix: "/dashboard/ciclos-programa", accessRules: PROGRAM_CYCLE_ACCESS },
   { pathPrefix: "/dashboard/logs", accessRules: LOG_ACCESS },

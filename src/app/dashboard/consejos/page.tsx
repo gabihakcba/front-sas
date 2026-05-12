@@ -10,6 +10,7 @@ import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
 import { ResponsiveTableActions } from '@/components/common/ResponsiveTableActions';
 import { ConsejoFormDialog } from '@/components/consejos/ConsejoFormDialog';
+import { ConsejoRepresentantesJuvenilesDialog } from '@/components/consejos/ConsejoRepresentantesJuvenilesDialog';
 import { ConsejoTemarioDialog } from '@/components/consejos/ConsejoTemarioDialog';
 import { ConsejoTemarioFormDialog } from '@/components/consejos/ConsejoTemarioFormDialog';
 import { useAuth } from '@/context/AuthContext';
@@ -49,6 +50,14 @@ export default function ConsejosPage() {
     temarioError,
     successMessage,
     temarioSuccessMessage,
+    representantesJuveniles,
+    representantesJuvenilesOptions,
+    representantesJuvenilesVisible,
+    representantesJuvenilesLoading,
+    representantesJuvenilesSearching,
+    representantesJuvenilesSubmitting,
+    representantesJuvenilesError,
+    representantesJuvenilesSuccessMessage,
     loading,
     dialogLoading,
     temarioLoading,
@@ -65,9 +74,14 @@ export default function ConsejosPage() {
     openTemarioDialog,
     openCreateTemarioDialog,
     openEditTemarioDialog,
+    openRepresentantesJuvenilesDialog,
     closeDialog,
     closeTemarioDialog,
     closeTemarioFormDialog,
+    closeRepresentantesJuvenilesDialog,
+    searchRepresentantesJuvenilesOptions,
+    assignRepresentanteJuvenil,
+    removeRepresentanteJuvenil,
     submitForm,
     submitTemarioForm,
     deleteSelected,
@@ -81,6 +95,8 @@ export default function ConsejosPage() {
   const canDelete =
     hasAdultMemberAccess(user) && hasPermissionAccess(user, 'DELETE:CONSEJO');
   const canManageTemario = hasAdultMemberAccess(user);
+  const canManageRepresentantes =
+    hasAdultMemberAccess(user) && hasPermissionAccess(user, 'UPDATE:CONSEJO');
   const canAuditDeleted = hasDeletedAuditAccess(user);
   const canSeeId = hasDeveloperAccess(user);
 
@@ -122,6 +138,15 @@ export default function ConsejosPage() {
       <ResponsiveTableActions
         filtersContent={filterControls}
         specialActions={[
+          ...(canManageRepresentantes
+            ? [
+                {
+                  label: 'Representante juvenil',
+                  icon: 'pi pi-user-plus',
+                  onClick: () => void openRepresentantesJuvenilesDialog(),
+                },
+              ]
+            : []),
           {
             label: 'Temario',
             icon: 'pi pi-list',
@@ -292,6 +317,20 @@ export default function ConsejosPage() {
         showContentFields={false}
         onHide={closeTemarioFormDialog}
         onSubmit={(values) => void submitTemarioForm(values)}
+      />
+      <ConsejoRepresentantesJuvenilesDialog
+        visible={representantesJuvenilesVisible}
+        loading={representantesJuvenilesLoading}
+        searching={representantesJuvenilesSearching}
+        submitting={representantesJuvenilesSubmitting}
+        error={representantesJuvenilesError}
+        successMessage={representantesJuvenilesSuccessMessage}
+        assigned={representantesJuveniles}
+        options={representantesJuvenilesOptions}
+        onHide={closeRepresentantesJuvenilesDialog}
+        onSearch={(value) => void searchRepresentantesJuvenilesOptions(value)}
+        onAssign={(memberId) => void assignRepresentanteJuvenil(memberId)}
+        onRemove={(memberId) => void removeRepresentanteJuvenil(memberId)}
       />
       {deleteConfirmDialog}
     </div>

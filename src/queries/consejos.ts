@@ -2,6 +2,7 @@ import api from '@/lib/axios';
 import {
   ConsejoAsistenciaItem,
   ConsejoAsistenciaOption,
+  ConsejoRepresentanteJuvenilItem,
   Consejo,
   ConsejoTemarioItem,
   CreateConsejoTemarioPayload,
@@ -155,4 +156,41 @@ export const exportConsejoPdfRequest = async (
   );
 
   return response.data as Blob;
+};
+
+export const getConsejoRepresentantesJuvenilesRequest = async (): Promise<
+  ConsejoRepresentanteJuvenilItem[]
+> => {
+  const response = await api.get<ConsejoRepresentanteJuvenilItem[]>(
+    '/consejos/meta/representantes-juveniles',
+  );
+  return response.data;
+};
+
+export const getConsejoRepresentantesJuvenilesOptionsRequest = async (
+  q = '',
+): Promise<ConsejoRepresentanteJuvenilItem[]> => {
+  const response = await api.get<ConsejoRepresentanteJuvenilItem[]>(
+    '/consejos/meta/representantes-juveniles/options',
+    {
+      params: q ? { q } : {},
+    },
+  );
+  return response.data;
+};
+
+export const assignConsejoRepresentanteJuvenilRequest = async (
+  idMiembro: number,
+): Promise<ConsejoRepresentanteJuvenilItem> => {
+  const response = await api.post<ConsejoRepresentanteJuvenilItem>(
+    '/consejos/meta/representantes-juveniles',
+    { idMiembro },
+  );
+  return response.data;
+};
+
+export const removeConsejoRepresentanteJuvenilRequest = async (
+  memberId: number,
+): Promise<void> => {
+  await api.delete(`/consejos/meta/representantes-juveniles/${memberId}`);
 };

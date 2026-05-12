@@ -2,6 +2,21 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.15.1
+
+Fecha: 2026-05-12
+
+### Funcionalidades
+
+- se incorpora la figura dinámica `REPRESENTANTE_JUVENIL` para el módulo `Consejos`
+- los representantes juveniles pueden ver consejos en modo lectura, iniciar el espacio de trabajo y usar únicamente el `PDF` público
+- los temas marcados como `sin_mp` quedan ocultos para ese rol tanto en listados operativos como en la exportación visible
+- desde la sección `Consejos` se agrega una gestión específica para asignar o remover representantes juveniles elegibles
+
+### Notas
+
+- `PDF completo` deja de mostrarse para `REPRESENTANTE_JUVENIL`
+
 ## 1.15.0
 
 Fecha: 2026-05-12
@@ -16,6 +31,8 @@ Fecha: 2026-05-12
 - los gastos se administran en una grilla propia con alta, edición y baja lógica, soportando costos y cantidades con hasta 4 decimales persistidos como enteros escalados por `10000`
 - el detalle incorpora un balance general resumido con porciones, ingresos, gastos, rendición y resultado proyectado/cobrado
 - la exportación `.xlsx` refleja la estructura actual del módulo con hojas `BALANCE`, `GASTOS`, `TODOS`, `ITEMS` y una hoja por rama o `EXTRAS`
+- `Consejos` incorpora la figura dinámica `REPRESENTANTE_JUVENIL`, con acceso de solo lectura al módulo, filtro automático de temas `sin_mp` y visibilidad restringida al `PDF` público
+- desde la sección `Consejos` se puede administrar la asignación de representantes juveniles elegibles sin salir del módulo
 
 ### Notas
 - el módulo utiliza un subdominio propio separado del sistema actual de pagos y cuentas

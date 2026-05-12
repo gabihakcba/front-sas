@@ -4,13 +4,17 @@ import dayjs from 'dayjs';
 import { AxiosError } from 'axios';
 import { useCallback, useEffect, useState } from 'react';
 import {
+  assignConsejoRepresentanteJuvenilRequest,
   createConsejoRequest,
   createConsejoTemarioRequest,
   deleteConsejoRequest,
   deleteConsejoTemarioRequest,
+  getConsejoRepresentantesJuvenilesOptionsRequest,
+  getConsejoRepresentantesJuvenilesRequest,
   getConsejoRequest,
   getConsejoTemarioRequest,
   getConsejosRequest,
+  removeConsejoRepresentanteJuvenilRequest,
   updateConsejoTemarioRequest,
   updateConsejoRequest,
 } from '@/queries/consejos';
@@ -18,6 +22,7 @@ import {
   Consejo,
   ConsejosFilters,
   ConsejoFormValues,
+  ConsejoRepresentanteJuvenilItem,
   ConsejoTemarioFormValues,
   ConsejoTemarioItem,
   CreateConsejoTemarioPayload,
@@ -96,6 +101,14 @@ interface UseConsejosHookResult {
   temarioError: string;
   successMessage: string;
   temarioSuccessMessage: string;
+  representantesJuveniles: ConsejoRepresentanteJuvenilItem[];
+  representantesJuvenilesOptions: ConsejoRepresentanteJuvenilItem[];
+  representantesJuvenilesVisible: boolean;
+  representantesJuvenilesLoading: boolean;
+  representantesJuvenilesSearching: boolean;
+  representantesJuvenilesSubmitting: boolean;
+  representantesJuvenilesError: string;
+  representantesJuvenilesSuccessMessage: string;
   loading: boolean;
   dialogLoading: boolean;
   temarioLoading: boolean;
@@ -112,9 +125,14 @@ interface UseConsejosHookResult {
   openTemarioDialog: () => Promise<void>;
   openCreateTemarioDialog: () => void;
   openEditTemarioDialog: () => void;
+  openRepresentantesJuvenilesDialog: () => Promise<void>;
   closeDialog: () => void;
   closeTemarioDialog: () => void;
   closeTemarioFormDialog: () => void;
+  closeRepresentantesJuvenilesDialog: () => void;
+  searchRepresentantesJuvenilesOptions: (value: string) => Promise<void>;
+  assignRepresentanteJuvenil: (memberId: number) => Promise<void>;
+  removeRepresentanteJuvenil: (memberId: number) => Promise<void>;
   submitForm: (values: ConsejoFormValues) => Promise<void>;
   submitTemarioForm: (values: ConsejoTemarioFormValues) => Promise<void>;
   deleteSelected: () => Promise<void>;
@@ -138,6 +156,33 @@ export const useConsejosHook = (): UseConsejosHookResult => {
     useState<DialogMode>('create');
   const [temarioDialogVisible, setTemarioDialogVisible] = useState(false);
   const [temarioFormVisible, setTemarioFormVisible] = useState(false);
+  const [representantesJuveniles, setRepresentantesJuveniles] = useState<
+    ConsejoRepresentanteJuvenilItem[]
+  >([]);
+  const [
+    representantesJuvenilesOptions,
+    setRepresentantesJuvenilesOptions,
+  ] = useState<ConsejoRepresentanteJuvenilItem[]>([]);
+  const [representantesJuvenilesVisible, setRepresentantesJuvenilesVisible] =
+    useState(false);
+  const [representantesJuvenilesLoading, setRepresentantesJuvenilesLoading] =
+    useState(false);
+  const [
+    representantesJuvenilesSearching,
+    setRepresentantesJuvenilesSearching,
+  ] = useState(false);
+  const [
+    representantesJuvenilesSubmitting,
+    setRepresentantesJuvenilesSubmitting,
+  ] = useState(false);
+  const [
+    representantesJuvenilesError,
+    setRepresentantesJuvenilesError,
+  ] = useState('');
+  const [
+    representantesJuvenilesSuccessMessage,
+    setRepresentantesJuvenilesSuccessMessage,
+  ] = useState('');
   const [error, setError] = useState('');
   const [temarioError, setTemarioError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -263,6 +308,31 @@ export const useConsejosHook = (): UseConsejosHookResult => {
     setTemarioFormVisible(true);
   };
 
+  const openRepresentantesJuvenilesDialog = async () => {
+    setRepresentantesJuvenilesVisible(true);
+    setRepresentantesJuvenilesLoading(true);
+    setRepresentantesJuvenilesError('');
+    setRepresentantesJuvenilesSuccessMessage('');
+
+    try {
+      const [assigned, options] = await Promise.all([
+        getConsejoRepresentantesJuvenilesRequest(),
+        getConsejoRepresentantesJuvenilesOptionsRequest(),
+      ]);
+      setRepresentantesJuveniles(assigned);
+      setRepresentantesJuvenilesOptions(options);
+    } catch (err: unknown) {
+      setRepresentantesJuvenilesError(
+        getErrorMessage(
+          err,
+          'No se pudieron cargar los representantes juveniles.',
+        ),
+      );
+    } finally {
+      setRepresentantesJuvenilesLoading(false);
+    }
+  };
+
   const openEditTemarioDialog = () => {
     if (!selectedTemario) {
       setTemarioError('Seleccioná un tema para editar.');
@@ -299,6 +369,88 @@ export const useConsejosHook = (): UseConsejosHookResult => {
   const closeTemarioFormDialog = () => {
     setTemarioFormVisible(false);
     setTemarioFormValues(createEmptyTemarioFormValues());
+  };
+
+  const closeRepresentantesJuvenilesDialog = () => {
+    setRepresentantesJuvenilesVisible(false);
+    setRepresentantesJuveniles([]);
+    setRepresentantesJuvenilesOptions([]);
+    setRepresentantesJuvenilesError('');
+    setRepresentantesJuvenilesSuccessMessage('');
+  };
+
+  const searchRepresentantesJuvenilesOptions = async (value: string) => {
+    setRepresentantesJuvenilesSearching(true);
+
+    try {
+      const options = await getConsejoRepresentantesJuvenilesOptionsRequest(value);
+      setRepresentantesJuvenilesOptions(options);
+    } catch (err: unknown) {
+      setRepresentantesJuvenilesError(
+        getErrorMessage(
+          err,
+          'No se pudieron buscar representantes juveniles.',
+        ),
+      );
+    } finally {
+      setRepresentantesJuvenilesSearching(false);
+    }
+  };
+
+  const assignRepresentanteJuvenil = async (memberId: number) => {
+    setRepresentantesJuvenilesSubmitting(true);
+    setRepresentantesJuvenilesError('');
+    setRepresentantesJuvenilesSuccessMessage('');
+
+    try {
+      await assignConsejoRepresentanteJuvenilRequest(memberId);
+      const [assigned, options] = await Promise.all([
+        getConsejoRepresentantesJuvenilesRequest(),
+        getConsejoRepresentantesJuvenilesOptionsRequest(),
+      ]);
+      setRepresentantesJuveniles(assigned);
+      setRepresentantesJuvenilesOptions(options);
+      setRepresentantesJuvenilesSuccessMessage(
+        'Representante juvenil asignado correctamente.',
+      );
+    } catch (err: unknown) {
+      setRepresentantesJuvenilesError(
+        getErrorMessage(
+          err,
+          'No se pudo asignar el representante juvenil.',
+        ),
+      );
+    } finally {
+      setRepresentantesJuvenilesSubmitting(false);
+    }
+  };
+
+  const removeRepresentanteJuvenil = async (memberId: number) => {
+    setRepresentantesJuvenilesSubmitting(true);
+    setRepresentantesJuvenilesError('');
+    setRepresentantesJuvenilesSuccessMessage('');
+
+    try {
+      await removeConsejoRepresentanteJuvenilRequest(memberId);
+      const [assigned, options] = await Promise.all([
+        getConsejoRepresentantesJuvenilesRequest(),
+        getConsejoRepresentantesJuvenilesOptionsRequest(),
+      ]);
+      setRepresentantesJuveniles(assigned);
+      setRepresentantesJuvenilesOptions(options);
+      setRepresentantesJuvenilesSuccessMessage(
+        'Representante juvenil removido correctamente.',
+      );
+    } catch (err: unknown) {
+      setRepresentantesJuvenilesError(
+        getErrorMessage(
+          err,
+          'No se pudo remover el representante juvenil.',
+        ),
+      );
+    } finally {
+      setRepresentantesJuvenilesSubmitting(false);
+    }
   };
 
   const submitForm = async (values: ConsejoFormValues) => {
@@ -449,6 +601,14 @@ export const useConsejosHook = (): UseConsejosHookResult => {
     temarioError,
     successMessage,
     temarioSuccessMessage,
+    representantesJuveniles,
+    representantesJuvenilesOptions,
+    representantesJuvenilesVisible,
+    representantesJuvenilesLoading,
+    representantesJuvenilesSearching,
+    representantesJuvenilesSubmitting,
+    representantesJuvenilesError,
+    representantesJuvenilesSuccessMessage,
     loading,
     dialogLoading,
     temarioLoading,
@@ -465,9 +625,14 @@ export const useConsejosHook = (): UseConsejosHookResult => {
     openTemarioDialog,
     openCreateTemarioDialog,
     openEditTemarioDialog,
+    openRepresentantesJuvenilesDialog,
     closeDialog,
     closeTemarioDialog,
     closeTemarioFormDialog,
+    closeRepresentantesJuvenilesDialog,
+    searchRepresentantesJuvenilesOptions,
+    assignRepresentanteJuvenil,
+    removeRepresentanteJuvenil,
     submitForm,
     submitTemarioForm,
     deleteSelected,

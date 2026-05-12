@@ -151,7 +151,9 @@ export default function ConsejoWorkspacePage() {
     hasAdultMemberAccess(user) && hasPermissionAccess(user, 'UPDATE:CONSEJO');
   const canManageAssignments = hasAdultMemberAccess(user);
   const canExportFullPdf = !(
-    user?.roles.includes('PROTAGONISTA') || user?.roles.includes('RESPONSABLE')
+    user?.roles.includes('PROTAGONISTA') ||
+    user?.roles.includes('RESPONSABLE') ||
+    user?.roles.includes('REPRESENTANTE_JUVENIL')
   );
   const canRead = hasPermissionAccess(user, 'READ:CONSEJO');
   const currentMemberId = user?.memberId ?? null;
