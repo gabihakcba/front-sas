@@ -4,14 +4,19 @@ import dayjs from 'dayjs';
 import { AxiosError } from 'axios';
 import { useCallback, useEffect, useState } from 'react';
 import {
+  assignEventoVentaEncargadoJuvenilRequest,
   createEventoVentaRequest,
   deleteEventoVentaRequest,
+  getEventoVentaEncargadosJuvenilesOptionsRequest,
+  getEventoVentaEncargadosJuvenilesRequest,
   getEventoVentaRequest,
   getEventosVentaRequest,
+  removeEventoVentaEncargadoJuvenilRequest,
   updateEventoVentaRequest,
 } from '@/queries/eventos-venta';
 import {
   CreateEventoVentaPayload,
+  EventoVentaEncargadoJuvenilItem,
   EventoVentaFilters,
   EventoVentaFormValues,
   EventoVentaListItem,
@@ -73,6 +78,23 @@ export const useEventosVentaHooks = () => {
     total: 0,
     totalPages: 0,
   });
+  const [encargadosJuveniles, setEncargadosJuveniles] = useState<
+    EventoVentaEncargadoJuvenilItem[]
+  >([]);
+  const [encargadosJuvenilesOptions, setEncargadosJuvenilesOptions] = useState<
+    EventoVentaEncargadoJuvenilItem[]
+  >([]);
+  const [encargadosJuvenilesVisible, setEncargadosJuvenilesVisible] =
+    useState(false);
+  const [encargadosJuvenilesLoading, setEncargadosJuvenilesLoading] =
+    useState(false);
+  const [encargadosJuvenilesSearching, setEncargadosJuvenilesSearching] =
+    useState(false);
+  const [encargadosJuvenilesSubmitting, setEncargadosJuvenilesSubmitting] =
+    useState(false);
+  const [encargadosJuvenilesError, setEncargadosJuvenilesError] = useState('');
+  const [encargadosJuvenilesSuccessMessage, setEncargadosJuvenilesSuccessMessage] =
+    useState('');
 
   const fetchEventosVenta = useCallback(
     async (nextPage = 1) => {
@@ -137,6 +159,113 @@ export const useEventosVentaHooks = () => {
     setSubmitting(false);
   };
 
+  const openEncargadosJuvenilesDialog = async () => {
+    setEncargadosJuvenilesVisible(true);
+    setEncargadosJuvenilesLoading(true);
+    setEncargadosJuvenilesError('');
+    setEncargadosJuvenilesSuccessMessage('');
+
+    try {
+      const [assigned, options] = await Promise.all([
+        getEventoVentaEncargadosJuvenilesRequest(),
+        getEventoVentaEncargadosJuvenilesOptionsRequest(),
+      ]);
+      setEncargadosJuveniles(assigned);
+      setEncargadosJuvenilesOptions(options);
+    } catch (err: unknown) {
+      setEncargadosJuvenilesError(
+        getErrorMessage(
+          err,
+          'No se pudieron cargar los encargados juveniles.',
+        ),
+      );
+    } finally {
+      setEncargadosJuvenilesLoading(false);
+    }
+  };
+
+  const closeEncargadosJuvenilesDialog = () => {
+    setEncargadosJuvenilesVisible(false);
+    setEncargadosJuveniles([]);
+    setEncargadosJuvenilesOptions([]);
+    setEncargadosJuvenilesError('');
+    setEncargadosJuvenilesSuccessMessage('');
+  };
+
+  const searchEncargadosJuvenilesOptions = async (value: string) => {
+    setEncargadosJuvenilesSearching(true);
+
+    try {
+      const options = await getEventoVentaEncargadosJuvenilesOptionsRequest(value);
+      setEncargadosJuvenilesOptions(options);
+    } catch (err: unknown) {
+      setEncargadosJuvenilesError(
+        getErrorMessage(
+          err,
+          'No se pudieron buscar protagonistas elegibles.',
+        ),
+      );
+    } finally {
+      setEncargadosJuvenilesSearching(false);
+    }
+  };
+
+  const assignEncargadoJuvenil = async (memberId: number) => {
+    setEncargadosJuvenilesSubmitting(true);
+    setEncargadosJuvenilesError('');
+    setEncargadosJuvenilesSuccessMessage('');
+
+    try {
+      await assignEventoVentaEncargadoJuvenilRequest(memberId);
+      const [assigned, options] = await Promise.all([
+        getEventoVentaEncargadosJuvenilesRequest(),
+        getEventoVentaEncargadosJuvenilesOptionsRequest(),
+      ]);
+      setEncargadosJuveniles(assigned);
+      setEncargadosJuvenilesOptions(options);
+      setEncargadosJuvenilesSuccessMessage(
+        'Encargado juvenil asignado correctamente.',
+      );
+    } catch (err: unknown) {
+      setEncargadosJuvenilesError(
+        getErrorMessage(
+          err,
+          'No se pudo asignar el encargado juvenil.',
+        ),
+      );
+    } finally {
+      setEncargadosJuvenilesSubmitting(false);
+    }
+  };
+
+  const removeEncargadoJuvenil = async (memberId: number) => {
+    setEncargadosJuvenilesSubmitting(true);
+    setEncargadosJuvenilesError('');
+    setEncargadosJuvenilesSuccessMessage('');
+
+    try {
+      await removeEventoVentaEncargadoJuvenilRequest(memberId);
+      const [assigned, options] = await Promise.all([
+        getEventoVentaEncargadosJuvenilesRequest(),
+        getEventoVentaEncargadosJuvenilesOptionsRequest(),
+      ]);
+      setEncargadosJuveniles(assigned);
+      setEncargadosJuvenilesOptions(options);
+      setEncargadosJuvenilesSuccessMessage(
+        'Encargado juvenil removido correctamente.',
+      );
+    } catch (err: unknown) {
+      setEncargadosJuvenilesError(
+        getErrorMessage(
+          err,
+          'No se pudo remover el encargado juvenil.',
+        ),
+      );
+    } finally {
+      setEncargadosJuvenilesSubmitting(false);
+    }
+  };
+
   const submitForm = async () => {
     if (!formValues.fechaEvento) {
       setError('Debes indicar la fecha del evento.');
@@ -197,6 +326,19 @@ export const useEventosVentaHooks = () => {
     openCreateDialog,
     openEditDialog,
     closeDialog,
+    encargadosJuveniles,
+    encargadosJuvenilesOptions,
+    encargadosJuvenilesVisible,
+    encargadosJuvenilesLoading,
+    encargadosJuvenilesSearching,
+    encargadosJuvenilesSubmitting,
+    encargadosJuvenilesError,
+    encargadosJuvenilesSuccessMessage,
+    openEncargadosJuvenilesDialog,
+    closeEncargadosJuvenilesDialog,
+    searchEncargadosJuvenilesOptions,
+    assignEncargadoJuvenil,
+    removeEncargadoJuvenil,
     submitForm,
     deleteSelected,
   };

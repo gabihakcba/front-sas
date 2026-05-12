@@ -2,6 +2,7 @@ import api from '@/lib/axios';
 import {
   CreateEventoVentaItemPayload,
   EventoVentaCostoItemPayload,
+  EventoVentaEncargadoJuvenilItem,
   CreateEventoVentaReservaPayload,
   CreateEventoVentaPayload,
   EventoVenta,
@@ -52,6 +53,43 @@ export const updateEventoVentaRequest = async (
 
 export const deleteEventoVentaRequest = async (id: number): Promise<void> => {
   await api.delete(`/eventos-venta/${id}`);
+};
+
+export const getEventoVentaEncargadosJuvenilesRequest = async (): Promise<
+  EventoVentaEncargadoJuvenilItem[]
+> => {
+  const response = await api.get<EventoVentaEncargadoJuvenilItem[]>(
+    '/eventos-venta/meta/encargados-juveniles',
+  );
+  return response.data;
+};
+
+export const getEventoVentaEncargadosJuvenilesOptionsRequest = async (
+  q = '',
+): Promise<EventoVentaEncargadoJuvenilItem[]> => {
+  const response = await api.get<EventoVentaEncargadoJuvenilItem[]>(
+    '/eventos-venta/meta/encargados-juveniles/options',
+    {
+      params: q ? { q } : {},
+    },
+  );
+  return response.data;
+};
+
+export const assignEventoVentaEncargadoJuvenilRequest = async (
+  idMiembro: number,
+): Promise<EventoVentaEncargadoJuvenilItem> => {
+  const response = await api.post<EventoVentaEncargadoJuvenilItem>(
+    '/eventos-venta/meta/encargados-juveniles',
+    { idMiembro },
+  );
+  return response.data;
+};
+
+export const removeEventoVentaEncargadoJuvenilRequest = async (
+  memberId: number,
+): Promise<void> => {
+  await api.delete(`/eventos-venta/meta/encargados-juveniles/${memberId}`);
 };
 
 export const createEventoVentaItemRequest = async (

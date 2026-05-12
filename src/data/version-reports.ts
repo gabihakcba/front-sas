@@ -13,6 +13,30 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.15.2',
+    date: '2026-05-12',
+    title: 'Encargados juveniles para eventos de venta',
+    summary:
+      'Eventos Ventas suma un rol dinámico para protagonistas con acceso completo al módulo y administración directa desde la propia sección.',
+    sections: [
+      {
+        title: 'Acceso',
+        items: [
+          'Se incorpora el rol dinámico ENCARGADO_JUVENIL_EVENTOS_VENTA para protagonistas activos con rama vigente.',
+          'Quien reciba ese rol puede entrar al módulo Eventos Ventas y operar con acceso completo sobre el listado y el detalle.',
+          'La sincronización manual de permisos desde Perfil preserva este rol dinámico junto con los demás roles juveniles especiales.',
+        ],
+      },
+      {
+        title: 'Gestión',
+        items: [
+          'La sección Eventos Ventas agrega una gestión específica de encargados juveniles junto al botón Crear.',
+          'Desde ese diálogo se pueden buscar protagonistas elegibles, asignar el rol y removerlo sin salir del módulo.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.15.1',
     date: '2026-05-12',
     title: 'Representante juvenil con lectura restringida en consejos',

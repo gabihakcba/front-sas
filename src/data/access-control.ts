@@ -112,6 +112,8 @@ export const SALES_EVENT_ACCESS: AccessRule[] = [
   { role: "SECRETARIA_TESORERIA", scopeType: "GRUPO" },
   { role: "JEFATURA_RAMA", scopeType: "RAMA" },
   { role: "AYUDANTE_RAMA", scopeType: "RAMA" },
+  { role: "ENCARGADO_JUVENIL_EVENTOS_VENTA", scopeType: "GRUPO" },
+  { role: "ENCARGADO_JUVENIL_EVENTOS_VENTA", scopeType: "GLOBAL" },
 ];
 
 export const BRANCH_MEETING_ACCESS: AccessRule[] = [

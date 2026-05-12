@@ -127,6 +127,15 @@ export interface EventoVentaMiembroOption {
   ramaActualNombre: string | null;
 }
 
+export interface EventoVentaEncargadoJuvenilItem {
+  id: number;
+  nombre: string;
+  apellidos: string;
+  dni: string;
+  ramaActualNombre: string | null;
+  alreadyAssigned: boolean;
+}
+
 export interface EventoVenta {
   id: number;
   nombre: string;

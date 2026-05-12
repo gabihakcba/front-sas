@@ -2,6 +2,17 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.15.2
+
+Fecha: 2026-05-12
+
+### Funcionalidades
+
+- se incorpora el rol dinámico `ENCARGADO_JUVENIL_EVENTOS_VENTA` para protagonistas con acceso completo al módulo `Eventos Ventas`
+- la sección `Eventos Ventas` suma una gestión propia de `Encargados juveniles` ubicada junto al botón `Crear`
+- desde ese diálogo se pueden buscar protagonistas elegibles, asignar el rol y removerlo sin salir del módulo
+- la sincronización de permisos desde `Perfil` preserva este nuevo rol dinámico y también `REPRESENTANTE_JUVENIL`
+
 ## 1.15.1
 
 Fecha: 2026-05-12

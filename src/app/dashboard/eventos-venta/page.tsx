@@ -11,9 +11,12 @@ import { InputIcon } from 'primereact/inputicon';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import { ResponsiveTableActions } from '@/components/common/ResponsiveTableActions';
+import { EventoVentaEncargadosJuvenilesDialog } from '@/components/eventos-venta/EventoVentaEncargadosJuvenilesDialog';
 import { EventoVentaFormDialog } from '@/components/eventos-venta/EventoVentaFormDialog';
+import { useAuth } from '@/context/AuthContext';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useEventosVentaHooks } from '@/hooks/useEventosVentaHooks';
+import { hasPermissionAccess } from '@/lib/authorization';
 import { EventoVentaListItem } from '@/types/eventos-venta';
 
 const formatMoney = (value: number) =>
@@ -25,6 +28,7 @@ const formatMoney = (value: number) =>
 
 export default function EventosVentaPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const { confirmDelete, deleteConfirmDialog } = useDeleteConfirm();
   const {
     eventosVenta,
@@ -47,9 +51,26 @@ export default function EventosVentaPage() {
     openCreateDialog,
     openEditDialog,
     closeDialog,
+    encargadosJuveniles,
+    encargadosJuvenilesOptions,
+    encargadosJuvenilesVisible,
+    encargadosJuvenilesLoading,
+    encargadosJuvenilesSearching,
+    encargadosJuvenilesSubmitting,
+    encargadosJuvenilesError,
+    encargadosJuvenilesSuccessMessage,
+    openEncargadosJuvenilesDialog,
+    closeEncargadosJuvenilesDialog,
+    searchEncargadosJuvenilesOptions,
+    assignEncargadoJuvenil,
+    removeEncargadoJuvenil,
     submitForm,
     deleteSelected,
   } = useEventosVentaHooks();
+  const canCreate = hasPermissionAccess(user, 'CREATE:EVENTO');
+  const canEdit = hasPermissionAccess(user, 'UPDATE:EVENTO');
+  const canDelete = hasPermissionAccess(user, 'DELETE:EVENTO');
+  const canManageEncargadosJuveniles = hasPermissionAccess(user, 'UPDATE:EVENTO');
 
   const handlePage = (event: DataTablePageEvent) => {
     const nextPage = Math.floor(event.first / event.rows) + 1;
@@ -90,21 +111,38 @@ export default function EventosVentaPage() {
 
   const header = (
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div className="hidden md:flex md:flex-col md:gap-2">{filterControls}</div>
+        <div className="hidden md:flex md:flex-col md:gap-2">{filterControls}</div>
       <ResponsiveTableActions
         filtersContent={filterControls}
         crudActions={[
-          {
-            label: 'Crear',
-            icon: 'pi pi-plus',
-            onClick: () => openCreateDialog(),
-          },
-          {
-            label: 'Editar',
-            icon: 'pi pi-pencil',
-            onClick: () => void openEditDialog(),
-            disabled: !selectedEventoVenta,
-          },
+          ...(canCreate
+            ? [
+                {
+                  label: 'Crear',
+                  icon: 'pi pi-plus',
+                  onClick: () => openCreateDialog(),
+                },
+              ]
+            : []),
+          ...(canManageEncargadosJuveniles
+            ? [
+                {
+                  label: 'Encargados juveniles',
+                  icon: 'pi pi-user-plus',
+                  onClick: () => void openEncargadosJuvenilesDialog(),
+                },
+              ]
+            : []),
+          ...(canEdit
+            ? [
+                {
+                  label: 'Editar',
+                  icon: 'pi pi-pencil',
+                  onClick: () => void openEditDialog(),
+                  disabled: !selectedEventoVenta,
+                },
+              ]
+            : []),
           {
             label: 'Abrir',
             icon: 'pi pi-arrow-right',
@@ -115,21 +153,25 @@ export default function EventosVentaPage() {
             },
             disabled: !selectedEventoVenta,
           },
-          {
-            label: 'Eliminar',
-            icon: 'pi pi-trash',
-            onClick: () => {
-              if (!selectedEventoVenta) return;
-              confirmDelete({
-                message: `Se eliminará de forma lógica el evento de venta "${selectedEventoVenta.nombre}".`,
-                impact:
-                  'Las reservas importadas quedarán fuera de la operatoria normal pero seguirán preservadas a nivel histórico.',
-                onAccept: () => void deleteSelected(),
-              });
-            },
-            disabled: !selectedEventoVenta,
-            severity: 'danger',
-          },
+          ...(canDelete
+            ? [
+                {
+                  label: 'Eliminar',
+                  icon: 'pi pi-trash',
+                  onClick: () => {
+                    if (!selectedEventoVenta) return;
+                    confirmDelete({
+                      message: `Se eliminará de forma lógica el evento de venta "${selectedEventoVenta.nombre}".`,
+                      impact:
+                        'Las reservas importadas quedarán fuera de la operatoria normal pero seguirán preservadas a nivel histórico.',
+                      onAccept: () => void deleteSelected(),
+                    });
+                  },
+                  disabled: !selectedEventoVenta,
+                  severity: 'danger' as const,
+                },
+              ]
+            : []),
         ]}
       />
     </div>
@@ -213,6 +255,20 @@ export default function EventosVentaPage() {
         onHide={closeDialog}
         onChange={setFormValues}
         onSubmit={() => void submitForm()}
+      />
+      <EventoVentaEncargadosJuvenilesDialog
+        visible={encargadosJuvenilesVisible}
+        loading={encargadosJuvenilesLoading}
+        searching={encargadosJuvenilesSearching}
+        submitting={encargadosJuvenilesSubmitting}
+        error={encargadosJuvenilesError}
+        successMessage={encargadosJuvenilesSuccessMessage}
+        assigned={encargadosJuveniles}
+        options={encargadosJuvenilesOptions}
+        onHide={closeEncargadosJuvenilesDialog}
+        onSearch={(value) => void searchEncargadosJuvenilesOptions(value)}
+        onAssign={(memberId) => void assignEncargadoJuvenil(memberId)}
+        onRemove={(memberId) => void removeEncargadoJuvenil(memberId)}
       />
       {deleteConfirmDialog}
     </div>
