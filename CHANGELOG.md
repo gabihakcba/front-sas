@@ -2,6 +2,14 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.15.3
+
+Fecha: 2026-05-25
+
+### Correcciones
+
+- en `/dashboard/eventos-venta/[id]` las tablas de reservas muestran la columna `ID` únicamente para usuarios con rol `DEV`
+
 ## 1.15.2
 
 Fecha: 2026-05-12

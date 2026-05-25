@@ -188,6 +188,7 @@ export default function EventoVentaDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { user } = useAuth();
+  const isDevRole = user?.roles.includes('DEV') ?? false;
   const { confirmDelete, deleteConfirmDialog } = useDeleteConfirm();
   const eventoVentaId = Number(params.id);
   const {
@@ -741,6 +742,7 @@ export default function EventoVentaDetailPage() {
           size="small"
           editMode="cell"
         >
+          {isDevRole ? <Column field="id" header="ID" /> : null}
           {showSectorColumn ? (
             <Column field="sector" header="SECTOR" />
           ) : null}

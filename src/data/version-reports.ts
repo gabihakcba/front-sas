@@ -13,6 +13,22 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.15.3',
+    date: '2026-05-25',
+    title: 'ID visible para DEV en reservas de eventos de venta',
+    summary:
+      'Las tablas de reservas dentro del detalle de Eventos Ventas exponen el identificador interno solo para cuentas con rol DEV.',
+    sections: [
+      {
+        title: 'Depuración',
+        items: [
+          'La planilla del evento muestra una columna ID en las tablas de reservas cuando la cuenta autenticada tiene rol DEV.',
+          'El identificador queda oculto para el resto de los perfiles, manteniendo la vista operativa sin cambios para usuarios no técnicos.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.15.2',
     date: '2026-05-12',
     title: 'Encargados juveniles para eventos de venta',
