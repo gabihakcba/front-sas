@@ -11,7 +11,15 @@ import { MultiSelect } from 'primereact/multiselect';
 import { getResponsiveDialogProps } from '@/lib/dialog';
 import { Sabatino, UpdateSabatinoPayload } from '@/types/sabatinos';
 
-type SabatinoFormValues = UpdateSabatinoPayload & {
+type SabatinoFormValues = {
+  titulo: string;
+  fechaInicio: string;
+  fechaFin: string;
+  idEvento?: number;
+  educadorIds: number[];
+  ramaIds: number[];
+  areaIds: number[];
+  actividadIds: number[];
   Actividades?: NonNullable<Sabatino['Actividades']>;
 };
 

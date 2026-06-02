@@ -107,7 +107,14 @@ export const useSabatinosHook = () => {
   const [options, setOptions] = useState<{
     areas: Array<{ id: number; nombre: string }>;
     ramas: Array<{ id: number; nombre: string }>;
-    adultos: Array<{ id: number; miembroId: number; nombre: string; apellidos: string; dni: string }>;
+    adultos: Array<{
+      id: number;
+      miembroId: number;
+      nombre: string;
+      apellidos: string;
+      dni: string;
+      label: string;
+    }>;
     tiposActividad: TipoActividad[];
     todasActividades: Actividad[];
   }>({
