@@ -29,6 +29,7 @@ import { PaginatedResponseMeta } from '@/types/pagination';
 
 const DEFAULT_LIMIT = 10;
 type DialogMode = 'create' | 'edit';
+type EventoScope = { role: string; scopeType: string; scopeId: number | null };
 
 const createEmptyFilters = (): EventoFilters => ({
   q: '',
@@ -77,8 +78,23 @@ const buildPayload = (values: EventoFormValues): CreateEventoPayload => ({
   ramaIds: values.ramaIds,
 });
 
+const mapEventoToFormValues = (evento: Evento): EventoFormValues => ({
+  nombre: evento.nombre,
+  descripcion: evento.descripcion ?? '',
+  fechaInicio: dayjs(evento.fecha_inicio).format('YYYY-MM-DD'),
+  fechaFin: dayjs(evento.fecha_fin).format('YYYY-MM-DD'),
+  lugar: evento.lugar ?? '',
+  terminado: evento.terminado,
+  costoMp: evento.costo_mp,
+  costoMa: evento.costo_ma,
+  costoAyudante: evento.costo_ayudante,
+  idTipo: evento.TipoEvento.id,
+  areaIds: evento.AreaAfectada.map((item) => item.Area.id),
+  ramaIds: evento.RamaAfectada.map((item) => item.Rama.id),
+});
+
 const buildScopedAffectaciones = (
-  scopes: Array<{ role: string; scopeType: string; scopeId: number | null }>,
+  scopes: EventoScope[],
   options: EventosOptionsResponse,
 ): { areaIds: number[]; ramaIds: number[] } => {
   const hasGroupJefatura = scopes.some(
@@ -159,10 +175,11 @@ export const useEventosHook = () => {
     totalPages: 0,
   });
 
-  const fetchOptions = async () => {
+  const fetchOptions = useCallback(async () => {
     const response = await getEventosOptionsRequest();
     setOptions(response);
-  };
+    return response;
+  }, []);
 
   const setFilters = (nextFilters: EventoFilters) => {
     setFiltersState(nextFilters);
@@ -192,7 +209,7 @@ export const useEventosHook = () => {
 
   useEffect(() => {
     void fetchOptions();
-  }, []);
+  }, [fetchOptions]);
 
   useEffect(() => {
     void fetchEventos(1);
@@ -204,7 +221,7 @@ export const useEventosHook = () => {
     setError('');
     setSuccessMessage('');
     try {
-      const response = await getEventosOptionsRequest();
+      const response = await fetchOptions();
       setOptions(response);
       const scopedAffectaciones = buildScopedAffectaciones(
         user?.scopes ?? [],
@@ -229,21 +246,11 @@ export const useEventosHook = () => {
     setError('');
     setSuccessMessage('');
     try {
-      const [evento] = await Promise.all([getEventoRequest(selectedEvento.id), fetchOptions()]);
-      setFormValuesState({
-        nombre: evento.nombre,
-        descripcion: evento.descripcion ?? '',
-        fechaInicio: dayjs(evento.fecha_inicio).format('YYYY-MM-DD'),
-        fechaFin: dayjs(evento.fecha_fin).format('YYYY-MM-DD'),
-        lugar: evento.lugar ?? '',
-        terminado: evento.terminado,
-        costoMp: evento.costo_mp,
-        costoMa: evento.costo_ma,
-        costoAyudante: evento.costo_ayudante,
-        idTipo: evento.TipoEvento.id,
-        areaIds: evento.AreaAfectada.map((item) => item.Area.id),
-        ramaIds: evento.RamaAfectada.map((item) => item.Rama.id),
-      });
+      const [evento] = await Promise.all([
+        getEventoRequest(selectedEvento.id),
+        fetchOptions(),
+      ]);
+      setFormValuesState(mapEventoToFormValues(evento));
       setDialogVisible(true);
     } catch (err: unknown) {
       setError(getErrorMessage(err, 'No se pudo cargar el evento.'));
@@ -434,5 +441,250 @@ export const useEventosHook = () => {
     submitAfectaciones,
     submitComision,
     deleteSelected,
+  };
+};
+
+export const useEventoDetailHook = (eventoId: number) => {
+  const [evento, setEvento] = useState<Evento | null>(null);
+  const [formValues, setFormValuesState] = useState<EventoFormValues>(
+    createEmptyFormValues(),
+  );
+  const [options, setOptions] = useState<EventosOptionsResponse>({
+    tipos: [],
+    areas: [],
+    ramas: [],
+    miembros: [],
+    comisiones: [],
+  });
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [inscripcionesVisible, setInscripcionesVisible] = useState(false);
+  const [afectacionesVisible, setAfectacionesVisible] = useState(false);
+  const [comisionVisible, setComisionVisible] = useState(false);
+  const [inscripcionIds, setInscripcionIds] = useState<number[]>([]);
+  const [areaIds, setAreaIds] = useState<number[]>([]);
+  const [ramaIds, setRamaIds] = useState<number[]>([]);
+  const [selectedComisionId, setSelectedComisionId] = useState<number | null>(null);
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [dialogLoading, setDialogLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [auxSubmitting, setAuxSubmitting] = useState(false);
+
+  const fetchEvento = useCallback(async () => {
+    if (!Number.isFinite(eventoId)) {
+      setEvento(null);
+      setLoading(false);
+      setError('El identificador del evento es inválido.');
+      return null;
+    }
+
+    const response = await getEventoRequest(eventoId);
+    setEvento(response);
+    return response;
+  }, [eventoId]);
+
+  const fetchOptions = useCallback(async () => {
+    const response = await getEventosOptionsRequest();
+    setOptions(response);
+    return response;
+  }, []);
+
+  const refetch = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      await fetchEvento();
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No se pudo cargar el evento.'));
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchEvento]);
+
+  useEffect(() => {
+    if (!Number.isFinite(eventoId)) {
+      setEvento(null);
+      setLoading(false);
+      setError('El identificador del evento es inválido.');
+      return;
+    }
+
+    const loadInitialState = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        await Promise.all([fetchEvento(), fetchOptions()]);
+      } catch (err: unknown) {
+        setError(getErrorMessage(err, 'No se pudo cargar el evento.'));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void loadInitialState();
+  }, [eventoId, fetchEvento, fetchOptions]);
+
+  const openEditDialog = async () => {
+    if (!evento) return;
+    setDialogLoading(true);
+    setError('');
+    setSuccessMessage('');
+    try {
+      const [currentEvento] = await Promise.all([fetchEvento(), fetchOptions()]);
+      if (!currentEvento) return;
+      setFormValuesState(mapEventoToFormValues(currentEvento));
+      setDialogVisible(true);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No se pudo cargar el evento.'));
+    } finally {
+      setDialogLoading(false);
+    }
+  };
+
+  const openInscripcionesDialog = async () => {
+    if (!evento) return;
+    setError('');
+    setAuxSubmitting(false);
+    try {
+      const current = await getEventoInscripcionesRequest(evento.id);
+      setInscripcionIds(current.map((item) => item.Miembro.id));
+      setInscripcionesVisible(true);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No se pudieron cargar las inscripciones.'));
+    }
+  };
+
+  const openAfectacionesDialog = async () => {
+    if (!evento) return;
+    setError('');
+    try {
+      const currentEvento = (await fetchEvento()) ?? evento;
+      setAreaIds(currentEvento.AreaAfectada.map((item) => item.Area.id));
+      setRamaIds(currentEvento.RamaAfectada.map((item) => item.Rama.id));
+      setAfectacionesVisible(true);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No se pudieron cargar las afectaciones.'));
+    }
+  };
+
+  const openComisionDialog = async () => {
+    if (!evento) return;
+    setError('');
+    try {
+      const [currentEvento] = await Promise.all([fetchEvento(), fetchOptions()]);
+      if (!currentEvento) return;
+      setSelectedComisionId(currentEvento.Comision[0]?.id ?? null);
+      setComisionVisible(true);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No se pudo cargar la comisión actual.'));
+    }
+  };
+
+  const closeDialog = () => setDialogVisible(false);
+  const closeInscripcionesDialog = () => setInscripcionesVisible(false);
+  const closeAfectacionesDialog = () => setAfectacionesVisible(false);
+  const closeComisionDialog = () => setComisionVisible(false);
+
+  const submitForm = async (values: EventoFormValues) => {
+    if (!evento) return;
+    setSubmitting(true);
+    setError('');
+    setSuccessMessage('');
+    try {
+      await updateEventoRequest(evento.id, buildPayload(values) as UpdateEventoPayload);
+      setSuccessMessage('Evento actualizado correctamente.');
+      closeDialog();
+      await refetch();
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No se pudo actualizar el evento.'));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const submitInscripciones = async () => {
+    if (!evento) return;
+    setAuxSubmitting(true);
+    setError('');
+    try {
+      await updateEventoInscripcionesRequest(evento.id, inscripcionIds);
+      setSuccessMessage('Inscripciones actualizadas correctamente.');
+      closeInscripcionesDialog();
+      await refetch();
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No se pudieron actualizar las inscripciones.'));
+    } finally {
+      setAuxSubmitting(false);
+    }
+  };
+
+  const submitAfectaciones = async () => {
+    if (!evento) return;
+    setAuxSubmitting(true);
+    setError('');
+    try {
+      await updateEventoAfectacionesRequest(evento.id, areaIds, ramaIds);
+      setSuccessMessage('Afectaciones actualizadas correctamente.');
+      closeAfectacionesDialog();
+      await refetch();
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No se pudieron actualizar las afectaciones.'));
+    } finally {
+      setAuxSubmitting(false);
+    }
+  };
+
+  const submitComision = async () => {
+    if (!evento) return;
+    setAuxSubmitting(true);
+    setError('');
+    try {
+      await assignEventoComisionRequest(evento.id, selectedComisionId);
+      setSuccessMessage('Comisión actualizada correctamente.');
+      closeComisionDialog();
+      await Promise.all([refetch(), fetchOptions()]);
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No se pudo asignar la comisión.'));
+    } finally {
+      setAuxSubmitting(false);
+    }
+  };
+
+  return {
+    evento,
+    formValues,
+    options,
+    dialogVisible,
+    inscripcionesVisible,
+    afectacionesVisible,
+    comisionVisible,
+    inscripcionIds,
+    setInscripcionIds,
+    areaIds,
+    setAreaIds,
+    ramaIds,
+    setRamaIds,
+    selectedComisionId,
+    setSelectedComisionId,
+    error,
+    successMessage,
+    loading,
+    dialogLoading,
+    submitting,
+    auxSubmitting,
+    refetch,
+    openEditDialog,
+    openInscripcionesDialog,
+    openAfectacionesDialog,
+    openComisionDialog,
+    closeDialog,
+    closeInscripcionesDialog,
+    closeAfectacionesDialog,
+    closeComisionDialog,
+    submitForm,
+    submitInscripciones,
+    submitAfectaciones,
+    submitComision,
   };
 };

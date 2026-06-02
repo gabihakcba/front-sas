@@ -34,6 +34,14 @@ import { PaginatedResponseMeta } from '@/types/pagination';
 const DEFAULT_LIMIT = 10;
 
 type DialogMode = 'create' | 'edit';
+type ActividadEditable = Actividad & {
+  fecha: string;
+  Responsables?: Array<{
+    Adulto: {
+      id: number;
+    };
+  }>;
+};
 
 const createEmptyFilters = (): SabatinoFilters => ({
   q: '',
@@ -48,11 +56,21 @@ const createEmptySabatinoFormValues = () => ({
   titulo: '',
   fechaInicio: dayjs().startOf('day').toISOString(),
   fechaFin: dayjs().startOf('day').add(1, 'hour').toISOString(),
+  idEvento: undefined as number | undefined,
   educadorIds: [] as number[],
   ramaIds: [] as number[],
   areaIds: [] as number[],
   actividadIds: [] as number[],
 });
+
+interface OpenCreateSabatinoOptions {
+  idEvento?: number;
+  titulo?: string;
+  fechaInicio?: string;
+  fechaFin?: string;
+  ramaIds?: number[];
+  areaIds?: number[];
+}
 
 const createEmptyActividadFormValues = () => ({
   fecha: dayjs().toISOString(),
@@ -163,12 +181,12 @@ export const useSabatinosHook = () => {
     void fetchSabatinos(1);
   }, [fetchSabatinos]);
 
-  const openCreateSabatino = () => {
+  const openCreateSabatino = (preset?: OpenCreateSabatinoOptions) => {
     setSabatinoDialogMode('create');
     
     // Auto-select based on user scope
-    const ramaIds: number[] = [];
-    const areaIds: number[] = [];
+    const ramaIds = [...(preset?.ramaIds ?? [])];
+    const areaIds = [...(preset?.areaIds ?? [])];
     
     if (user?.scopes) {
       user.scopes.forEach(scope => {
@@ -179,8 +197,12 @@ export const useSabatinosHook = () => {
 
     setSabatinoFormValues({
       ...createEmptySabatinoFormValues(),
-      ramaIds,
-      areaIds,
+      titulo: preset?.titulo ?? '',
+      fechaInicio: preset?.fechaInicio ?? createEmptySabatinoFormValues().fechaInicio,
+      fechaFin: preset?.fechaFin ?? createEmptySabatinoFormValues().fechaFin,
+      idEvento: preset?.idEvento,
+      ramaIds: Array.from(new Set(ramaIds)),
+      areaIds: Array.from(new Set(areaIds)),
     });
     setSabatinoDialogVisible(true);
   };
@@ -194,6 +216,7 @@ export const useSabatinosHook = () => {
         titulo: fullSabatino.titulo,
         fechaInicio: fullSabatino.fecha_inicio,
         fechaFin: fullSabatino.fecha_fin,
+        idEvento: fullSabatino.Evento?.id ?? undefined,
         educadorIds: fullSabatino.Educadores.map(e => e.Adulto.id),
         ramaIds: fullSabatino.RamasAfectadas.map(r => r.Rama.id),
         areaIds: fullSabatino.AreasAfectadas.map(a => a.Area.id),
@@ -241,6 +264,7 @@ export const useSabatinosHook = () => {
   };
 
   const openCreateActividad = (sabatinoId?: number) => {
+    void sabatinoId;
     setActividadDialogMode('create');
     
     setActividadFormValues({
@@ -249,7 +273,7 @@ export const useSabatinosHook = () => {
     setActividadDialogVisible(true);
   };
 
-  const openEditActividad = async (actividad: any) => {
+  const openEditActividad = async (actividad: ActividadEditable) => {
     setActividadDialogMode('edit');
     setSelectedActividad(actividad);
     setActividadFormValues({
@@ -259,7 +283,7 @@ export const useSabatinosHook = () => {
       objetivos: actividad.objetivos ?? '',
       materiales: actividad.materiales ?? '',
       id_tipo: actividad.id_tipo,
-      responsableIds: actividad.Responsables?.map((r: any) => r.Adulto.id) ?? [],
+      responsableIds: actividad.Responsables?.map((responsable) => responsable.Adulto.id) ?? [],
     });
     setActividadDialogVisible(true);
   };

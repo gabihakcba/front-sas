@@ -15,10 +15,7 @@ import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
 import { useRouter } from 'next/navigation';
 import { ResponsiveTableActions } from '@/components/common/ResponsiveTableActions';
-import { EventoAfectacionesDialog } from '@/components/eventos/EventoAfectacionesDialog';
-import { EventoComisionDialog } from '@/components/eventos/EventoComisionDialog';
 import { EventoFormDialog } from '@/components/eventos/EventoFormDialog';
-import { EventoInscripcionesDialog } from '@/components/eventos/EventoInscripcionesDialog';
 import { EVENT_MANAGEMENT_ACCESS } from '@/data/access-control';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
 import { useEventosHook } from '@/hooks/useEventosHooks';
@@ -42,23 +39,11 @@ export default function EventosPage() {
     options,
     dialogMode,
     dialogVisible,
-    inscripcionesVisible,
-    afectacionesVisible,
-    comisionVisible,
-    inscripcionIds,
-    setInscripcionIds,
-    areaIds,
-    setAreaIds,
-    ramaIds,
-    setRamaIds,
-    selectedComisionId,
-    setSelectedComisionId,
     error,
     successMessage,
     loading,
     dialogLoading,
     submitting,
-    auxSubmitting,
     page,
     total,
     limit,
@@ -66,25 +51,13 @@ export default function EventosPage() {
     setFilters,
     refetch,
     openCreateDialog,
-    openEditDialog,
-    openInscripcionesDialog,
-    openAfectacionesDialog,
-    openComisionDialog,
     closeDialog,
-    closeInscripcionesDialog,
-    closeAfectacionesDialog,
-    closeComisionDialog,
     submitForm,
-    submitInscripciones,
-    submitAfectaciones,
-    submitComision,
     deleteSelected,
   } = useEventosHook();
 
   const canCreate = hasPermissionAccess(user, 'CREATE:EVENTO');
-  const canEdit = hasPermissionAccess(user, 'UPDATE:EVENTO');
   const canDelete = hasPermissionAccess(user, 'DELETE:EVENTO');
-  const canManageInscripciones = hasPermissionAccess(user, 'UPDATE:INSCRIPCION');
   const canManageEventModules = hasAccessRule(user?.scopes, EVENT_MANAGEMENT_ACCESS);
   const canAuditDeleted = hasDeletedAuditAccess(user);
   const canSeeId = hasDeveloperAccess(user);
@@ -181,52 +154,22 @@ export default function EventosPage() {
               ]
             : []
         }
-        specialActions={
-          canManageEventModules
-            ? [
-                {
-                  label: 'Inscripciones',
-                  icon: 'pi pi-users',
-                  onClick: () => void openInscripcionesDialog(),
-                  disabled:
-                    !selectedEvento ||
-                    !canManageInscripciones ||
-                    Boolean(selectedEvento?.borrado),
-                },
-                {
-                  label: 'Afectaciones',
-                  icon: 'pi pi-sitemap',
-                  onClick: () => void openAfectacionesDialog(),
-                  disabled:
-                    !selectedEvento || !canEdit || Boolean(selectedEvento?.borrado),
-                },
-                {
-                  label: 'Comisión',
-                  icon: 'pi pi-briefcase',
-                  onClick: () => void openComisionDialog(),
-                  disabled:
-                    !selectedEvento || !canEdit || Boolean(selectedEvento?.borrado),
-                },
-              ]
-            : []
-        }
         crudActions={[
+          {
+            label: 'Abrir',
+            icon: 'pi pi-folder-open',
+            onClick: () => {
+              if (!selectedEvento) return;
+              router.push(`/dashboard/eventos/${selectedEvento.id}`);
+            },
+            disabled: !selectedEvento || Boolean(selectedEvento.borrado),
+          },
           ...(canCreate
             ? [
                 {
                   label: 'Crear',
                   icon: 'pi pi-plus',
                   onClick: () => void openCreateDialog(),
-                },
-              ]
-            : []),
-          ...(canEdit
-            ? [
-                {
-                  label: 'Editar',
-                  icon: 'pi pi-pencil',
-                  onClick: () => void openEditDialog(),
-                  disabled: !selectedEvento || Boolean(selectedEvento.borrado),
                 },
               ]
             : []),
@@ -292,9 +235,6 @@ export default function EventosPage() {
       </Card>
 
       <EventoFormDialog visible={dialogVisible} mode={dialogMode} loading={dialogLoading} submitting={submitting} values={formValues} tipos={options.tipos} error={error} onHide={closeDialog} onSubmit={(values) => void submitForm(values)} />
-      <EventoInscripcionesDialog visible={inscripcionesVisible} submitting={auxSubmitting} miembros={options.miembros} selectedIds={inscripcionIds} error={error} onHide={closeInscripcionesDialog} onChange={setInscripcionIds} onSubmit={() => void submitInscripciones()} />
-      <EventoAfectacionesDialog visible={afectacionesVisible} submitting={auxSubmitting} areas={options.areas} ramas={options.ramas} selectedAreaIds={areaIds} selectedRamaIds={ramaIds} error={error} onHide={closeAfectacionesDialog} onAreaChange={setAreaIds} onRamaChange={setRamaIds} onSubmit={() => void submitAfectaciones()} />
-      <EventoComisionDialog visible={comisionVisible} submitting={auxSubmitting} comisiones={options.comisiones} selectedId={selectedComisionId} error={error} onHide={closeComisionDialog} onChange={setSelectedComisionId} onSubmit={() => void submitComision()} />
       {deleteConfirmDialog}
     </div>
   );

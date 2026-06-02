@@ -44,6 +44,12 @@ export interface Evento {
   RamaAfectada: Array<{
     Rama: EventoOption;
   }>;
+  Sabatino?: Array<{
+    id: number;
+    titulo: string;
+    fecha_inicio: string;
+    fecha_fin: string;
+  }>;
   _count: {
     InscripcionEvento: number;
   };

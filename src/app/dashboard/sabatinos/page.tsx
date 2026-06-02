@@ -3,6 +3,7 @@
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
 import { Card } from 'primereact/card';
+import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { InputText } from 'primereact/inputtext';
@@ -46,7 +47,6 @@ export default function SabatinosPage() {
     setSabatinoDialogVisible,
     sabatinoDialogMode,
     sabatinoFormValues,
-    setSabatinoFormValues,
     submittingSabatino,
     openCreateSabatino,
     submitSabatino,
@@ -212,6 +212,27 @@ export default function SabatinosPage() {
             body={(rowData: Sabatino) => (
               <div className="flex flex-wrap gap-1">
                 {rowData.RamasAfectadas.map(r => r.Rama.nombre).join(', ') || '-'}
+              </div>
+            )}
+          />
+          <Column
+            header="Evento"
+            body={(rowData: Sabatino) => (
+              <div className="flex items-center gap-2">
+                <span>
+                  {rowData.Evento?.TipoEvento?.nombre ?? 'Sin evento'}
+                </span>
+                <Button
+                  icon="pi pi-eye"
+                  iconPos="right"
+                  outlined
+                  size="small"
+                  onClick={() => {
+                    if (!rowData.Evento) return;
+                    router.push(`/dashboard/eventos/${rowData.Evento.id}`);
+                  }}
+                  disabled={!rowData.Evento}
+                />
               </div>
             )}
           />

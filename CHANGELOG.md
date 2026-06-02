@@ -2,6 +2,51 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.17.2
+
+Fecha: 2026-06-01
+
+### Correcciones
+
+- el listado de `Sabatinos` agrega la columna `Evento` con el tipo de evento asociado
+- la misma columna incorpora un botón con icono `eye` para abrir el evento vinculado sin salir del listado
+- cuando un sabatino no tiene evento asignado se muestra `Sin evento` y el botón queda desactivado
+
+## 1.17.1
+
+Fecha: 2026-06-01
+
+### Correcciones
+
+- la tarjeta `Información general` del detalle de evento pasa a un formato más discreto y compacto
+- el bloque operativo inferior deja de mostrarse en cards separadas y se reorganiza en tabs `Sabatinos`, `Inscripciones` y `Afectaciones`
+- la tab `Sabatinos` muestra el listado vinculado al evento y permite abrir cada sabatino directo desde la misma vista
+
+## 1.17.0
+
+Fecha: 2026-06-01
+
+### Funcionalidades
+
+- el detalle `/dashboard/eventos/[id]` agrega la acción `Crear sabatino`
+- al crear un sabatino desde un evento, el formulario queda vinculado al `Evento` actual y precarga fechas, ramas y áreas afectadas
+- el alta reutiliza el mismo diálogo y flujo de guardado de `Sabatinos`, evitando duplicar lógica entre módulos
+
+## 1.16.0
+
+Fecha: 2026-05-29
+
+### Funcionalidades
+
+- la sección `/dashboard/eventos` incorpora el botón `Abrir` para navegar al detalle de cada evento seleccionado
+- el detalle `/dashboard/eventos/[id]` concentra `Editar`, `Inscripciones`, `Afectaciones` y `Comisión` junto con la información completa del evento
+- el listado principal de `Eventos` conserva `Tipos`, `Crear` y `Eliminar`, dejando la gestión puntual dentro de la nueva vista de detalle
+
+### Notas
+
+- se verificó que `Eliminar` en eventos continúa siendo `soft delete` sobre la API
+- `Abrir` y `Eliminar` quedan deshabilitados para eventos ya borrados cuando se auditan listados con `Incluir borrados`
+
 ## 1.15.3
 
 Fecha: 2026-05-25

@@ -22,6 +22,19 @@ export interface Sabatino {
   fecha_inicio: string;
   fecha_fin: string;
   borrado: boolean;
+  Evento?: {
+    id: number;
+    nombre: string;
+    descripcion?: string | null;
+    fecha_inicio: string;
+    fecha_fin: string;
+    lugar?: string | null;
+    terminado?: boolean;
+    TipoEvento?: {
+      id: number;
+      nombre: string;
+    };
+  } | null;
   Educadores: Array<{
     Adulto: {
       id: number;
@@ -84,6 +97,7 @@ export interface CreateSabatinoPayload {
   titulo: string;
   fechaInicio: string;
   fechaFin: string;
+  idEvento?: number;
   educadorIds: number[];
   ramaIds: number[];
   areaIds: number[];
@@ -95,7 +109,7 @@ export interface CreateSabatinoPayload {
   }>;
 }
 
-export interface UpdateSabatinoPayload extends Partial<CreateSabatinoPayload> {}
+export type UpdateSabatinoPayload = Partial<CreateSabatinoPayload>;
 
 export interface CreateActividadPayload {
   nombre: string;
@@ -110,4 +124,4 @@ export interface CreateActividadPayload {
   numero?: number;
 }
 
-export interface UpdateActividadPayload extends Partial<CreateActividadPayload> {}
+export type UpdateActividadPayload = Partial<CreateActividadPayload>;

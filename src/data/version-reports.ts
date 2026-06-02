@@ -13,6 +13,75 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.17.2',
+    date: '2026-06-01',
+    title: 'Evento visible en el listado de sabatinos',
+    summary:
+      'La grilla de sabatinos ahora informa a qué tipo de evento está asociado cada registro y permite abrir ese evento directamente cuando existe vínculo.',
+    sections: [
+      {
+        title: 'Sabatinos',
+        items: [
+          'La tabla agrega la columna Evento con el nombre del tipo de evento asociado.',
+          'Cada fila muestra un botón con icono eye para abrir el evento vinculado.',
+          'Si el sabatino no tiene evento asignado, la columna indica Sin evento y el botón permanece deshabilitado.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.17.1',
+    date: '2026-06-01',
+    title: 'Detalle de evento con tabs operativas',
+    summary:
+      'La vista de detalle de eventos compacta la información general y reorganiza sabatinos, inscripciones y afectaciones dentro de tabs más ordenadas para móvil y escritorio.',
+    sections: [
+      {
+        title: 'Eventos',
+        items: [
+          'La card superior del evento reduce protagonismo visual y resume los datos principales en un bloque más compacto.',
+          'Sabatinos, Inscripciones y Afectaciones pasan a mostrarse en tabs dentro del detalle.',
+          'La nueva tab Sabatinos lista los sabatinos vinculados al evento y permite abrir cada uno directamente.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.17.0',
+    date: '2026-06-01',
+    title: 'Alta de sabatinos desde el detalle de evento',
+    summary:
+      'Cada evento puede crear un sabatino asociado directamente desde su pantalla de detalle, con datos operativos precargados para acelerar la carga.',
+    sections: [
+      {
+        title: 'Eventos',
+        items: [
+          'La vista /dashboard/eventos/[id] suma el botón Crear sabatino dentro de las acciones operativas del evento.',
+          'El formulario de sabatino se abre ya vinculado al evento actual.',
+          'Las fechas del evento y sus ramas y áreas afectadas se reutilizan como valores iniciales del nuevo sabatino.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.16.0',
+    date: '2026-05-29',
+    title: 'Detalle operativo para eventos',
+    summary:
+      'La gestión de cada evento se mueve a una pantalla de detalle propia, mientras el listado principal queda enfocado en búsqueda, alta, apertura y baja lógica.',
+    sections: [
+      {
+        title: 'Eventos',
+        items: [
+          'La tabla de Eventos agrega el botón Abrir para navegar al detalle del evento seleccionado.',
+          'La nueva ruta /dashboard/eventos/[id] muestra la información general del evento, sus inscripciones actuales y sus afectaciones.',
+          'Editar, Inscripciones, Afectaciones y Comisión dejan de operar desde el listado y pasan a resolverse dentro del detalle.',
+          'Eliminar en eventos se mantiene como borrado lógico y sigue deshabilitado para registros ya borrados en auditoría.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.15.3',
     date: '2026-05-25',
     title: 'ID visible para DEV en reservas de eventos de venta',
