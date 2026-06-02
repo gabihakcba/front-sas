@@ -11,6 +11,7 @@ import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
 import { TabPanel, TabView, TabViewTabChangeEvent } from 'primereact/tabview';
 import { Toast } from 'primereact/toast';
+import { FilePreviewDialog } from '@/components/common/FilePreviewDialog';
 import { useAuth } from '@/context/AuthContext';
 import { ResponsiveTableActions } from '@/components/common/ResponsiveTableActions';
 import { EventoAfectacionesDialog } from '@/components/eventos/EventoAfectacionesDialog';
@@ -21,6 +22,7 @@ import { SabatinoFormDialog } from '@/components/sabatinos/SabatinoFormDialog';
 import { EVENT_MANAGEMENT_ACCESS } from '@/data/access-control';
 import { useEventoDetailHook } from '@/hooks/useEventosHooks';
 import { useSabatinosHook } from '@/hooks/useSabatinosHooks';
+import { exportEventoPdfRequest } from '@/queries/eventos';
 import {
   hasAccessRule,
   hasAdultMemberAccess,
@@ -37,6 +39,10 @@ export default function EventoDetailsPage() {
   const toast = useRef<Toast>(null);
   const eventoId = Number(params.id);
   const [activeTabIndex, setActiveTabIndex] = useState(0);
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewBlob, setPreviewBlob] = useState<Blob | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState('');
   const {
     evento,
     formValues,
@@ -112,6 +118,24 @@ export default function EventoDetailsPage() {
     }
   };
 
+  const handleExportPdf = async () => {
+    if (!evento) {
+      return;
+    }
+
+    setPreviewVisible(true);
+    setPreviewLoading(true);
+    setPreviewError('');
+    try {
+      const blob = await exportEventoPdfRequest(evento.id);
+      setPreviewBlob(blob);
+    } catch {
+      setPreviewError('No se pudo generar el PDF del evento.');
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
   const feedbackSeverity = error || sabatinoError ? 'error' : 'success';
   const feedbackMessage =
     error || sabatinoError || successMessage || sabatinoSuccessMessage;
@@ -155,6 +179,12 @@ export default function EventoDetailsPage() {
 
   const acciones = canManageEventModules
     ? [
+        {
+          label: 'PDF',
+          icon: 'pi pi-file-pdf',
+          onClick: () => void handleExportPdf(),
+          disabled: Boolean(evento.borrado),
+        },
         {
           label: 'Inscripciones',
           icon: 'pi pi-users',
@@ -433,6 +463,20 @@ export default function EventoDetailsPage() {
         onSubmit={(values) => void handleSubmitSabatino(values)}
         loading={submittingSabatino}
         options={sabatinoOptions}
+      />
+      <FilePreviewDialog
+        visible={previewVisible}
+        title={`Preview Evento: ${evento.nombre}`}
+        fileName={`evento-${evento.id}.pdf`}
+        mimeType="application/pdf"
+        blob={previewBlob}
+        loading={previewLoading}
+        error={previewError}
+        onHide={() => {
+          setPreviewVisible(false);
+          setPreviewBlob(null);
+          setPreviewError('');
+        }}
       />
     </div>
   );

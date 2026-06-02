@@ -2,6 +2,25 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.18.1
+
+Fecha: 2026-06-01
+
+### Correcciones
+
+- el PDF de eventos ahora muestra `Inscripciones` antes del material de `Sabatinos`
+- los sabatinos ya no se resumen en una tabla dentro del PDF del evento: se anexan sus planificaciones completas reutilizando el formato PDF de sabatinos
+
+## 1.18.0
+
+Fecha: 2026-06-01
+
+### Funcionalidades
+
+- el detalle `/dashboard/eventos/[id]` incorpora exportación y preview en PDF siguiendo el patrón usado en otros módulos
+- el PDF del evento incluye datos generales, sabatinos vinculados e inscripciones registradas
+- el documento omite afectaciones y solo muestra comisión cuando el evento tiene una asignada
+
 ## 1.17.6
 
 Fecha: 2026-06-01

@@ -158,3 +158,10 @@ export const assignEventoComisionRequest = async (
   });
   return response.data;
 };
+
+export const exportEventoPdfRequest = async (id: number) => {
+  const response = await api.get(`/eventos/${id}/export/pdf`, {
+    responseType: 'blob',
+  });
+  return response.data;
+};

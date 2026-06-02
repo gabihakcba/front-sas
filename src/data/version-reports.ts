@@ -13,6 +13,39 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.18.1',
+    date: '2026-06-01',
+    title: 'PDF de eventos con anexos de sabatinos',
+    summary:
+      'El PDF del evento reordena sus secciones y reemplaza el resumen simple de sabatinos por anexos completos que reutilizan la planificación ya existente de cada sabatino.',
+    sections: [
+      {
+        title: 'Eventos',
+        items: [
+          'La sección de inscripciones pasa a mostrarse antes que los sabatinos en el PDF del evento.',
+          'Cada sabatino vinculado se agrega como anexo con el mismo formato detallado que ya usa su PDF propio.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.18.0',
+    date: '2026-06-01',
+    title: 'PDF para detalle de eventos',
+    summary:
+      'Cada evento puede exportarse a PDF desde su vista de detalle, con preview incorporado y un resumen pensado para coordinación operativa.',
+    sections: [
+      {
+        title: 'Eventos',
+        items: [
+          'La vista /dashboard/eventos/[id] agrega el botón PDF con preview y descarga desde el mismo diálogo.',
+          'El archivo resume los datos generales del evento, sus sabatinos vinculados y las inscripciones actuales.',
+          'Las afectaciones no se incluyen en el documento y la comisión solo aparece si existe una asignada.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.17.6',
     date: '2026-06-01',
     title: 'Horarios estables en actividades de sabatinos',
