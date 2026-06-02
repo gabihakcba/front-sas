@@ -9,16 +9,27 @@ import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { MultiSelect } from 'primereact/multiselect';
 import { getResponsiveDialogProps } from '@/lib/dialog';
-import { UpdateSabatinoPayload } from '@/types/sabatinos';
+import { Sabatino, UpdateSabatinoPayload } from '@/types/sabatinos';
+
+type SabatinoFormValues = UpdateSabatinoPayload & {
+  Actividades?: NonNullable<Sabatino['Actividades']>;
+};
+
+interface SabatinoFormDialogOptions {
+  adultos: Array<{ id: number; label: string }>;
+  ramas: Array<{ id: number; nombre: string }>;
+  areas: Array<{ id: number; nombre: string }>;
+  todasActividades: Array<{ id: number; nombre: string }>;
+}
 
 interface Props {
   visible: boolean;
   onHide: () => void;
   mode?: 'create' | 'edit';
-  initialValues: any;
+  initialValues: SabatinoFormValues;
   onSubmit: (values: UpdateSabatinoPayload) => void;
   loading: boolean;
-  options: any;
+  options: SabatinoFormDialogOptions;
 }
 
 export function SabatinoFormDialog({
@@ -34,8 +45,7 @@ export function SabatinoFormDialog({
     control,
     handleSubmit,
     reset,
-    formState: { errors },
-  } = useForm<UpdateSabatinoPayload>({
+  } = useForm<SabatinoFormValues>({
     defaultValues: initialValues,
   });
 
@@ -45,17 +55,19 @@ export function SabatinoFormDialog({
     }
   }, [visible, initialValues, reset]);
 
-  const onFormSubmit = (data: any) => {
+  const onFormSubmit = (data: SabatinoFormValues) => {
+    const { Actividades, ...rest } = data;
+
     // Transform activityIds if they exist into the new required structure
     const payload = {
-      ...data,
-      actividadIds: data.actividadIds?.map((id: number, index: number) => {
-        const existing = initialValues.Actividades?.find((a: any) => a.Actividad.id === id);
+      ...rest,
+      actividadIds: rest.actividadIds?.map((id: number, index: number) => {
+        const existing = Actividades?.find((actividad) => actividad.Actividad.id === id);
         return {
           actividadId: id,
           numero: existing?.numero ?? (index + 1),
-          fecha: existing?.fecha ?? data.fechaInicio,
-          responsableIds: existing?.Responsables?.map((r: any) => r.Adulto.id) ?? [],
+          fecha: existing?.fecha ?? rest.fechaInicio,
+          responsableIds: existing?.Responsables?.map((responsable) => responsable.Adulto.id) ?? [],
         };
       }),
     };

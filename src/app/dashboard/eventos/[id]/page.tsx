@@ -1,6 +1,7 @@
 'use client';
 
 import dayjs from 'dayjs';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
@@ -8,7 +9,8 @@ import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
-import { TabPanel, TabView } from 'primereact/tabview';
+import { TabPanel, TabView, TabViewTabChangeEvent } from 'primereact/tabview';
+import { Toast } from 'primereact/toast';
 import { useAuth } from '@/context/AuthContext';
 import { ResponsiveTableActions } from '@/components/common/ResponsiveTableActions';
 import { EventoAfectacionesDialog } from '@/components/eventos/EventoAfectacionesDialog';
@@ -32,7 +34,9 @@ export default function EventoDetailsPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { user } = useAuth();
+  const toast = useRef<Toast>(null);
   const eventoId = Number(params.id);
+  const [activeTabIndex, setActiveTabIndex] = useState(0);
   const {
     evento,
     formValues,
@@ -50,7 +54,9 @@ export default function EventoDetailsPage() {
     selectedComisionId,
     setSelectedComisionId,
     error,
+    setError,
     successMessage,
+    setSuccessMessage,
     loading,
     dialogLoading,
     submitting,
@@ -67,6 +73,7 @@ export default function EventoDetailsPage() {
     submitInscripciones,
     submitAfectaciones,
     submitComision,
+    refetch,
   } = useEventoDetailHook(eventoId);
 
   const canEdit = hasPermissionAccess(user, 'UPDATE:EVENTO');
@@ -88,7 +95,51 @@ export default function EventoDetailsPage() {
     submittingSabatino,
     openCreateSabatino,
     submitSabatino,
+    setError: setSabatinoError,
+    setSuccessMessage: setSabatinoSuccessMessage,
   } = useSabatinosHook();
+
+  const handleTabChange = (event: TabViewTabChangeEvent) => {
+    setActiveTabIndex(event.index);
+  };
+
+  const handleSubmitSabatino = async (
+    values: Parameters<typeof submitSabatino>[0],
+  ) => {
+    const didSave = await submitSabatino(values);
+    if (didSave) {
+      await refetch();
+    }
+  };
+
+  const feedbackSeverity = error || sabatinoError ? 'error' : 'success';
+  const feedbackMessage =
+    error || sabatinoError || successMessage || sabatinoSuccessMessage;
+
+  const clearFeedback = useCallback(() => {
+    setError('');
+    setSuccessMessage('');
+    setSabatinoError('');
+    setSabatinoSuccessMessage('');
+  }, [setError, setSuccessMessage, setSabatinoError, setSabatinoSuccessMessage]);
+
+  useEffect(() => {
+    if (!evento || !feedbackMessage || !toast.current) {
+      return;
+    }
+
+    toast.current.show({
+      severity: feedbackSeverity,
+      summary: feedbackSeverity === 'error' ? 'Error' : 'Éxito',
+      detail: feedbackMessage,
+    });
+    clearFeedback();
+  }, [
+    evento,
+    feedbackMessage,
+    feedbackSeverity,
+    clearFeedback,
+  ]);
 
   if (loading) {
     return <div className="p-4">Cargando evento...</div>;
@@ -150,6 +201,7 @@ export default function EventoDetailsPage() {
 
   return (
     <div className="flex flex-col gap-4">
+      <Toast ref={toast} />
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Button
@@ -163,11 +215,6 @@ export default function EventoDetailsPage() {
         </div>
         <ResponsiveTableActions crudActions={acciones} />
       </div>
-
-      {error ? <Message severity="error" text={error} /> : null}
-      {successMessage ? <Message severity="success" text={successMessage} /> : null}
-      {sabatinoError ? <Message severity="error" text={sabatinoError} /> : null}
-      {sabatinoSuccessMessage ? <Message severity="success" text={sabatinoSuccessMessage} /> : null}
 
       <Card>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-5">
@@ -236,7 +283,7 @@ export default function EventoDetailsPage() {
       </Card>
 
       <Card>
-        <TabView>
+        <TabView activeIndex={activeTabIndex} onTabChange={handleTabChange}>
           <TabPanel header={`Sabatinos (${sabatinos.length})`}>
             <DataTable
               value={sabatinos}
@@ -383,7 +430,7 @@ export default function EventoDetailsPage() {
         onHide={() => setSabatinoDialogVisible(false)}
         mode={sabatinoDialogMode}
         initialValues={sabatinoFormValues}
-        onSubmit={submitSabatino}
+        onSubmit={(values) => void handleSubmitSabatino(values)}
         loading={submittingSabatino}
         options={sabatinoOptions}
       />

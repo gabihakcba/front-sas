@@ -13,6 +13,70 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.17.6',
+    date: '2026-06-01',
+    title: 'Horarios estables en actividades de sabatinos',
+    summary:
+      'Editar la información general de un sabatino ya no resetea a medianoche la hora de las actividades que estaban asociadas.',
+    sections: [
+      {
+        title: 'Sabatinos',
+        items: [
+          'Las actividades vinculadas conservan su fecha y hora original al guardar cambios de educadores, ramas, áreas u otros datos generales.',
+          'El formulario reutiliza el detalle real de cada actividad existente en lugar de regenerar horarios por defecto.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.17.5',
+    date: '2026-06-01',
+    title: 'Feedback con toast en eventos',
+    summary:
+      'El detalle de eventos deja de usar un modal bloqueante para informar resultados y pasa al patrón de toast breve ya utilizado en otras secciones.',
+    sections: [
+      {
+        title: 'Eventos',
+        items: [
+          'Editar, inscripciones, afectaciones, comisión y crear sabatino muestran éxito o error mediante toast.',
+          'La vista conserva el mensaje inline solo para errores de carga inicial del evento.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.17.4',
+    date: '2026-06-01',
+    title: 'Feedback modal en detalle de eventos',
+    summary:
+      'Las operaciones dentro del detalle de eventos ahora informan éxito o error mediante un modal de resultado, evitando banners persistentes sobre la página.',
+    sections: [
+      {
+        title: 'Eventos',
+        items: [
+          'Editar, actualizar inscripciones, afectaciones, comisión y crear sabatinos muestran su resultado en un modal cerrable.',
+          'El detalle deja de acumular mensajes inline después de cada operación, manteniendo la vista más limpia.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.17.3',
+    date: '2026-06-01',
+    title: 'Tabs estables y refresco inmediato en eventos',
+    summary:
+      'El detalle de eventos ahora conserva la pestaña activa durante toda la operación y refresca los sabatinos vinculados apenas se crea uno nuevo desde la misma vista.',
+    sections: [
+      {
+        title: 'Eventos',
+        items: [
+          'La vista /dashboard/eventos/[id] mantiene la tab seleccionada aunque se guarden cambios desde los diálogos operativos.',
+          'Crear un sabatino desde el detalle dispara una actualización inmediata del evento para mostrarlo en la tab Sabatinos.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.17.2',
     date: '2026-06-01',
     title: 'Evento visible en el listado de sabatinos',

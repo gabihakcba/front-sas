@@ -2,6 +2,42 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.17.6
+
+Fecha: 2026-06-01
+
+### Correcciones
+
+- al editar un `Sabatino`, las actividades conservan su horario original aunque el cambio sea solo en educadores, ramas o áreas
+- la actualización del formulario deja de reconstruir las actividades con una fecha fallback cuando ya existían en el sabatino
+
+## 1.17.5
+
+Fecha: 2026-06-01
+
+### Correcciones
+
+- la vista `/dashboard/eventos/[id]` reemplaza el modal de resultado por `Toast`, alineándose con el patrón usado en otras pantallas
+- las operaciones sobre el evento y la creación de sabatinos ahora muestran feedback breve no bloqueante
+
+## 1.17.4
+
+Fecha: 2026-06-01
+
+### Correcciones
+
+- la vista `/dashboard/eventos/[id]` deja de mostrar banners persistentes para éxito o error en operaciones del evento
+- el feedback de `Editar`, `Inscripciones`, `Afectaciones`, `Comisión` y `Crear sabatino` ahora aparece en un modal de resultado cerrable
+
+## 1.17.3
+
+Fecha: 2026-06-01
+
+### Correcciones
+
+- al crear un `Sabatino` desde el detalle de un evento, la tab `Sabatinos` se actualiza automáticamente sin recargar la página
+- la vista `/dashboard/eventos/[id]` conserva la tab activa después de guardar cambios desde `Inscripciones`, `Afectaciones`, `Comisión` o el alta de sabatino
+
 ## 1.17.2
 
 Fecha: 2026-06-01

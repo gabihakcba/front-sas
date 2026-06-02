@@ -61,6 +61,7 @@ const createEmptySabatinoFormValues = () => ({
   ramaIds: [] as number[],
   areaIds: [] as number[],
   actividadIds: [] as number[],
+  Actividades: [] as NonNullable<Sabatino['Actividades']>,
 });
 
 interface OpenCreateSabatinoOptions {
@@ -221,6 +222,7 @@ export const useSabatinosHook = () => {
         ramaIds: fullSabatino.RamasAfectadas.map(r => r.Rama.id),
         areaIds: fullSabatino.AreasAfectadas.map(a => a.Area.id),
         actividadIds: fullSabatino.Actividades?.map(a => a.Actividad.id) || [],
+        Actividades: fullSabatino.Actividades ?? [],
       });
       setSabatinoDialogVisible(true);
     } catch (err) {
@@ -245,8 +247,10 @@ export const useSabatinosHook = () => {
       }
       setSabatinoDialogVisible(false);
       void fetchSabatinos(meta.page);
+      return true;
     } catch (err) {
       setError(getErrorMessage(err, 'Error al guardar el sabatino.'));
+      return false;
     } finally {
       setSubmittingSabatino(false);
     }
