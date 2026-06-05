@@ -1,6 +1,5 @@
 'use client';
 
-import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { Message } from 'primereact/message';
@@ -57,9 +56,11 @@ export default function MetodosPagoPage() {
   };
 
   const header = (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div className="flex flex-col gap-3 xxl:flex-row xxl:items-center xxl:justify-between">
       <div />
       <ResponsiveTableActions
+        inlineFiltersMobile
+        inlineActionsMobile
         crudActions={[
           {
             label: 'Crear',
@@ -86,8 +87,8 @@ export default function MetodosPagoPage() {
 
   return (
     <div className="h-full w-full">
-      <Card title="Métodos de Pago" className="h-full">
-        {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
+      <h1 className="text-2xl font-bold mb-4">Métodos de Pago</h1>
+      {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
         {successMessage ? (
           <Message severity="success" text={successMessage} className="mb-3 w-full" />
         ) : null}
@@ -123,7 +124,6 @@ export default function MetodosPagoPage() {
             body={(metodoPago: MetodoPago) => metodoPago._count.Pago}
           />
         </DataTable>
-      </Card>
 
       <MetodoPagoFormDialog
         visible={dialogVisible}

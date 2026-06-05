@@ -4,7 +4,6 @@ import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
-import { Card } from 'primereact/card';
 import { Checkbox } from 'primereact/checkbox';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
@@ -166,10 +165,24 @@ export default function AdultosPage() {
   );
 
   const header = (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div className="hidden md:flex md:flex-col md:gap-2">{filterControls}</div>
+    <div className="flex flex-col gap-3 xxl:flex-row xxl:items-center xxl:justify-between">
+      <div className="hidden xxl:flex xxl:flex-col xxl:gap-2">{filterControls}</div>
       <ResponsiveTableActions
         filtersContent={filterControls}
+        inlineFiltersMobile
+        inlineActionsMobile
+        specialActions={[
+          {
+            label: 'Perfil',
+            icon: 'pi pi-eye',
+            onClick: () => {
+              if (selectedAdulto) {
+                router.push(`/dashboard/perfil/${selectedAdulto.Miembro.id}`);
+              }
+            },
+            disabled: !selectedAdulto || Boolean(selectedAdulto.borrado),
+          },
+        ]}
         crudActions={[
           ...(canUseImport
             ? [
@@ -311,8 +324,8 @@ export default function AdultosPage() {
 
   return (
     <div className="h-full w-full">
-      <Card title="Adultos" className="h-full">
-        {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
+      <h1 className="text-2xl font-bold mb-4">Adultos</h1>
+      {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
         {successMessage ? (
           <Message severity="success" text={successMessage} className="mb-3 w-full" />
         ) : null}
@@ -346,19 +359,6 @@ export default function AdultosPage() {
           <Column field="Miembro.dni" header="DNI" />
           <Column field="Miembro.email" header="Email" />
           <Column field="Miembro.Cuenta.user" header="Usuario" />
-          <Column
-            header="Perfil"
-            body={(adulto: Adulto) => (
-              <Button
-                type="button"
-                icon="pi pi-eye"
-                iconPos="right"
-                outlined
-                size="small"
-                onClick={() => router.push(`/dashboard/perfil/${adulto.Miembro.id}`)}
-              />
-            )}
-          />
           <Column
             header={areaHeader}
             body={(adulto: Adulto) =>
@@ -426,7 +426,6 @@ export default function AdultosPage() {
             />
           ) : null}
         </DataTable>
-      </Card>
 
       <AdultoFormDialog
         visible={dialogVisible}

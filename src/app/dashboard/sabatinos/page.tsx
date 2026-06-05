@@ -2,7 +2,6 @@
 
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
-import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
@@ -21,7 +20,6 @@ import {
   hasAdultMemberAccess,
   hasDeveloperAccess,
 } from '@/lib/authorization';
-import { formatArgentinaDateTimeRange } from '@/lib/argentina-datetime';
 import { ResponsiveTableActions } from '@/components/common/ResponsiveTableActions';
 import { Sabatino } from '@/types/sabatinos';
 import { useDeleteConfirm } from '@/hooks/useDeleteConfirm';
@@ -90,7 +88,7 @@ export default function SabatinosPage() {
 
   const filterControls = (
     <>
-      <IconField iconPosition="right" className="w-full">
+      <IconField iconPosition="right" className="w-full xxl:w-80">
         <InputText
           className="w-full"
           value={filters.q}
@@ -119,11 +117,12 @@ export default function SabatinosPage() {
         placeholder="Rango de fechas"
         showButtonBar
         dateFormat="dd/mm/yy"
-        className="w-full"
+        className="w-full xxl:w-64"
+        inputClassName="w-full"
       />
 
       {canAuditDeleted && (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <Checkbox
             inputId="include-deleted"
             checked={filters.includeDeleted}
@@ -136,9 +135,11 @@ export default function SabatinosPage() {
   );
 
   const header = (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div className="hidden md:flex md:flex-col md:gap-2">{filterControls}</div>
+    <div className="flex flex-col gap-3 xxl:flex-row xxl:items-center xxl:justify-between">
+      <div className="hidden xxl:flex xxl:flex-row xxl:items-center xxl:gap-2">{filterControls}</div>
       <ResponsiveTableActions
+        inlineFiltersMobile
+        inlineActionsMobile
         filtersContent={filterControls}
         crudActions={[
           ...(canCRUD
@@ -176,7 +177,7 @@ export default function SabatinosPage() {
     <div className="flex flex-col gap-4">
       <Toast ref={toast} />
       
-      <Card title="Sabatinos">
+      <h1 className="text-2xl font-bold mb-4">Sabatinos</h1>
         {error && <Message severity="error" text={error} className="w-full mb-3" />}
         
         <DataTable
@@ -201,10 +202,7 @@ export default function SabatinosPage() {
           <Column
             header="Fecha"
             body={(rowData: Sabatino) =>
-              formatArgentinaDateTimeRange(
-                rowData.fecha_inicio,
-                rowData.fecha_fin,
-              )
+              dayjs(rowData.fecha_inicio).format('DD/MM/YYYY')
             }
           />
           <Column
@@ -217,24 +215,21 @@ export default function SabatinosPage() {
           />
           <Column
             header="Evento"
-            body={(rowData: Sabatino) => (
-              <div className="flex items-center gap-2">
-                <span>
-                  {rowData.Evento?.TipoEvento?.nombre ?? 'Sin evento'}
-                </span>
-                <Button
-                  icon="pi pi-eye"
-                  iconPos="right"
-                  outlined
-                  size="small"
-                  onClick={() => {
-                    if (!rowData.Evento) return;
-                    router.push(`/dashboard/eventos/${rowData.Evento.id}`);
+            body={(rowData: Sabatino) =>
+              rowData.Evento ? (
+                <span
+                  className="text-primary hover:underline cursor-pointer font-medium"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    router.push(`/dashboard/eventos/${rowData.Evento!.id}`);
                   }}
-                  disabled={!rowData.Evento}
-                />
-              </div>
-            )}
+                >
+                  {rowData.Evento.nombre}
+                </span>
+              ) : (
+                'Sin evento'
+              )
+            }
           />
           <Column
             header="Actividades"
@@ -253,7 +248,6 @@ export default function SabatinosPage() {
             />
           )}
         </DataTable>
-      </Card>
 
       <SabatinoFormDialog
         visible={sabatinoDialogVisible}

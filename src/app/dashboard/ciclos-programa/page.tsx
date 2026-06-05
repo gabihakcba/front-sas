@@ -3,7 +3,6 @@
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { Card } from 'primereact/card';
 import { Calendar } from 'primereact/calendar';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
@@ -102,7 +101,7 @@ export default function CiclosProgramaPage() {
 
   const filterControls = (
     <>
-      <IconField iconPosition="right" className="w-full">
+      <IconField iconPosition="right" className="w-full xxlc:w-80">
         <InputText
           className="w-full"
           value={filters.q}
@@ -134,21 +133,24 @@ export default function CiclosProgramaPage() {
         showButtonBar
         dateFormat="dd/mm/yy"
         placeholder="Rango de fechas"
-        className="w-full"
+        className="w-full xxlc:w-64"
         inputClassName="w-full"
       />
     </>
   );
 
   const header = (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div className="hidden md:flex md:flex-col md:gap-2">{filterControls}</div>
+    <div className="flex flex-col gap-3 xxlc:flex-row xxlc:items-center xxlc:justify-between">
+      <div className="hidden xxlc:flex xxlc:flex-row xxlc:items-center xxlc:gap-2">{filterControls}</div>
       <ResponsiveTableActions
+        breakpoint="xxlc"
+        inlineFiltersMobile
+        inlineActionsMobile
         filtersContent={filterControls}
         relatedActions={[
-                {
-                  label: 'Ver detalles',
-                  icon: 'pi pi-eye',
+          {
+            label: 'Ver detalles',
+            icon: 'pi pi-eye',
             onClick: () => {
               if (selectedCiclo) {
                 router.push(`/dashboard/ciclos-programa/${selectedCiclo.id}`);
@@ -195,8 +197,8 @@ export default function CiclosProgramaPage() {
 
   return (
     <div className="h-full w-full">
-      <Card title="Ciclos de Programa" className="h-full">
-        {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
+      <h1 className="text-2xl font-bold mb-4">Ciclos de Programa</h1>
+      {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
         {successMessage ? (
           <Message severity="success" text={successMessage} className="mb-3 w-full" />
         ) : null}
@@ -246,7 +248,6 @@ export default function CiclosProgramaPage() {
             )}
           />
         </DataTable>
-      </Card>
 
       <CicloProgramaFormDialog
         visible={dialogVisible}

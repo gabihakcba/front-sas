@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from 'react';
-import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { Button } from 'primereact/button';
@@ -118,7 +117,7 @@ export default function TipoActividadPage() {
   };
 
   const header = (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div className="flex flex-col gap-3 xxl:flex-row xxl:items-center xxl:justify-between">
       <div className="flex items-center gap-3">
         <Button
           icon="pi pi-arrow-left"
@@ -130,6 +129,8 @@ export default function TipoActividadPage() {
         <h1 className="text-xl font-bold m-0 text-color">Tipos de Actividad</h1>
       </div>
       <ResponsiveTableActions
+        inlineFiltersMobile
+        inlineActionsMobile
         crudActions={[
           { label: 'Crear', icon: 'pi pi-plus', onClick: openCreate },
           { label: 'Editar', icon: 'pi pi-pencil', onClick: openEdit, disabled: !selectedTipo },
@@ -142,8 +143,7 @@ export default function TipoActividadPage() {
   return (
     <div className="flex flex-col gap-4">
       <Toast ref={toast} />
-      
-      <Card>
+      <h1 className="text-2xl font-bold mb-4">Tipos de Actividad</h1>
         <DataTable
           value={tipos}
           loading={loading}
@@ -170,7 +170,6 @@ export default function TipoActividadPage() {
             )} 
           />
         </DataTable>
-      </Card>
 
       <Dialog
         header={mode === 'create' ? 'Nuevo Tipo de Actividad' : 'Editar Tipo de Actividad'}

@@ -186,7 +186,7 @@ export function AdultoFirmaDialog({
   };
 
   const footer = (
-    <div className="flex flex-wrap justify-end gap-2">
+    <div className="flex flex-col sm:flex-row sm:justify-end gap-2 w-full">
       <Button
         type="button"
         label="Cancelar"
@@ -194,6 +194,7 @@ export function AdultoFirmaDialog({
         iconPos="right"
         outlined
         size="small"
+        className="w-full sm:w-auto justify-between"
         onClick={onHide}
         disabled={submitting}
       />
@@ -204,6 +205,7 @@ export function AdultoFirmaDialog({
         iconPos="right"
         outlined
         size="small"
+        className="w-full sm:w-auto justify-between"
         onClick={() => clearCanvas(true)}
         disabled={submitting || !editable}
       />
@@ -215,6 +217,7 @@ export function AdultoFirmaDialog({
         outlined
         size="small"
         severity="danger"
+        className="w-full sm:w-auto justify-between"
         onClick={() => onSave(null)}
         disabled={submitting || !editable}
       />
@@ -225,6 +228,7 @@ export function AdultoFirmaDialog({
         iconPos="right"
         outlined
         size="small"
+        className="w-full sm:w-auto justify-between"
         onClick={handleSave}
         loading={submitting}
         disabled={!editable}

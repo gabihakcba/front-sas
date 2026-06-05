@@ -1,7 +1,6 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
@@ -266,8 +265,8 @@ export default function ConfiguracionGrupoPage() {
 
   return (
     <div className="h-full w-full">
-      <Card title="Configuración" className="h-full">
-        <div className="flex flex-col gap-3">
+      <h1 className="text-2xl font-bold mb-4">Configuración</h1>
+      <div className="flex flex-col gap-3">
           <span className="text-sm text-color-secondary">
             Configurá el nombre visible del grupo, subí el logo y el favicon, y elegí el tema público de esta instalación.
           </span>
@@ -283,7 +282,6 @@ export default function ConfiguracionGrupoPage() {
             onSubmit={handleFormSubmit}
           />
         </div>
-      </Card>
     </div>
   );
 }

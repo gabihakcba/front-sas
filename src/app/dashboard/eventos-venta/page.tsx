@@ -2,7 +2,6 @@
 
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
-import { Card } from 'primereact/card';
 import { Checkbox } from 'primereact/checkbox';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
@@ -110,9 +109,11 @@ export default function EventosVentaPage() {
   );
 
   const header = (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="hidden md:flex md:flex-col md:gap-2">{filterControls}</div>
+    <div className="flex flex-col gap-3 xxl:flex-row xxl:items-center xxl:justify-between">
+        <div className="hidden xxl:flex xxl:flex-col xxl:gap-2">{filterControls}</div>
       <ResponsiveTableActions
+        inlineFiltersMobile
+        inlineActionsMobile
         filtersContent={filterControls}
         crudActions={[
           ...(canCreate
@@ -182,8 +183,8 @@ export default function EventosVentaPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <Card title="Eventos de venta">
-        <div className="flex flex-col gap-3">
+      <h1 className="text-2xl font-bold mb-4">Eventos de venta</h1>
+      <div className="flex flex-col gap-3">
           <span>
             Módulo separado de pagos y cuentas para manejar ventas como locro,
             sorteos o cualquier evento con reservas, retiros y rendiciones.
@@ -245,7 +246,6 @@ export default function EventosVentaPage() {
             />
           </DataTable>
         </div>
-      </Card>
       <EventoVentaFormDialog
         visible={dialogVisible}
         mode={dialogMode}

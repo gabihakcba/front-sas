@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card } from 'primereact/card';
 import { Checkbox } from 'primereact/checkbox';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
@@ -239,9 +238,13 @@ export default function PagosPage() {
   );
 
   const header = (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div className="hidden md:flex md:flex-col md:gap-2">{filterControls}</div>
+    <div className="flex flex-col gap-3 xxxxl:flex-row xxxxl:items-center xxxxl:justify-between">
+      <div className="hidden xxxxl:flex xxxxl:flex-col xxxxl:gap-2">{filterControls}</div>
       <ResponsiveTableActions
+        breakpoint="xxxxl"
+        iconLimitBreakpoint="icon-limit"
+        inlineFiltersMobile
+        inlineActionsMobile
         filtersContent={filterControls}
         relatedActions={[
           ...(canManagePaymentCatalogs
@@ -384,8 +387,8 @@ export default function PagosPage() {
 
   return (
     <div className="h-full w-full">
-      <Card title="Pagos" className="h-full">
-        {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
+      <h1 className="text-2xl font-bold mb-4">Pagos</h1>
+      {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
         {whatsappError ? (
           <Message severity="warn" text={whatsappError} className="mb-3 w-full" />
         ) : null}
@@ -453,7 +456,6 @@ export default function PagosPage() {
             />
           ) : null}
         </DataTable>
-      </Card>
 
       <PagoFormDialog
         visible={dialogVisible}

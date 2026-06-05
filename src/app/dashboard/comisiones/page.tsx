@@ -1,7 +1,6 @@
 'use client';
 
 import { useAuth } from '@/context/AuthContext';
-import { Card } from 'primereact/card';
 import { Checkbox } from 'primereact/checkbox';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
@@ -109,9 +108,11 @@ export default function ComisionesPage() {
   );
 
   const header = (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div className="hidden md:flex md:flex-col md:gap-2">{filterControls}</div>
+    <div className="flex flex-col gap-3 xxl:flex-row xxl:items-center xxl:justify-between">
+      <div className="hidden xxl:flex xxl:flex-col xxl:gap-2">{filterControls}</div>
       <ResponsiveTableActions
+        inlineFiltersMobile
+        inlineActionsMobile
         filtersContent={filterControls}
         specialActions={
           canEdit
@@ -180,8 +181,8 @@ export default function ComisionesPage() {
 
   return (
     <div className="h-full w-full">
-      <Card title="Comisiones" className="h-full">
-        {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
+      <h1 className="text-2xl font-bold mb-4">Comisiones</h1>
+      {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
         {successMessage ? <Message severity="success" text={successMessage} className="mb-3 w-full" /> : null}
         <DataTable value={comisiones} dataKey="id" loading={loading} lazy paginator header={header} selectionMode="single" selection={selectedComision} onSelectionChange={(event) => setSelectedComision((event.value as Comision | null) ?? null)} first={(page - 1) * limit} rows={10} totalRecords={total} onPage={(event: DataTablePageEvent) => void refetch(Math.floor(event.first / event.rows) + 1)} emptyMessage="No hay comisiones disponibles." tableStyle={{ minWidth: '48rem', width: '100%' }}>
           {canSeeId ? <Column field="id" header="ID" /> : null}
@@ -201,7 +202,6 @@ export default function ComisionesPage() {
             />
           ) : null}
         </DataTable>
-      </Card>
       <ComisionFormDialog visible={dialogVisible} mode={dialogMode} loading={dialogLoading} submitting={submitting} values={formValues} eventos={options.eventos} error={error} onHide={closeDialog} onSubmit={(values) => void submitForm(values)} />
       <ComisionParticipantesDialog visible={participantesVisible} submitting={submitting} adultos={options.adultos} selectedIds={participanteIds} error={error} onHide={closeParticipantesDialog} onChange={setParticipanteIds} onSubmit={() => void submitParticipantes()} />
       {deleteConfirmDialog}

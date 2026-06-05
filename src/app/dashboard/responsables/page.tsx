@@ -4,7 +4,6 @@ import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
-import { Card } from 'primereact/card';
 import { Checkbox } from 'primereact/checkbox';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
@@ -155,10 +154,13 @@ export default function ResponsablesPage() {
   );
 
   const header = (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div className="hidden md:flex md:flex-col md:gap-2">{filterControls}</div>
+    <div className="flex flex-col gap-3 xxxl:flex-row xxxl:items-center xxxl:justify-between">
+      <div className="hidden xxxl:flex xxxl:flex-col xxxl:gap-2">{filterControls}</div>
       <ResponsiveTableActions
+        breakpoint="xxxl"
         filtersContent={filterControls}
+        inlineFiltersMobile
+        inlineActionsMobile
         relatedActions={
           canAssign
             ? [
@@ -170,8 +172,18 @@ export default function ResponsablesPage() {
               ]
             : []
         }
-        specialActions={
-          canAssign
+        specialActions={[
+          {
+            label: 'Perfil',
+            icon: 'pi pi-eye',
+            onClick: () => {
+              if (selectedResponsable) {
+                router.push(`/dashboard/perfil/${selectedResponsable.Miembro.id}`);
+              }
+            },
+            disabled: !selectedResponsable || Boolean(selectedResponsable.borrado),
+          },
+          ...(canAssign
             ? [
                 {
                   label: 'Responsabilidades',
@@ -181,8 +193,8 @@ export default function ResponsablesPage() {
                     !selectedResponsable || Boolean(selectedResponsable.borrado),
                 },
               ]
-            : []
-        }
+            : []),
+        ]}
         crudActions={[
           ...(canUseImport
             ? [
@@ -233,9 +245,9 @@ export default function ResponsablesPage() {
   const rows = useMemo(() => responsables, [responsables]);
 
   return (
-    <Card title="Responsables">
-      <div className="flex flex-col gap-4">
-        {error ? <Message severity="error" text={error} /> : null}
+    <div className="flex flex-col gap-4">
+      <h1 className="text-2xl font-bold mb-4">Responsables</h1>
+      {error ? <Message severity="error" text={error} /> : null}
         {successMessage ? <Message severity="success" text={successMessage} /> : null}
 
         <DataTable
@@ -286,22 +298,6 @@ export default function ResponsablesPage() {
             body={(responsable: Responsable) => responsable.Miembro.telefono ?? '-'}
           />
           <Column
-            header="Perfil"
-            body={(responsable: Responsable) => (
-              <Button
-                type="button"
-                icon="pi pi-eye"
-                iconPos="right"
-                outlined
-                size="small"
-                disabled={Boolean(responsable.borrado)}
-                onClick={() =>
-                  router.push(`/dashboard/perfil/${responsable.Miembro.id}`)
-                }
-              />
-            )}
-          />
-          <Column
             header="Responsabilidades"
             body={(responsable: Responsable) =>
               responsable.Responsabilidad.length > 0
@@ -329,7 +325,6 @@ export default function ResponsablesPage() {
             />
           ) : null}
         </DataTable>
-      </div>
 
       {canCreate || canEdit ? (
         <ResponsableFormDialog
@@ -368,6 +363,6 @@ export default function ResponsablesPage() {
         onSubmit={handleImport}
       />
       {deleteConfirmDialog}
-    </Card>
+    </div>
   );
 }

@@ -2,7 +2,6 @@
 
 import dayjs from 'dayjs';
 import { useMemo } from 'react';
-import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
@@ -106,8 +105,8 @@ export default function LogsPage() {
 
   return (
     <div className="h-full w-full">
-      <Card title="Logs" className="h-full">
-        <div className="flex flex-col gap-3">
+      <h1 className="text-2xl font-bold mb-4">Logs</h1>
+      <div className="flex flex-col gap-3">
           <IconField iconPosition="right" className="w-full">
             <InputText
               className="w-full"
@@ -192,7 +191,6 @@ export default function LogsPage() {
             />
           </DataTable>
         </div>
-      </Card>
     </div>
   );
 }

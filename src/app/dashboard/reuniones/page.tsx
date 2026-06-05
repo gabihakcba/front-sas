@@ -1,7 +1,6 @@
 'use client';
 
 import dayjs from 'dayjs';
-import { Card } from 'primereact/card';
 import { Calendar } from 'primereact/calendar';
 import { Checkbox } from 'primereact/checkbox';
 import { Column } from 'primereact/column';
@@ -110,7 +109,7 @@ export default function ReunionesPage() {
 
   const filterControls = (
     <>
-      <IconField iconPosition="right" className="w-full">
+      <IconField iconPosition="right" className="w-full xxlb:w-80">
         <InputText
           className="w-full"
           value={filters.q}
@@ -144,10 +143,12 @@ export default function ReunionesPage() {
         dateFormat="dd/mm/yy"
         showButtonBar
         placeholder="Rango de fechas"
+        className="w-full xxlb:w-64"
+        inputClassName="w-full"
       />
 
       {canAuditDeleted ? (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <label htmlFor="reuniones-include-deleted">Incluir borrados</label>
           <Checkbox
             inputId="reuniones-include-deleted"
@@ -182,9 +183,12 @@ export default function ReunionesPage() {
   );
 
   const header = (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div className="hidden md:flex md:flex-col md:gap-2">{filterControls}</div>
+    <div className="flex flex-col gap-3 xxlb:flex-row xxlb:items-center xxlb:justify-between">
+      <div className="hidden xxlb:flex xxlb:flex-row xxlb:items-center xxlb:gap-2">{filterControls}</div>
       <ResponsiveTableActions
+        breakpoint="xxlb"
+        inlineFiltersMobile
+        inlineActionsMobile
         filtersContent={filterControls}
         specialActions={
           canManageInvitados
@@ -239,8 +243,8 @@ export default function ReunionesPage() {
 
   return (
     <div className="h-full w-full">
-      <Card title="Reuniones" className="h-full">
-        {error ? (
+      <h1 className="text-2xl font-bold mb-4">Reuniones</h1>
+      {error ? (
           <Message severity="error" text={error} className="mb-3 w-full" />
         ) : null}
         {successMessage ? (
@@ -330,7 +334,6 @@ export default function ReunionesPage() {
             />
           ) : null}
         </DataTable>
-      </Card>
 
       <ReunionFormDialog
         visible={dialogVisible}

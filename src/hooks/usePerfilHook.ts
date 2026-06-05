@@ -181,7 +181,14 @@ export function usePerfilHook(memberId?: number) {
       const response = await updateMyProfileRequest(payload);
       setSummary(response);
       return response;
-    } catch {
+    } catch (err: unknown) {
+      if (err instanceof AxiosError && err.response?.data?.message) {
+        const backendMessage = Array.isArray(err.response.data.message)
+          ? err.response.data.message.join(', ')
+          : String(err.response.data.message);
+        setError(backendMessage);
+        throw new Error(backendMessage);
+      }
       setError('No se pudo guardar el perfil.');
       throw new Error('No se pudo guardar el perfil.');
     } finally {

@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { InputText } from 'primereact/inputtext';
@@ -106,9 +105,11 @@ export default function ActividadesPage() {
   );
 
   const header = (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div className="flex flex-col gap-3 xxl:flex-row xxl:items-center xxl:justify-between">
       <div className="hidden md:flex md:w-20rem">{filterControls}</div>
       <ResponsiveTableActions
+        inlineFiltersMobile
+        inlineActionsMobile
         filtersContent={filterControls}
         crudActions={[
           {
@@ -148,8 +149,9 @@ export default function ActividadesPage() {
     <div className="flex flex-col gap-4">
       <Toast ref={toast} />
       
-      <Card title="Listado Maestro de Actividades">
-        <p className="text-color-secondary mt-0 mb-4">
+      <h1 className="text-2xl font-bold mb-4">Listado Maestro de Actividades</h1>
+      
+      <p className="text-color-secondary mt-0 mb-4">
           Repositorio global de actividades del sistema. Estas actividades pueden ser vinculadas a Sabatinos o Programas.
         </p>
 
@@ -201,7 +203,6 @@ export default function ActividadesPage() {
             )}
           />
         </DataTable>
-      </Card>
 
       <ActividadFormDialog
         visible={actividadDialogVisible}

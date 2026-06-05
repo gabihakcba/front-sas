@@ -1,4 +1,13 @@
 @import "tailwindcss";
+@theme {
+  --breakpoint-xxl: 1361px;
+  --breakpoint-xxla: 1427px;
+  --breakpoint-xxlb: 1457px;
+  --breakpoint-xxlc: 1475px;
+  --breakpoint-xxxl: 1583px;
+  --breakpoint-xxxxl: 1737px;
+  --breakpoint-icon-limit: 1015px;
+}
 @plugin "@tailwindcss/typography";
 
 body {

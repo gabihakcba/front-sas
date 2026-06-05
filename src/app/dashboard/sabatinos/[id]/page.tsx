@@ -169,13 +169,15 @@ export default function SabatinoDetailsPage() {
   };
 
   const activityHeader = (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div className="flex flex-col gap-3 xxl:flex-row xxl:items-center xxl:justify-between">
       <div className="flex items-center gap-2">
         <span className="text-color-secondary font-medium">
           {sabatino?.Actividades?.length || 0} actividades asociadas
         </span>
       </div>
       <ResponsiveTableActions
+        inlineFiltersMobile
+        inlineActionsMobile
         crudActions={[
           ...(canCRUD
             ? [

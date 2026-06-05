@@ -1,7 +1,7 @@
 'use client';
 
 import dayjs from 'dayjs';
-import { Card } from 'primereact/card';
+import { Divider } from 'primereact/divider';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { PerfilAsignacion } from '@/types/perfiles';
 
@@ -37,10 +37,11 @@ export function ProfileAsignacionSection({ asignacion, loading }: Props) {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="flex flex-col gap-4">
       {asignacion.ramaActual ? (
-        <Card title="Rama">
-          <div className="flex flex-col gap-2">
+        <div>
+          <h3 className="text-lg font-bold mb-3">Rama</h3>
+          <div className="grid gap-4 md:grid-cols-3">
             <InfoRow label="Rama" value={asignacion.ramaActual.Rama.nombre} />
             <InfoRow label="Área" value={asignacion.ramaActual.Rama.Area.nombre} />
             <InfoRow
@@ -50,12 +51,15 @@ export function ProfileAsignacionSection({ asignacion, loading }: Props) {
               )}
             />
           </div>
-        </Card>
+        </div>
       ) : null}
 
+      {asignacion.ramaActual && asignacion.asignacionAdulto ? <Divider /> : null}
+
       {asignacion.asignacionAdulto ? (
-        <Card title="Área / Posición">
-          <div className="flex flex-col gap-2">
+        <div>
+          <h3 className="text-lg font-bold mb-3">Área / Posición</h3>
+          <div className="grid gap-4 md:grid-cols-4">
             <InfoRow
               label="Área"
               value={asignacion.asignacionAdulto.Area.nombre}
@@ -75,7 +79,7 @@ export function ProfileAsignacionSection({ asignacion, loading }: Props) {
               )}
             />
           </div>
-        </Card>
+        </div>
       ) : null}
     </div>
   );

@@ -116,7 +116,7 @@ export function ProtagonistaFormDialog({
             ) : null}
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 p-fluid">
             <label htmlFor="password">
               {mode === 'create' ? 'Contraseña' : 'Contraseña nueva'}
               {mode === 'create' ? (

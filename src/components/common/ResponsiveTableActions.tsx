@@ -25,6 +25,10 @@ interface ResponsiveTableActionsProps {
   specialActions?: ResponsiveTableActionItem[];
   relatedActions?: ResponsiveTableActionItem[];
   filtersContent?: ReactNode;
+  inlineFiltersMobile?: boolean;
+  inlineActionsMobile?: boolean;
+  breakpoint?: 'xxl' | 'xxla' | 'xxlb' | 'xxlc' | 'xxxl' | 'xxxxl';
+  iconLimitBreakpoint?: 'sm' | 'icon-limit';
 }
 
 export function ResponsiveTableActions({
@@ -32,6 +36,10 @@ export function ResponsiveTableActions({
   specialActions = [],
   relatedActions = [],
   filtersContent,
+  inlineFiltersMobile = false,
+  inlineActionsMobile = false,
+  breakpoint = 'xxl',
+  iconLimitBreakpoint = 'sm',
 }: ResponsiveTableActionsProps) {
   const [openGroupKey, setOpenGroupKey] = useState<ActionGroupConfig['key'] | null>(null);
   const [filtersVisible, setFiltersVisible] = useState(false);
@@ -85,9 +93,43 @@ export function ResponsiveTableActions({
       />
     ));
 
+  const desktopClass =
+    breakpoint === 'xxxxl'
+      ? 'hidden xxxxl:flex xxxxl:items-start xxxxl:justify-between xxxxl:gap-3'
+      : breakpoint === 'xxxl'
+      ? 'hidden xxxl:flex xxxl:items-start xxxl:justify-between xxxl:gap-3'
+      : breakpoint === 'xxlc'
+      ? 'hidden xxlc:flex xxlc:items-start xxlc:justify-between xxlc:gap-3'
+      : breakpoint === 'xxlb'
+      ? 'hidden xxlb:flex xxlb:items-start xxlb:justify-between xxlb:gap-3'
+      : breakpoint === 'xxla'
+      ? 'hidden xxla:flex xxla:items-start xxla:justify-between xxla:gap-3'
+      : 'hidden xxl:flex xxl:items-start xxl:justify-between xxl:gap-3';
+
+  const mobileClass =
+    breakpoint === 'xxxxl'
+      ? 'flex flex-col gap-2 w-full xxxxl:hidden'
+      : breakpoint === 'xxxl'
+      ? 'flex flex-col gap-2 w-full xxxl:hidden'
+      : breakpoint === 'xxlc'
+      ? 'flex flex-col gap-2 w-full xxlc:hidden'
+      : breakpoint === 'xxlb'
+      ? 'flex flex-col gap-2 w-full xxlb:hidden'
+      : breakpoint === 'xxla'
+      ? 'flex flex-col gap-2 w-full xxla:hidden'
+      : 'flex flex-col gap-2 w-full xxl:hidden';
+
+  const mobileBtnClass = iconLimitBreakpoint === 'icon-limit'
+    ? 'icon-limit:!hidden'
+    : 'sm:!hidden';
+
+  const desktopBtnClass = iconLimitBreakpoint === 'icon-limit'
+    ? '!hidden icon-limit:!inline-flex icon-limit:w-auto'
+    : '!hidden sm:!inline-flex sm:w-auto';
+
   return (
     <>
-      <div className="hidden md:flex md:items-start md:justify-between md:gap-3">
+      <div className={desktopClass}>
         <div className="flex flex-wrap gap-2">
           {renderActionButtons(relatedActions)}
           {renderActionButtons(specialActions)}
@@ -97,30 +139,70 @@ export function ResponsiveTableActions({
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2 md:hidden">
-        {filtersContent ? (
-          <Button
-            type="button"
-            label="Filtros"
-            icon="pi pi-filter"
-            iconPos="right"
-            outlined
-            size="small"
-            onClick={() => setFiltersVisible(true)}
-          />
+      <div className={mobileClass}>
+        {filtersContent && inlineFiltersMobile ? (
+          <div className="w-full flex flex-col gap-2">{filtersContent}</div>
         ) : null}
-        {groups.map((group) => (
-          <Button
-            key={group.key}
-            type="button"
-            label={group.label}
-            icon={group.icon}
-            iconPos="right"
-            outlined
-            size="small"
-            onClick={() => setOpenGroupKey(group.key)}
-          />
-        ))}
+
+        <div className="flex flex-wrap gap-2 items-center">
+          {filtersContent && !inlineFiltersMobile ? (
+            <Button
+              type="button"
+              label="Filtros"
+              icon="pi pi-filter"
+              iconPos="right"
+              outlined
+              size="small"
+              onClick={() => setFiltersVisible(true)}
+            />
+          ) : null}
+
+          {inlineActionsMobile ? (
+            <div className="flex flex-row justify-between gap-2 w-full">
+              {[...relatedActions, ...specialActions, ...crudActions].map((action) => (
+                <div key={`${action.label}-${action.icon}`} className="contents">
+                  {/* Mobile icon-only button */}
+                  <Button
+                    type="button"
+                    icon={action.icon}
+                    outlined
+                    size="small"
+                    severity={action.severity}
+                    disabled={action.disabled}
+                    className={mobileBtnClass}
+                    onClick={action.onClick}
+                  />
+                  {/* Desktop button with text */}
+                  <Button
+                    type="button"
+                    label={action.label}
+                    icon={action.icon}
+                    iconPos="right"
+                    outlined
+                    size="small"
+                    severity={action.severity}
+                    disabled={action.disabled}
+                    className={desktopBtnClass}
+                    onClick={action.onClick}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            groups.map((group) => (
+              <Button
+                key={group.key}
+                type="button"
+                label={group.label}
+                icon={group.icon}
+                iconPos="right"
+                outlined
+                size="small"
+                onClick={() => setOpenGroupKey(group.key)}
+              />
+            ))
+          )}
+        </div>
       </div>
 
       <Dialog

@@ -13,6 +13,514 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.19.30',
+    date: '2026-06-05',
+    title: 'Nueva variable de breakpoint de 1475px para ciclos de programa',
+    summary:
+      'Se actualizó la página de ciclos de programa para posponer el diseño de escritorio y mantener el diseño de columnas y acciones flexibles hasta un ancho de 1475px (xxlc), alineando los filtros al pasar dicho ancho.',
+    sections: [
+      {
+        title: 'Responsividad y Layout',
+        items: [
+          'Se actualizó la página de ciclos de programa para usar el breakpoint xxlc (1475px) en el header, filtros y barra de acciones.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.29',
+    date: '2026-06-05',
+    title: 'Filtros en fila para ciclos de programa en resoluciones grandes y medias',
+    summary:
+      'Se modificó el contenedor de filtros en la página de ciclos de programa para que los filtros de búsqueda y rango de fechas aparezcan uno al lado del otro (en fila) para resoluciones de pantalla grandes y medias.',
+    sections: [
+      {
+        title: 'Responsividad y Layout',
+        items: [
+          'Se cambió la clase del contenedor de filtros de ciclos de programa de xxl:flex-col a xxl:flex-row xxl:items-center.',
+          'Se agregaron las clases xxl:w-80 y xxl:w-64 a los inputs correspondientes de ciclos de programa para alinear su presentación.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.28',
+    date: '2026-06-05',
+    title: 'Alineación de controles y navegación en calendario',
+    summary:
+      'Se reubicó el botón de filtros al lado del selector de fecha en la barra de control del calendario y se colocaron los botones de navegación previa y siguiente a los extremos izquierdo y derecho de la misma fila.',
+    sections: [
+      {
+        title: 'Responsividad y Layout',
+        items: [
+          'Se eliminó el botón Filtros del bloque de título superior.',
+          'Se colocó el botón Filtros en la misma fila del selector de fecha, agrupados en el centro.',
+          'Se colocaron botones de navegación de mes a los extremos izquierdo y derecho de la fila, haciéndolos utilizables en cualquier tamaño de pantalla.',
+          'Se eliminaron importaciones, tipos y constantes obsoletas de SelectButton.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.27',
+    date: '2026-06-05',
+    title: 'Selector de fecha mes/año en calendario',
+    summary:
+      'Se modificó el selector de fecha del calendario para que actúe únicamente como seleccionador de mes y año (view="month" y dateFormat="mm/yy"), emulando el comportamiento estándar de PrimeReact para vistas mensuales.',
+    sections: [
+      {
+        title: 'Componentes y UX',
+        items: [
+          'Se agregaron los atributos view="month" y dateFormat="mm/yy" en el componente Calendar del diálogo de selección.',
+          'Se removió el atributo monthNavigator ya que la vista del mes es la activa por defecto.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.26',
+    date: '2026-06-05',
+    title: 'Simplificación de vista del calendario a mensual únicamente',
+    summary:
+      'Se eliminaron las opciones de vista por semestre y año en la página de calendario, manteniendo de forma exclusiva la visualización mensual.',
+    sections: [
+      {
+        title: 'Componentes y UX',
+        items: [
+          'Se removió el componente SelectButton para cambiar vistas en el calendario.',
+          'Se quitó el plugin multiMonthPlugin y las configuraciones de vistas por semestre/año en FullCalendar.',
+          'Se limpiaron tipos, constantes y funciones de cambio de vista no utilizados.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.25',
+    date: '2026-06-05',
+    title: 'Eliminación del acordeón responsive en formaciones',
+    summary:
+      'Se eliminó el contenedor acordeón condicional para resoluciones pequeñas de los botones de formaciones, mostrándolos directamente en todas las pantallas.',
+    sections: [
+      {
+        title: 'Componentes y UX',
+        items: [
+          'Se removió el Accordion de formacionesContent en mobile (md:hidden).',
+          'Se limpian los estados no utilizados como formacionesSectionOpen.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.24',
+    date: '2026-06-05',
+    title: 'Modales de creación e inscripción en formaciones',
+    summary:
+      'Se reemplazaron los formularios en línea de creación de plantilla e inscripción a plan de formación en la página de formaciones por dos botones que abren diálogos modales independientes.',
+    sections: [
+      {
+        title: 'Componentes y UX',
+        items: [
+          'Se importó el componente Dialog de PrimeReact en formaciones/page.tsx.',
+          'Se crearon diálogos independientes para "Crear template base" e "Inscribirme en plan de formación".',
+          'Se reemplazaron los formularios en línea por botones limpios que abren estos modales, mejorando la legibilidad general de la página.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.23',
+    date: '2026-06-05',
+    title: 'Filtros en fila para sabatinos en resoluciones grandes y medias',
+    summary:
+      'Se modificó el contenedor de filtros en la página de sabatinos para que los filtros de búsqueda y rango de fechas aparezcan uno al lado del otro (en fila) para resoluciones de pantalla grandes y medias.',
+    sections: [
+      {
+        title: 'Responsividad y Layout',
+        items: [
+          'Se cambió la clase del contenedor de filtros de sabatinos de xxl:flex-col a xxl:flex-row xxl:items-center.',
+          'Se agregaron las clases xxl:w-80, xxl:w-64 y shrink-0 a los inputs correspondientes de sabatinos para alinear su presentación.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.22',
+    date: '2026-06-05',
+    title: 'Fecha simplificada sin hora en el listado de sabatinos',
+    summary:
+      'Se actualizó la columna Fecha del listado de sabatinos para que únicamente renderice la fecha en formato DD/MM/YYYY utilizando dayjs, descartando la hora.',
+    sections: [
+      {
+        title: 'Componentes y UX',
+        items: [
+          'Se reemplazó la función formatArgentinaDateTimeRange por dayjs(fecha_inicio).format("DD/MM/YYYY") en la columna Fecha de sabatinos.',
+          'Se eliminó la importación innecesaria de formatArgentinaDateTimeRange.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.21',
+    date: '2026-06-05',
+    title: 'Enlace directo a eventos en el listado de sabatinos',
+    summary:
+      'Se modificó la columna Evento del listado de sabatinos para que renderice directamente el nombre del evento como un enlace clicable con estilo hover:underline, en lugar de utilizar un botón con un ícono de ojo.',
+    sections: [
+      {
+        title: 'Componentes y UX',
+        items: [
+          'Se eliminó el botón de ojo de la columna Evento en la tabla de sabatinos.',
+          'Se renderiza ahora el nombre del evento con cursor-pointer, text-primary y hover:underline para navegar directamente a la página del evento al hacer clic.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.20',
+    date: '2026-06-05',
+    title: 'Nueva variable de breakpoint de 1457px para reuniones',
+    summary:
+      'Se añadió el breakpoint xxlb (1457px) y se actualizó la página de reuniones para posponer el diseño de escritorio y mantener el diseño de columnas y acciones flexibles hasta un ancho de 1457px.',
+    sections: [
+      {
+        title: 'Responsividad y Layout',
+        items: [
+          'Se añadió la variable --breakpoint-xxlb: 1457px en globals.css.',
+          'Se actualizó la página de reuniones para usar el breakpoint xxlb en el header, filtros y barra de acciones.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.19',
+    date: '2026-06-05',
+    title: 'Filtros en fila para reuniones en resoluciones grandes y medias',
+    summary:
+      'Se modificó el contenedor de filtros en la página de reuniones para que los filtros de búsqueda y rango de fechas aparezcan uno al lado del otro (en fila) para resoluciones de pantalla grandes y medias.',
+    sections: [
+      {
+        title: 'Responsividad y Layout',
+        items: [
+          'Se cambió la clase del contenedor de filtros de reuniones de xxl:flex-col a xxl:flex-row xxl:items-center.',
+          'Se agregaron las clases xxl:w-80, xxl:w-64 y shrink-0 a los inputs correspondientes de reuniones para alinear sus anchos.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.18',
+    date: '2026-06-05',
+    title: 'Nueva variable de breakpoint de 1427px para eventos',
+    summary:
+      'Se añadió el breakpoint xxla (1427px) y se actualizó la página de eventos para posponer el diseño de escritorio y mantener el diseño de columnas y acciones flexibles hasta un ancho de 1427px.',
+    sections: [
+      {
+        title: 'Responsividad y Layout',
+        items: [
+          'Se añadió la variable --breakpoint-xxla: 1427px en globals.css.',
+          'Se actualizó la página de eventos para usar el breakpoint xxla en el header, filtros y barra de acciones.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.17',
+    date: '2026-06-05',
+    title: 'Filtros alineados en fila en la vista de eventos',
+    summary:
+      'Se modificó el contenedor de filtros en la página de eventos para que se presenten en fila en resoluciones grandes y medianas en lugar de en columna.',
+    sections: [
+      {
+        title: 'Responsividad y Layout',
+        items: [
+          'Se cambió la clase del contenedor de filtros de eventos de xxl:flex-col a xxl:flex-row en la cabecera.',
+          'Se añadieron las clases correspondientes para alinear verticalmente los filtros y preservar la visualización adaptable en dispositivos móviles.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.16',
+    date: '2026-06-05',
+    title: 'Límite de colapso de botones a icon-only dinámico en pagos',
+    summary:
+      'Se añadió el breakpoint icon-limit (1015px) y soporte para configurar dinámicamente cuándo los botones de acción colapsan a icon-only. Se aplicó en la página de pagos para mantener los botones icon-only hasta un ancho de 1015px.',
+    sections: [
+      {
+        title: 'Responsividad y Layout',
+        items: [
+          'Se implementó la propiedad iconLimitBreakpoint en ResponsiveTableActions (pudiendo ser sm o icon-limit).',
+          'Se actualizó la página de pagos para pasar iconLimitBreakpoint="icon-limit", manteniendo el diseño de sólo iconos en pantallas inferiores a 1015px.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.15',
+    date: '2026-06-05',
+    title: 'Punto de quiebre xxxxl de 1737px personalizado para pagos',
+    summary:
+      'Se añadió soporte para el breakpoint xxxxl (1737px) en el archivo CSS global y en el componente ResponsiveTableActions, aplicándolo a la página de pagos para posponer la activación del diseño desktop en pantallas intermedias y mantener el diseño adaptable.',
+    sections: [
+      {
+        title: 'Responsividad y Layout',
+        items: [
+          'Se agregó la variable --breakpoint-xxxxl: 1737px en globals.css.',
+          'Se actualizó ResponsiveTableActions para dar soporte al breakpoint xxxxl.',
+          'Se actualizó la página de pagos para usar el breakpoint xxxxl en el header y la barra de acciones.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.14',
+    date: '2026-06-05',
+    title: 'Punto de quiebre xxxl de 1583px personalizado para responsables',
+    summary:
+      'Se añadió soporte para el breakpoint xxxl (1583px) en el archivo CSS global y en el componente ResponsiveTableActions, aplicándolo a la página de responsables para posponer la activación del diseño desktop en pantallas intermedias.',
+    sections: [
+      {
+        title: 'Responsividad y Layout',
+        items: [
+          'Se agregó la variable --breakpoint-xxxl: 1583px en globals.css.',
+          'Se implementó la propiedad breakpoint en ResponsiveTableActions para soportar de forma dinámica xxl o xxxl.',
+          'Se actualizó la página de responsables para usar el breakpoint xxxl en el header y la barra de acciones.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.13',
+    date: '2026-06-05',
+    title: 'Unificación global de responsividad en tablas y header del dashboard',
+    summary:
+      'Se extendieron las mejoras de diseño responsive y el breakpoint xxl (1361px) a todas las páginas de listados del sistema. En adultos y responsables se eliminó la columna Perfil del listado y se integró como una acción superior.',
+    sections: [
+      {
+        title: 'Responsividad y Layout',
+        items: [
+          'Se aplicó la configuración de filtros y acciones inline (inlineFiltersMobile, inlineActionsMobile) y el breakpoint xxl en 17 páginas de listados.',
+          'En adultos y responsables se eliminó la columna "Perfil" del DataTable y se añadió como una acción en la barra superior habilitada dinámicamente.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.12',
+    date: '2026-06-05',
+    title: 'Breakpoint xxl personalizado de 1361px y alineación justify-between',
+    summary:
+      'Se definió un breakpoint personalizado xxl de 1361px en el archivo CSS global para Tailwind v4. Se configuró para que los botones de acción mantengan el espaciado justify-between en resoluciones intermedias bajo el breakpoint xxl.',
+    sections: [
+      {
+        title: 'Responsividad y Layout',
+        items: [
+          'Se añadió el breakpoint personalizado --breakpoint-xxl: 1361px en globals.css usando la directiva @theme.',
+          'Se modificó el componente ResponsiveTableActions y el header de la página de protagonistas para usar el breakpoint xxl.',
+          'Se removió el modificador sm:justify-start en el contenedor de botones responsive para mantener justify-between en resoluciones intermedias (tablet y móviles con texto e icono).',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.11',
+    date: '2026-06-05',
+    title: 'Ajuste de punto de quiebre (breakpoint) para el diseño desktop a lg',
+    summary:
+      'Se modificó el breakpoint del diseño desktop de md (768px) a lg (1024px) en la barra de acciones y el header de la tabla de protagonistas, manteniendo la vista adaptable de tabletas y móviles en pantallas medianas.',
+    sections: [
+      {
+        title: 'Responsividad y Layout',
+        items: [
+          'Se cambiaron las clases md:hidden y hidden md:flex a lg:hidden y hidden lg:flex en el componente ResponsiveTableActions.',
+          'Se actualizó el header de la tabla de protagonistas de md a lg para sincronizar el comportamiento de los filtros y controles.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.10',
+    date: '2026-06-05',
+    title: 'Forzado de clases importantes en botones de visualización móvil',
+    summary:
+      'Se agregaron los prefijos importantes (!) en las clases de visualización responsive de los botones del perfil y la barra de acciones para garantizar que las directivas de visibilidad no sean ignoradas por la especificidad de PrimeReact.',
+    sections: [
+      {
+        title: 'Diseño y Responsividad',
+        items: [
+          'Se aplicaron los prefijos !hidden y sm:!hidden en los botones responsive.',
+          'Se resolvió la duplicación de los botones móviles y de escritorio en todos los dispositivos.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.9',
+    date: '2026-06-05',
+    title: 'Corrección de centrado de iconos en botones responsive',
+    summary:
+      'Se resolvió el problema del descentrado de iconos en móviles implementando una estructura condicional de doble botón (uno con icono-only para móvil y otro completo para desktop) bajo un envoltorio contents.',
+    sections: [
+      {
+        title: 'Responsividad y Alineación',
+        items: [
+          'Se implementaron botones condicionales para móviles y escritorio, de modo que en pantallas chicas PrimeReact no intente aplicar estilos de espaciado para textos ocultos.',
+          'Los iconos ahora quedan perfectamente centrados en todos los dispositivos móviles.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.8',
+    date: '2026-06-05',
+    title: 'Alineación de iconos centrada en botones colapsados en móvil',
+    summary:
+      'Se removió la clase justify-between del interior de los botones de acción del perfil y de la barra de acciones responsive, permitiendo que sus iconos se centren correctamente en pantallas móviles cuando los textos se ocultan.',
+    sections: [
+      {
+        title: 'Diseño y Responsividad',
+        items: [
+          'Se eliminó la clase justify-between de los botones en ProfileInfoSection y ResponsiveTableActions.',
+          'Los iconos ahora se renderizan perfectamente centrados en la vista móvil.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.7',
+    date: '2026-06-05',
+    title: 'Botón de Ver Perfil movido a barra de acciones en protagonistas',
+    summary:
+      'Se eliminó la columna Perfil de la tabla de protagonistas y se integró un botón de visualización de perfil en la barra de acciones superior (ResponsiveTableActions), habilitado dinámicamente al seleccionar un registro.',
+    sections: [
+      {
+        title: 'Responsividad y Navegación',
+        items: [
+          'Se eliminó la columna "Perfil" que contenía un botón por fila en la tabla.',
+          'Se agregó la acción "Perfil" en las acciones especiales superiores, permitiendo navegar al perfil del miembro seleccionado.',
+          'El botón se deshabilita si no hay un protagonista seleccionado o si el mismo está borrado.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.6',
+    date: '2026-06-05',
+    title: 'Simplificación de botones e icon-only en móviles y p-fluid en contraseña',
+    summary:
+      'Se optimizaron los botones en perfil y tablas en pantallas chicas para mostrar solo iconos y justificación horizontal. Se añadió la clase p-fluid en el contenedor de contraseña del diálogo de protagonistas.',
+    sections: [
+      {
+        title: 'Diseño y Responsividad',
+        items: [
+          'Los botones de acción en la sección de perfil e inline de tablas se colapsan a icon-only en pantallas pequeñas y se distribuyen horizontalmente con justify-between.',
+          'Se cambió el icono del botón Firma por pi-wave-pulse.',
+          'Se añadió la clase p-fluid al contenedor del input de contraseña en el modal de protagonistas para mejorar su ancho en móviles.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.5',
+    date: '2026-06-04',
+    title: 'Botones de acción adaptables en móviles para tablas',
+    summary:
+      'Se modificó el componente de acciones responsive para que las acciones en móviles se rendericen como botones de ancho completo, apilados verticalmente y con alineación justificada entre texto e icono.',
+    sections: [
+      {
+        title: 'Responsividad y Alineación',
+        items: [
+          'En el modo inline de móviles, los botones de acción para las tablas ahora muestran su etiqueta de texto completa y su icono.',
+          'Cada botón ocupa el 100% del contenedor y utiliza justify-between para colocar la etiqueta a la izquierda y el icono a la derecha.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.4',
+    date: '2026-06-04',
+    title: 'Alineación de texto e icono en botones full-width',
+    summary:
+      'Se añadió la clase justify-between a los botones adaptables del perfil y del diálogo de firmas para distribuir el texto y el icono en los extremos al expandirse en móviles.',
+    sections: [
+      {
+        title: 'Responsividad y Alineación',
+        items: [
+          'Los botones del panel de perfil ahora alinean el texto a la izquierda y el icono a la derecha al ocupar el ancho completo en pantallas móviles.',
+          'El mismo comportamiento se aplicó a los cuatro botones del pie del diálogo de firmas para optimizar su aspecto visual en pantallas táctiles.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.3',
+    date: '2026-06-04',
+    title: 'Acciones de tabla y filtros inline en móvil para protagonistas',
+    summary:
+      'Se modificó el componente de acciones responsive para permitir desplegar el buscador de protagonistas de forma directa y renderizar acciones como botones con iconos en una única línea en móvil.',
+    sections: [
+      {
+        title: 'Responsividad y Filtros',
+        items: [
+          'El campo de búsqueda de protagonistas ahora se muestra de forma directa y a ancho completo en móviles, sin ocultarse tras el botón Filtros.',
+          'Las acciones de creación, edición, borrado, importación y pases se exponen directamente en móviles como botones con iconos (sin texto), eliminando el modal emergente de selección de acciones.',
+          'El componente ResponsiveTableActions añade los parámetros inlineFiltersMobile e inlineActionsMobile para extender esta modalidad a otras pantallas del sistema.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.2',
+    date: '2026-06-04',
+    title: 'Mejoras de diseño responsive en perfil y firma',
+    summary:
+      'Se optimizó la respuesta en dispositivos móviles de la botonera del perfil y del diálogo de firmas, además de unificar la sección Vínculos al diseño plano.',
+    sections: [
+      {
+        title: 'Diseño y Responsividad',
+        items: [
+          'La botonera del perfil se expande a ancho completo en móviles y se alinea horizontalmente en pantallas más grandes.',
+          'Las acciones del diálogo de firma se adaptan para apilarse verticalmente en móviles y mejorar su accesibilidad.',
+          'Se removió el envoltorio Card de la pestaña Vínculos del perfil, integrándose con el resto de la interfaz.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.1',
+    date: '2026-06-04',
+    title: 'Eliminación de contenedores Card en páginas del dashboard',
+    summary:
+      'Se removieron los contenedores Card a nivel de página en el dashboard, reemplazando el título por un encabezado directo h1 en el contenedor raíz.',
+    sections: [
+      {
+        title: 'Diseño',
+        items: [
+          'Se eliminaron los envoltorios Card a nivel de página en todas las secciones del dashboard (excepto perfil).',
+          'Los títulos de las páginas ahora se muestran directamente como encabezados h1 con estilos estandarizados.',
+          'Se removieron las importaciones de Card no utilizadas para mejorar el rendimiento del build.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.0',
+    date: '2026-06-04',
+    title: 'Edición de usuario y contraseña en perfil',
+    summary:
+      'Cada usuario ahora tiene la posibilidad de modificar su nombre de usuario y su contraseña desde la sección de perfil.',
+    sections: [
+      {
+        title: 'Perfil',
+        items: [
+          'El campo de nombre de usuario ahora es editable dentro de la sección de perfil.',
+          'Se incorpora un nuevo campo para ingresar una nueva contraseña (dejar en blanco para mantener la actual).',
+          'Los errores del servidor (como nombres de usuario duplicados) se muestran de manera clara en la interfaz.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.18.1',
     date: '2026-06-01',
     title: 'PDF de eventos con anexos de sabatinos',

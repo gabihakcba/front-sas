@@ -4,7 +4,6 @@ import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
-import { Card } from 'primereact/card';
 import { Checkbox } from 'primereact/checkbox';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
@@ -197,9 +196,11 @@ export default function CuentaDineroDetailPage() {
   );
 
   const header = (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div className="hidden md:flex md:flex-col md:gap-2">{filterControls}</div>
+    <div className="flex flex-col gap-3 xxl:flex-row xxl:items-center xxl:justify-between">
+      <div className="hidden xxl:flex xxl:flex-col xxl:gap-2">{filterControls}</div>
       <ResponsiveTableActions
+        inlineFiltersMobile
+        inlineActionsMobile
         filtersContent={filterControls}
         relatedActions={[
           {
@@ -242,7 +243,8 @@ export default function CuentaDineroDetailPage() {
 
   return (
     <div className="flex h-full w-full flex-col gap-4">
-      <Card title="Detalle de cuenta de dinero">
+      <div>
+        <h1 className="text-2xl font-bold mb-4">Detalle de cuenta de dinero</h1>
         {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
         {successMessage ? (
           <Message severity="success" text={successMessage} className="mb-3 w-full" />
@@ -289,9 +291,10 @@ export default function CuentaDineroDetailPage() {
         ) : (
           <div>Cargando cuenta...</div>
         )}
-      </Card>
+      </div>
 
-      <Card title="Movimientos">
+      <div>
+        <h1 className="text-2xl font-bold mb-4">Movimientos</h1>
         <DataTable
           value={movimientos}
           dataKey="id"
@@ -408,10 +411,11 @@ export default function CuentaDineroDetailPage() {
             />
           ) : null}
         </DataTable>
-      </Card>
+      </div>
 
       {selectedMovimiento ? (
-        <Card title={`Adjuntos de ${selectedMovimiento.codigo_referencia.slice(0, 8)}`}>
+        <div>
+          <h1 className="text-2xl font-bold mb-4">{`Adjuntos de ${selectedMovimiento.codigo_referencia.slice(0, 8)}`}</h1>
           {selectedMovimiento.Adjuntos.length ? (
             <div className="flex flex-col gap-2">
               {selectedMovimiento.Adjuntos.map((adjunto) => (
@@ -460,7 +464,7 @@ export default function CuentaDineroDetailPage() {
           ) : (
             <small>El movimiento seleccionado no tiene adjuntos.</small>
           )}
-        </Card>
+        </div>
       ) : null}
 
       <MovimientoCuentaFormDialog

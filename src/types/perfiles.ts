@@ -143,6 +143,8 @@ export interface PerfilFirma {
 }
 
 export interface UpdatePerfilPersonalPayload {
+  user?: string;
+  password?: string;
   nombre?: string;
   apellidos?: string;
   dni?: string;

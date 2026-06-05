@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation';
-import { Card } from 'primereact/card';
 import { MemberProfileView } from '@/components/perfil/MemberProfileView';
 
 interface Props {
@@ -16,9 +15,5 @@ export default async function PerfilByIdPage({ params }: Props) {
     notFound();
   }
 
-  return (
-    <Card title="Perfil">
-      <MemberProfileView memberId={memberId} />
-    </Card>
-  );
+  return <MemberProfileView memberId={memberId} />;
 }

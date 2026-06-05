@@ -3,7 +3,6 @@
 import dayjs from 'dayjs';
 import { useAuth } from '@/context/AuthContext';
 import { Calendar } from 'primereact/calendar';
-import { Card } from 'primereact/card';
 import { Checkbox } from 'primereact/checkbox';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
@@ -86,7 +85,7 @@ export default function EventosPage() {
 
   const filterControls = (
     <>
-      <IconField iconPosition="right" className="w-full">
+      <IconField iconPosition="right" className="w-full xxla:w-80">
         <InputText
           className="w-full"
           value={filters.q}
@@ -119,9 +118,11 @@ export default function EventosPage() {
         dateFormat="dd/mm/yy"
         showButtonBar
         placeholder="Rango de fechas"
+        className="w-full xxla:w-64"
+        inputClassName="w-full"
       />
       {canAuditDeleted ? (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <label htmlFor="eventos-include-deleted">Incluir borrados</label>
           <Checkbox
             inputId="eventos-include-deleted"
@@ -139,9 +140,12 @@ export default function EventosPage() {
   );
 
   const header = (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div className="hidden md:flex md:flex-col md:gap-2">{filterControls}</div>
+    <div className="flex flex-col gap-3 xxla:flex-row xxla:items-center xxla:justify-between">
+      <div className="hidden xxla:flex xxla:flex-row xxla:items-center xxla:gap-2">{filterControls}</div>
       <ResponsiveTableActions
+        breakpoint="xxla"
+        inlineFiltersMobile
+        inlineActionsMobile
         filtersContent={filterControls}
         relatedActions={
           canManageEventModules
@@ -208,8 +212,8 @@ export default function EventosPage() {
 
   return (
     <div className="h-full w-full">
-      <Card title="Eventos" className="h-full">
-        {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
+      <h1 className="text-2xl font-bold mb-4">Eventos</h1>
+      {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
         {successMessage ? <Message severity="success" text={successMessage} className="mb-3 w-full" /> : null}
         <DataTable value={eventos} dataKey="id" loading={loading} lazy paginator header={header} selectionMode="single" selection={selectedEvento} onSelectionChange={(event) => setSelectedEvento((event.value as Evento | null) ?? null)} first={(page - 1) * limit} rows={10} totalRecords={total} onPage={(event: DataTablePageEvent) => void refetch(Math.floor(event.first / event.rows) + 1)} emptyMessage="No hay eventos disponibles." tableStyle={{ minWidth: '70rem', width: '100%' }}>
           {canSeeId ? <Column field="id" header="ID" /> : null}
@@ -232,7 +236,6 @@ export default function EventosPage() {
             />
           ) : null}
         </DataTable>
-      </Card>
 
       <EventoFormDialog visible={dialogVisible} mode={dialogMode} loading={dialogLoading} submitting={submitting} values={formValues} tipos={options.tipos} error={error} onHide={closeDialog} onSubmit={(values) => void submitForm(values)} />
       {deleteConfirmDialog}

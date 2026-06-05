@@ -1,7 +1,7 @@
 'use client';
 
 import dayjs from 'dayjs';
-import { Card } from 'primereact/card';
+import { Divider } from 'primereact/divider';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { PerfilActividad } from '@/types/perfiles';
 
@@ -28,43 +28,51 @@ export function ProfileActividadSection({ actividad, loading }: Props) {
   }
 
   return (
-    <div className="grid gap-4 xl:grid-cols-2">
+    <div className="flex flex-col gap-4">
       {actividad.InscripcionEvento.length > 0 ? (
-        <Card title="Eventos">
+        <div>
+          <h3 className="text-lg font-bold mb-3">Eventos</h3>
           <div className="flex flex-col gap-3">
-            {actividad.InscripcionEvento.map((inscripcion) => (
+            {actividad.InscripcionEvento.map((inscripcion, index) => (
               <div key={inscripcion.id}>
-                <strong>{inscripcion.Evento.nombre}</strong>
-                <div>
+                {index > 0 ? <Divider className="my-2" /> : null}
+                <div className="font-semibold text-base">{inscripcion.Evento.nombre}</div>
+                <div className="text-sm text-gray-600">
                   {inscripcion.Evento.TipoEvento.nombre} |{' '}
                   {dayjs(inscripcion.Evento.fecha_inicio).format('DD/MM/YYYY')}
                 </div>
-                <div>
-                  Asistió: {inscripcion.asistio ? 'Sí' : 'No'} | Pagado:{' '}
-                  {inscripcion.pagado ? 'Sí' : 'No'}
+                <div className="text-sm">
+                  Asistió: <span className="font-medium">{inscripcion.asistio ? 'Sí' : 'No'}</span> | Pagado:{' '}
+                  <span className="font-medium">{inscripcion.pagado ? 'Sí' : 'No'}</span>
                 </div>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
+      ) : null}
+
+      {actividad.InscripcionEvento.length > 0 && actividad.ParticipantesComision.length > 0 ? (
+        <Divider className="my-4" />
       ) : null}
 
       {actividad.ParticipantesComision.length > 0 ? (
-        <Card title="Comisiones">
+        <div>
+          <h3 className="text-lg font-bold mb-3">Comisiones</h3>
           <div className="flex flex-col gap-3">
-            {actividad.ParticipantesComision.map((participacion) => (
+            {actividad.ParticipantesComision.map((participacion, index) => (
               <div key={participacion.id}>
-                <strong>{participacion.Comision.nombre}</strong>
-                <div>
+                {index > 0 ? <Divider className="my-2" /> : null}
+                <div className="font-semibold text-base">{participacion.Comision.nombre}</div>
+                <div className="text-sm text-gray-600">
                   Inicio: {dayjs(participacion.fecha_inicio).format('DD/MM/YYYY')}
                 </div>
-                <div>
-                  Evento: {participacion.Comision.Evento?.nombre ?? 'Sin evento'}
+                <div className="text-sm">
+                  Evento: <span className="font-medium">{participacion.Comision.Evento?.nombre ?? 'Sin evento'}</span>
                 </div>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
       ) : null}
     </div>
   );

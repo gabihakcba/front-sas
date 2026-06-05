@@ -4,7 +4,6 @@ import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
-import { Card } from 'primereact/card';
 import { Checkbox } from 'primereact/checkbox';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
@@ -170,12 +169,25 @@ export default function ProtagonistasPage() {
   );
 
   const header = (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div className="hidden md:flex md:flex-col md:gap-2">{filterControls}</div>
+    <div className="flex flex-col gap-3 xxl:flex-row xxl:items-center xxl:justify-between">
+      <div className="hidden xxl:flex xxl:flex-col xxl:gap-2">{filterControls}</div>
       <ResponsiveTableActions
         filtersContent={filterControls}
+        inlineFiltersMobile
+        inlineActionsMobile
         specialActions={
           [
+            {
+              label: 'Perfil',
+              icon: 'pi pi-eye',
+              onClick: () => {
+                if (selectedProtagonista) {
+                  router.push(`/dashboard/perfil/${selectedProtagonista.Miembro.id}`);
+                }
+              },
+              disabled:
+                !selectedProtagonista || Boolean(selectedProtagonista.borrado),
+            },
             ...(canRegisterPase
               ? [
                   {
@@ -302,8 +314,8 @@ export default function ProtagonistasPage() {
 
   return (
     <div className="h-full w-full">
-      <Card title="Protagonistas" className="h-full">
-        {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
+      <h1 className="text-2xl font-bold mb-4">Protagonistas</h1>
+      {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
         {successMessage ? (
           <Message severity="success" text={successMessage} className="mb-3 w-full" />
         ) : null}
@@ -337,22 +349,6 @@ export default function ProtagonistasPage() {
           <Column field="Miembro.dni" header="DNI" />
           <Column field="Miembro.email" header="Email" />
           <Column field="Miembro.telefono" header="Teléfono" />
-          <Column
-            header="Perfil"
-            body={(protagonista: Protagonista) => (
-              <Button
-                type="button"
-                icon="pi pi-eye"
-                iconPos="right"
-                outlined
-                size="small"
-                disabled={Boolean(protagonista.borrado)}
-                onClick={() =>
-                  router.push(`/dashboard/perfil/${protagonista.Miembro.id}`)
-                }
-              />
-            )}
-          />
           <Column
             header={ramaHeader}
             body={(protagonista: Protagonista) =>
@@ -402,7 +398,6 @@ export default function ProtagonistasPage() {
             />
           ) : null}
         </DataTable>
-      </Card>
 
       <ProtagonistaFormDialog
         visible={dialogVisible}

@@ -1,6 +1,5 @@
 'use client';
 
-import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { Message } from 'primereact/message';
@@ -50,9 +49,11 @@ export default function TiposEventoPage() {
   };
 
   const header = (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div className="flex flex-col gap-3 xxl:flex-row xxl:items-center xxl:justify-between">
       <div />
       <ResponsiveTableActions
+        inlineFiltersMobile
+        inlineActionsMobile
         crudActions={[
           {
             label: 'Crear',
@@ -79,8 +80,8 @@ export default function TiposEventoPage() {
 
   return (
     <div className="h-full w-full">
-      <Card title="Tipos de Evento" className="h-full">
-        {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
+      <h1 className="text-2xl font-bold mb-4">Tipos de Evento</h1>
+      {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
         {successMessage ? <Message severity="success" text={successMessage} className="mb-3 w-full" /> : null}
         <DataTable value={tiposEvento} dataKey="id" loading={loading} lazy paginator header={header} selectionMode="single" selection={selectedTipoEvento} onSelectionChange={(event) => setSelectedTipoEvento((event.value as TipoEvento | null) ?? null)} first={(page - 1) * limit} rows={10} totalRecords={total} onPage={(event: DataTablePageEvent) => void refetch(Math.floor(event.first / event.rows) + 1)} emptyMessage="No hay tipos de evento disponibles." tableStyle={{ minWidth: '42rem', width: '100%' }}>
           {canSeeId ? <Column field="id" header="ID" /> : null}
@@ -88,7 +89,6 @@ export default function TiposEventoPage() {
           <Column header="Descripción" body={(tipoEvento: TipoEvento) => tipoEvento.descripcion ?? '-'} />
           <Column header="Eventos" body={(tipoEvento: TipoEvento) => tipoEvento._count.Evento} />
         </DataTable>
-      </Card>
       <TipoEventoFormDialog visible={dialogVisible} mode={dialogMode} loading={dialogLoading} submitting={submitting} values={formValues} error={error} onHide={closeDialog} onSubmit={(values) => void submitForm(values)} />
       {deleteConfirmDialog}
     </div>

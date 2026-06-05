@@ -1,7 +1,6 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Card } from 'primereact/card';
 import { Column } from 'primereact/column';
 import { DataTable, DataTablePageEvent } from 'primereact/datatable';
 import { Dropdown, DropdownChangeEvent } from 'primereact/dropdown';
@@ -67,9 +66,11 @@ export default function CuentasDineroPage() {
   );
 
   const header = (
-    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-      <div className="hidden md:flex md:flex-col md:gap-2">{filterControls}</div>
+    <div className="flex flex-col gap-3 xxl:flex-row xxl:items-center xxl:justify-between">
+      <div className="hidden xxl:flex xxl:flex-col xxl:gap-2">{filterControls}</div>
       <ResponsiveTableActions
+        inlineFiltersMobile
+        inlineActionsMobile
         filtersContent={filterControls}
         crudActions={[
           {
@@ -155,8 +156,8 @@ export default function CuentasDineroPage() {
 
   return (
     <div className="h-full w-full">
-      <Card title="Cuentas de Dinero" className="h-full">
-        {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
+      <h1 className="text-2xl font-bold mb-4">Cuentas de Dinero</h1>
+      {error ? <Message severity="error" text={error} className="mb-3 w-full" /> : null}
         {successMessage ? (
           <Message severity="success" text={successMessage} className="mb-3 w-full" />
         ) : null}
@@ -215,7 +216,6 @@ export default function CuentasDineroPage() {
             body={(cuenta: CuentaDinero) => cuenta._count.MovimientoCuenta}
           />
         </DataTable>
-      </Card>
 
       <CuentaDineroFormDialog
         visible={dialogVisible}

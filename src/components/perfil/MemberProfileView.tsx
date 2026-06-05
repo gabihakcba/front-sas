@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { Message } from 'primereact/message';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { Toast } from 'primereact/toast';
 import { AdultoFirmaDialog } from '@/components/adultos/AdultoFirmaDialog';
 import NotAllowed from '@/components/common/NotAllowed';
 import { useAuth } from '@/context/AuthContext';
@@ -25,6 +26,8 @@ interface Props {
 const buildProfileFormValues = (
   summary: NonNullable<ReturnType<typeof usePerfilHook>['summary']>,
 ): ProfilePersonalFormValues => ({
+  user: summary.Cuenta.user,
+  password: '',
   nombre: summary.nombre,
   apellidos: summary.apellidos,
   dni: summary.dni,
@@ -39,6 +42,7 @@ const buildProfileFormValues = (
 
 export function MemberProfileView({ memberId }: Props) {
   const { user } = useAuth();
+  const toast = useRef<Toast>(null);
   const {
     summary,
     asignacion,
@@ -133,6 +137,7 @@ export function MemberProfileView({ memberId }: Props) {
 
   return (
     <div className="flex flex-col gap-4">
+      <Toast ref={toast} />
       {error ? <Message severity="error" text={error} /> : null}
 
       <ProfileInfoSection
@@ -158,20 +163,39 @@ export function MemberProfileView({ memberId }: Props) {
           }
 
           void (async () => {
-            await saveProfile({
-              nombre: profileFormValues.nombre.trim(),
-              apellidos: profileFormValues.apellidos.trim(),
-              dni: profileFormValues.dni.trim(),
-              fechaNacimiento: profileFormValues.fechaNacimiento,
-              direccion: profileFormValues.direccion.trim(),
-              email: profileFormValues.email.trim() || null,
-              telefono: profileFormValues.telefono.trim() || null,
-              telefonoEmergencia: profileFormValues.telefonoEmergencia.trim(),
-              totem: profileFormValues.totem.trim() || null,
-              cualidad: profileFormValues.cualidad.trim() || null,
-            });
-            setProfileEditMode(false);
-            setProfileFormValues(null);
+            try {
+              await saveProfile({
+                user: profileFormValues.user.trim(),
+                ...(profileFormValues.password?.trim()
+                  ? { password: profileFormValues.password }
+                  : {}),
+                nombre: profileFormValues.nombre.trim(),
+                apellidos: profileFormValues.apellidos.trim(),
+                dni: profileFormValues.dni.trim(),
+                fechaNacimiento: profileFormValues.fechaNacimiento,
+                direccion: profileFormValues.direccion.trim(),
+                email: profileFormValues.email.trim() || null,
+                telefono: profileFormValues.telefono.trim() || null,
+                telefonoEmergencia: profileFormValues.telefonoEmergencia.trim(),
+                totem: profileFormValues.totem.trim() || null,
+                cualidad: profileFormValues.cualidad.trim() || null,
+              });
+              toast.current?.show({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: 'Perfil guardado correctamente.',
+              });
+              setProfileEditMode(false);
+              setProfileFormValues(null);
+            } catch (e: unknown) {
+              console.error(e);
+              const message = e instanceof Error ? e.message : 'No se pudo guardar el perfil.';
+              toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: message,
+              });
+            }
           })();
         }}
         onChange={(key, value) =>
@@ -187,9 +211,22 @@ export function MemberProfileView({ memberId }: Props) {
           void (async () => {
             try {
               await syncPermissions();
-              window.location.reload();
-            } catch (e) {
+              toast.current?.show({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: 'Permisos sincronizados correctamente. Recargando...',
+              });
+              setTimeout(() => {
+                window.location.reload();
+              }, 1500);
+            } catch (e: unknown) {
               console.error(e);
+              const message = e instanceof Error ? e.message : 'No se pudieron sincronizar los permisos.';
+              toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: message,
+              });
             }
           })();
         }}
@@ -274,8 +311,25 @@ export function MemberProfileView({ memberId }: Props) {
         onHide={() => setSignatureDialogVisible(false)}
         onSave={(firmaBase64) => {
           void (async () => {
-            await saveFirma(firmaBase64);
-            setSignatureDialogVisible(false);
+            try {
+              await saveFirma(firmaBase64);
+              toast.current?.show({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: firmaBase64
+                  ? 'Firma guardada correctamente.'
+                  : 'Firma eliminada correctamente.',
+              });
+              setSignatureDialogVisible(false);
+            } catch (e: unknown) {
+              console.error(e);
+              const message = e instanceof Error ? e.message : 'No se pudo guardar la firma.';
+              toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: message,
+              });
+            }
           })();
         }}
       />

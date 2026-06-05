@@ -6,6 +6,7 @@ import { Accordion, AccordionTab } from 'primereact/accordion';
 import { Button } from 'primereact/button';
 import { Card } from 'primereact/card';
 import { Checkbox } from 'primereact/checkbox';
+import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputText } from 'primereact/inputtext';
@@ -546,6 +547,8 @@ export default function FormacionesPage() {
     inscribirme,
   } = useFormacionesAdminHook();
 
+  const [createTemplateVisible, setCreateTemplateVisible] = useState(false);
+  const [inscriptionVisible, setInscriptionVisible] = useState(false);
   const [newTemplateName, setNewTemplateName] = useState('');
   const [templateDrafts, setTemplateDrafts] = useState<Record<number, TemplateDraft>>(
     {},
@@ -559,7 +562,6 @@ export default function FormacionesPage() {
   const [apfAdultId, setApfAdultId] = useState<number | null>(null);
   const [apfConsejoId, setApfConsejoId] = useState<number | null>(null);
   const [apfObservacion, setApfObservacion] = useState('');
-  const [formacionesSectionOpen, setFormacionesSectionOpen] = useState<number[]>([0]);
   const [apfEditMode, setApfEditMode] = useState(false);
   const [apfSectionOpen, setApfSectionOpen] = useState<number[]>([]);
   const [editingTemplateIds, setEditingTemplateIds] = useState<number[]>([]);
@@ -699,117 +701,56 @@ export default function FormacionesPage() {
 
   const formacionesContent = (
     <div className="flex flex-col gap-3">
-      {canEdit ? (
-        <div className="flex flex-col gap-2 md:flex-row">
-          <InputText
-            value={newTemplateName}
-            onChange={(event) => setNewTemplateName(event.target.value)}
-            placeholder="Nombre del nuevo template"
-          />
+      <div className="flex flex-wrap gap-2">
+        {canEdit ? (
           <Button
             label="Crear template base"
             icon="pi pi-plus"
             iconPos="right"
             outlined
             size="small"
-            loading={submitting}
-            disabled={!newTemplateName.trim()}
-            onClick={() => {
-              void createDefaultTemplate(newTemplateName.trim()).then(() =>
-                setNewTemplateName(''),
-              );
-            }}
+            onClick={() => setCreateTemplateVisible(true)}
           />
-        </div>
-      ) : (
-        <Message
-          severity="info"
-          text="Las plantillas de formación están disponibles para consulta. La gestión queda habilitada solo para personas adultas."
-        />
-      )}
+        ) : null}
 
-      {canCreatePlan ? (
-        <div className="flex flex-col gap-2 md:flex-row">
-          <Dropdown
-            value={selectedTemplateForInscription}
-            options={templateOptions}
-            onChange={(event) =>
-              setSelectedTemplateForInscription((event.value as number | null) ?? null)
-            }
-            placeholder="Template para inscribirme"
-          />
-          <Dropdown
-            value={selectedApfAdulto}
-            options={apfOptions}
-            onChange={(event) =>
-              setSelectedApfAdulto((event.value as number | null) ?? null)
-            }
-            placeholder="APF"
-          />
-          <InputNumber
-            value={inscriptionYear}
-            onValueChange={(event) => setInscriptionYear(event.value ?? null)}
-            useGrouping={false}
-            placeholder="Año"
-          />
+        {canCreatePlan ? (
           <Button
-            label="Inscribirme"
+            label="Inscribirme en plan"
             icon="pi pi-send"
             iconPos="right"
             outlined
             size="small"
-            loading={submitting}
-            disabled={
-              !selectedTemplateForInscription || !selectedApfAdulto || !inscriptionYear
-            }
-            onClick={() => {
-              if (
-                !selectedTemplateForInscription ||
-                !selectedApfAdulto ||
-                !inscriptionYear
-              ) {
-                return;
-              }
-
-              const payload: CreatePlanDesempenoPayload = {
-                idPlanFormacionTemplate: selectedTemplateForInscription,
-                idApfAdulto: selectedApfAdulto,
-                anio: inscriptionYear,
-              };
-
-              void inscribirme(payload);
-            }}
+            onClick={() => setInscriptionVisible(true)}
           />
-        </div>
-      ) : (
+        ) : null}
+      </div>
+
+      {!canEdit ? (
+        <Message
+          severity="info"
+          text="Las plantillas de formación están disponibles para consulta. La gestión queda habilitada solo para personas adultas."
+        />
+      ) : null}
+
+      {!canCreatePlan ? (
         <Message
           severity="info"
           text="La inscripción a planes de formación está habilitada solo para personas adultas."
         />
-      )}
+      ) : null}
     </div>
   );
 
   return (
     <div className="flex flex-col gap-4">
+      <h1 className="text-2xl font-bold mb-4">Formaciones</h1>
+
       {error ? <Message severity="error" text={error} /> : null}
       {uploadError ? <Message severity="error" text={uploadError} /> : null}
       {successMessage ? <Message severity="success" text={successMessage} /> : null}
 
-      <div className="md:hidden">
-        <Accordion
-          multiple
-          activeIndex={formacionesSectionOpen}
-          onTabChange={(event) =>
-            setFormacionesSectionOpen((event.index as number[]) ?? [])
-          }
-        >
-          <AccordionTab header="Formaciones">{formacionesContent}</AccordionTab>
-        </Accordion>
-      </div>
-
-      <div className="hidden md:block">
-        <Card title="Formaciones">{formacionesContent}</Card>
+      <div>
+        {formacionesContent}
       </div>
 
       {canManageApf ? (
@@ -918,8 +859,8 @@ export default function FormacionesPage() {
         </Accordion>
       ) : null}
 
-      <Card title="Templates de formación">
-        <Accordion multiple>
+      <h1 className="text-2xl font-bold mb-4">Templates de formación</h1>
+      <Accordion multiple>
           {(workspace?.templates ?? []).map((template) => {
             const draft = templateDrafts[template.id] ?? buildTemplateDraft(template);
             const templateEditMode = canEdit && editingTemplateIds.includes(template.id);
@@ -1020,7 +961,6 @@ export default function FormacionesPage() {
             );
           })}
         </Accordion>
-      </Card>
 
       <FilePreviewDialog
         visible={previewVisible}
@@ -1039,6 +979,154 @@ export default function FormacionesPage() {
           setPreviewError('');
         }}
       />
+
+      <Dialog
+        header="Crear template base"
+        visible={createTemplateVisible}
+        onHide={() => {
+          setCreateTemplateVisible(false);
+          setNewTemplateName('');
+        }}
+        style={{ width: 'min(30rem, calc(100vw - 2rem))' }}
+      >
+        <div className="flex flex-col gap-3 mt-2">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="new-template-name">Nombre del nuevo template</label>
+            <InputText
+              id="new-template-name"
+              value={newTemplateName}
+              onChange={(event) => setNewTemplateName(event.target.value)}
+              placeholder="Ej: Plan de formación de Rama Lobatos"
+              className="w-full"
+            />
+          </div>
+          <div className="flex justify-end gap-2 mt-2">
+            <Button
+              label="Cancelar"
+              outlined
+              size="small"
+              onClick={() => {
+                setCreateTemplateVisible(false);
+                setNewTemplateName('');
+              }}
+            />
+            <Button
+              label="Crear"
+              icon="pi pi-plus"
+              iconPos="right"
+              outlined
+              size="small"
+              loading={submitting}
+              disabled={!newTemplateName.trim()}
+              onClick={() => {
+                void createDefaultTemplate(newTemplateName.trim()).then(() => {
+                  setNewTemplateName('');
+                  setCreateTemplateVisible(false);
+                });
+              }}
+            />
+          </div>
+        </div>
+      </Dialog>
+
+      <Dialog
+        header="Inscribirme en plan de formación"
+        visible={inscriptionVisible}
+        onHide={() => {
+          setInscriptionVisible(false);
+          setSelectedTemplateForInscription(null);
+          setSelectedApfAdulto(null);
+          setInscriptionYear(dayjs().year());
+        }}
+        style={{ width: 'min(32rem, calc(100vw - 2rem))' }}
+      >
+        <div className="flex flex-col gap-3 mt-2">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="inscription-template">Template de formación</label>
+            <Dropdown
+              id="inscription-template"
+              value={selectedTemplateForInscription}
+              options={templateOptions}
+              onChange={(event) =>
+                setSelectedTemplateForInscription((event.value as number | null) ?? null)
+              }
+              placeholder="Seleccionar template"
+              className="w-full"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="inscription-apf">Asesor Personal de Formación (APF)</label>
+            <Dropdown
+              id="inscription-apf"
+              value={selectedApfAdulto}
+              options={apfOptions}
+              onChange={(event) =>
+                setSelectedApfAdulto((event.value as number | null) ?? null)
+              }
+              placeholder="Seleccionar APF"
+              className="w-full"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="inscription-year">Año de inscripción</label>
+            <InputNumber
+              id="inscription-year"
+              value={inscriptionYear}
+              onValueChange={(event) => setInscriptionYear(event.value ?? null)}
+              useGrouping={false}
+              placeholder="Año"
+              className="w-full"
+              inputClassName="w-full"
+            />
+          </div>
+          <div className="flex justify-end gap-2 mt-2">
+            <Button
+              label="Cancelar"
+              outlined
+              size="small"
+              onClick={() => {
+                setInscriptionVisible(false);
+                setSelectedTemplateForInscription(null);
+                setSelectedApfAdulto(null);
+                setInscriptionYear(dayjs().year());
+              }}
+            />
+            <Button
+              label="Inscribirme"
+              icon="pi pi-send"
+              iconPos="right"
+              outlined
+              size="small"
+              loading={submitting}
+              disabled={
+                !selectedTemplateForInscription || !selectedApfAdulto || !inscriptionYear
+              }
+              onClick={() => {
+                if (
+                  !selectedTemplateForInscription ||
+                  !selectedApfAdulto ||
+                  !inscriptionYear
+                ) {
+                  return;
+                }
+
+                const payload: CreatePlanDesempenoPayload = {
+                  idPlanFormacionTemplate: selectedTemplateForInscription,
+                  idApfAdulto: selectedApfAdulto,
+                  anio: inscriptionYear,
+                };
+
+                void inscribirme(payload).then(() => {
+                  setInscriptionVisible(false);
+                  setSelectedTemplateForInscription(null);
+                  setSelectedApfAdulto(null);
+                  setInscriptionYear(dayjs().year());
+                });
+              }}
+            />
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { Card } from 'primereact/card';
+import { Divider } from 'primereact/divider';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { PerfilVinculos } from '@/types/perfiles';
 
@@ -26,42 +26,54 @@ export function ProfileVinculosSection({ vinculos, loading }: Props) {
   }
 
   return (
-    <div className="grid gap-4 xl:grid-cols-2">
+    <div className="flex flex-col gap-4">
       {vinculos.responsables.length > 0 ? (
-        <Card title="Responsables del protagonista">
+        <div>
+          <h3 className="text-lg font-bold mb-3">Responsables del protagonista</h3>
           <div className="flex flex-col gap-3">
-            {vinculos.responsables.map((item) => (
+            {vinculos.responsables.map((item, index) => (
               <div key={item.id}>
-                <strong>
+                {index > 0 ? <Divider className="my-2" /> : null}
+                <div className="font-semibold text-base">
                   {item.Responsable.Miembro.apellidos},{' '}
                   {item.Responsable.Miembro.nombre}
-                </strong>
-                <div>Relación: {item.Relacion.tipo}</div>
-                <div>DNI: {item.Responsable.Miembro.dni}</div>
+                </div>
+                <div className="text-sm">
+                  Relación: <span className="font-medium">{item.Relacion.tipo}</span>
+                </div>
+                <div className="text-sm text-gray-600">DNI: {item.Responsable.Miembro.dni}</div>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
+      ) : null}
+
+      {vinculos.responsables.length > 0 && vinculos.protagonistas.length > 0 ? (
+        <Divider className="my-4" />
       ) : null}
 
       {vinculos.protagonistas.length > 0 ? (
-        <Card title="Protagonistas a cargo">
+        <div>
+          <h3 className="text-lg font-bold mb-3">Protagonistas a cargo</h3>
           <div className="flex flex-col gap-3">
-            {vinculos.protagonistas.map((item) => (
+            {vinculos.protagonistas.map((item, index) => (
               <div key={item.id}>
-                <strong>
+                {index > 0 ? <Divider className="my-2" /> : null}
+                <div className="font-semibold text-base">
                   {item.Protagonista.Miembro.apellidos},{' '}
                   {item.Protagonista.Miembro.nombre}
-                </strong>
-                <div>Relación: {item.Relacion.tipo}</div>
-                <div>
+                </div>
+                <div className="text-sm">
+                  Relación: <span className="font-medium">{item.Relacion.tipo}</span>
+                </div>
+                <div className="text-sm text-gray-600">
                   Rama:{' '}
                   {item.Protagonista.Miembro.MiembroRama[0]?.Rama.nombre ?? 'Sin rama'}
                 </div>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
       ) : null}
     </div>
   );

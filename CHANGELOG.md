@@ -2,6 +2,274 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.19.30
+
+Fecha: 2026-06-05
+
+### Ajustes Visuales
+
+- se posterga el diseño horizontal/escritorio de la cabecera, los filtros de búsqueda/calendario y la barra de acciones de la página `/dashboard/ciclos-programa` hasta un ancho de pantalla mínimo de `1475px` (`xxlc`), garantizando una distribución adecuada sin desbordes.
+
+## 1.19.29
+
+Fecha: 2026-06-05
+
+### Ajustes Visuales
+
+- se cambia la disposición del contenedor de filtros en `/dashboard/ciclos-programa` de `xxl:flex-col` a `xxl:flex-row xxl:items-center` para que los filtros de búsqueda y rango de fechas aparezcan uno al lado del otro (en fila) en resoluciones medianas y grandes, aplicando también clases de anchos `xxl:w-80` y `xxl:w-64` para alinear su presentación.
+
+## 1.19.28
+
+Fecha: 2026-06-05
+
+### Componentes y UX
+
+- se reubica el botón "Filtros" al lado del selector de fecha en la barra de navegación del calendario, y se colocan botones independientes para cambiar de mes en los extremos izquierdo y derecho de la misma fila, haciéndolos utilizables en móviles y ordenadores.
+
+## 1.19.27
+
+Fecha: 2026-06-05
+
+### Componentes y UX
+
+- se configura el selector de fecha (`Calendar`) del diálogo emergente en `/dashboard/calendario` con `view="month"` y `dateFormat="mm/yy"`, permitiendo seleccionar exclusivamente el mes y año de navegación en lugar de un día específico.
+
+## 1.19.26
+
+Fecha: 2026-06-05
+
+### Componentes y UX
+
+- se remueven las vistas de semestre y año de `/dashboard/calendario`, simplificando la interfaz para mostrar únicamente la vista por mes, y eliminando controles, importaciones y funciones asociadas.
+
+## 1.19.25
+
+Fecha: 2026-06-05
+
+### Componentes y UX
+
+- se elimina el acordeón que envolvía de manera condicional a los botones de formación en resoluciones móviles, mostrándolos de forma directa en cualquier tamaño de pantalla.
+
+## 1.19.24
+
+Fecha: 2026-06-05
+
+### Componentes y UX
+
+- se reemplazan los formularios en línea de creación de template base y de inscripción a plan de formación en `/dashboard/formaciones` por botones dedicados que abren diálogos modales (`Dialog`), mejorando la distribución visual y la experiencia de usuario.
+
+## 1.19.23
+
+Fecha: 2026-06-05
+
+### Ajustes Visuales
+
+- se cambia la disposición del contenedor de filtros en `/dashboard/sabatinos` de `xxl:flex-col` a `xxl:flex-row xxl:items-center` para que los filtros de búsqueda y rango de fechas aparezcan uno al lado del otro (en fila) en resoluciones medianas y grandes, aplicando también clases de anchos `xxl:w-80`, `xxl:w-64` y `shrink-0` para alinear su presentación.
+
+## 1.19.22
+
+Fecha: 2026-06-05
+
+### Componentes y UX
+
+- se modifica la columna "Fecha" en `/dashboard/sabatinos` para mostrar únicamente la fecha formateada como `DD/MM/YYYY` usando `dayjs` sin la hora ni el rango de tiempo.
+
+## 1.19.21
+
+Fecha: 2026-06-05
+
+### Componentes y UX
+
+- se cambia el botón de ojo de la columna "Evento" en `/dashboard/sabatinos` por un enlace de texto clicable (`text-primary hover:underline cursor-pointer font-medium`) que renderiza el nombre del evento y navega directamente a sus detalles al hacer clic.
+
+## 1.19.20
+
+Fecha: 2026-06-05
+
+### Ajustes Visuales
+
+- se añade el breakpoint `xxlb` (1457px) en `globals.css` y se actualizan los filtros y la barra de acciones de `/dashboard/reuniones` para posponer el diseño de escritorio en favor del diseño tablet con filtros en columna y botones con texto e iconos en horizontal hasta un ancho mínimo de 1457px.
+
+## 1.19.19
+
+Fecha: 2026-06-05
+
+### Ajustes Visuales
+
+- se cambia la disposición del contenedor de filtros en `/dashboard/reuniones` de `xxl:flex-col` a `xxl:flex-row xxl:items-center` para que los filtros de búsqueda y rango de fechas aparezcan uno al lado del otro (en fila) en resoluciones medianas y grandes, aplicando también clases de anchos `xxl:w-80`, `xxl:w-64` y `shrink-0` para alinear su presentación.
+
+## 1.19.18
+
+Fecha: 2026-06-05
+
+### Ajustes Visuales
+
+- se añade el breakpoint `xxla` (1427px) en `globals.css` y se actualizan los filtros y la barra de acciones de `/dashboard/eventos` para posponer el diseño de escritorio y conservar la distribución adaptable en columna con botones con texto e iconos hasta un ancho mínimo de 1427px.
+
+## 1.19.17
+
+Fecha: 2026-06-05
+
+### Ajustes Visuales
+
+- se cambia la disposición del contenedor de filtros en `/dashboard/eventos` de `xxl:flex-col` a `xxl:flex-row xxl:items-center` para que los filtros de búsqueda y calendario aparezcan en fila en pantallas medianas y grandes.
+
+## 1.19.16
+
+Fecha: 2026-06-05
+
+### Ajustes Visuales
+
+- se añade soporte para el breakpoint `icon-limit` (1015px) en `globals.css` (ya definido en el paso anterior)
+- se implementa la propiedad `iconLimitBreakpoint` en `ResponsiveTableActions` para cambiar de forma dinámica cuándo colapsar los botones a icon-only (usando `sm` o `icon-limit`)
+- se configura la página de pagos para pasar `iconLimitBreakpoint="icon-limit"`, extendiendo el diseño de sólo iconos con `justify-between` hasta 1015px de ancho
+
+## 1.19.15
+
+Fecha: 2026-06-05
+
+### Ajustes Visuales
+
+- se añade el breakpoint personalizado `xxxxl` (1737px) a `globals.css`
+- se añade soporte dinámico para breakpoint `xxxxl` en `ResponsiveTableActions`
+- se actualiza `/dashboard/pagos` para aplicar el breakpoint `xxxxl` en el header y barra de acciones, postergando el diseño de escritorio en favor del diseño tablet con botones en justify-between hasta 1737px de ancho
+
+## 1.19.14
+
+Fecha: 2026-06-05
+
+### Ajustes Visuales
+
+- se añade el breakpoint personalizado `xxxl` (1583px) a `globals.css`
+- se añade soporte dinámico para breakpoint `xxl` y `xxxl` en `ResponsiveTableActions`
+- se actualiza `/dashboard/responsables` para aplicar el breakpoint `xxxl` en el header y barra de acciones, postergando el diseño de escritorio en favor del diseño tablet con botones en justify-between hasta 1583px de ancho
+
+## 1.19.13
+
+Fecha: 2026-06-05
+
+### Ajustes Visuales y Funcionales
+
+- se aplica de manera global la configuración de buscador inline y acciones directas en móvil a todas las pantallas con listados del dashboard (17 páginas) usando el breakpoint `xxl` (1361px)
+- en las páginas de adultos y responsables se remueve la columna "Perfil" del listado y se reubica como botón de acción especial superior habilitado dinámicamente
+
+## 1.19.12
+
+Fecha: 2026-06-05
+
+### Ajustes Visuales
+
+- se define breakpoint personalizado `xxl` de 1361px en `globals.css` usando `@theme` de Tailwind v4
+- se actualiza `ResponsiveTableActions` y el header de la página de protagonistas para usar el breakpoint `xxl` en lugar de `lg`
+- se remueve la clase `sm:justify-start` en la barra de acciones responsive, manteniendo `justify-between` en pantallas medianas inferiores a 1361px (donde el filtro está arriba y los botones abajo con texto e icono)
+
+## 1.19.11
+
+Fecha: 2026-06-05
+
+### Ajustes Visuales
+
+- se modificó el breakpoint de diseño de escritorio de `md` a `lg` en la barra de acciones y en el header de la tabla de protagonistas, manteniendo la vista móvil y de tableta en pantallas medianas para evitar la distribución separada de botones y filtros en resoluciones intermedias
+
+## 1.19.10
+
+Fecha: 2026-06-05
+
+### Ajustes Visuales
+
+- se agregaron prefijos `!` (importante) a las directivas de visibilidad (`!hidden`, `sm:!hidden`, `sm:!inline-flex`) en los botones del perfil y la barra de acciones para evitar la duplicación causada por las reglas de especificidad CSS de PrimeReact
+
+## 1.19.9
+
+Fecha: 2026-06-05
+
+### Ajustes Visuales
+
+- corrección del descentrado de iconos en móviles implementando botones condicionales separados (uno exclusivo e icono-only para móvil y otro completo para escritorio) bajo un contenedor `contents`
+
+## 1.19.8
+
+Fecha: 2026-06-05
+
+### Ajustes Visuales
+
+- se eliminó la clase `justify-between` del interior de los botones de acción colapsados en móviles para que sus iconos se centren correctamente dentro del botón
+
+## 1.19.7
+
+Fecha: 2026-06-05
+
+### Ajustes Visuales y Funcionales
+
+- se eliminó la columna "Perfil" de la tabla de protagonistas, reduciendo la sobrecarga de elementos por fila
+- se agregó la acción "Perfil" (icono pi-eye) en la barra de acciones superior (ResponsiveTableActions), la cual se habilita dinámicamente al seleccionar un protagonista no borrado en la tabla
+
+## 1.19.6
+
+Fecha: 2026-06-05
+
+### Ajustes Visuales
+
+- los botones de acciones en el perfil e inline en las tablas se colapsan a solo iconos en móviles con justify-between horizontal
+- se cambió el icono del botón Firma a `pi-wave-pulse`
+- se añadió la clase `p-fluid` al contenedor del input de contraseña en el modal de protagonistas para que ocupe todo el ancho en móviles
+
+## 1.19.5
+
+Fecha: 2026-06-04
+
+### Ajustes Visuales
+
+- los botones de acciones adaptables en móviles para las tablas se muestran en ancho completo, apilados verticalmente y alineados con justify-between
+
+## 1.19.4
+
+Fecha: 2026-06-04
+
+### Ajustes Visuales
+
+- los botones de acciones adaptables en la vista de perfil y en el pie del modal de firmas ahora utilizan `justify-between` para distribuir su texto e icono en los bordes cuando se estiran a ancho completo en dispositivos móviles
+
+## 1.19.3
+
+Fecha: 2026-06-04
+
+### Ajustes Visuales
+
+- el buscador de la sección protagonistas se muestra en una línea dedicada a ancho completo en móviles, sin ocultarse tras el botón Filtros
+- las acciones de protagonistas (Crear, Editar, Eliminar, Importar, Pase) se exponen directamente en móviles como botones con iconos y tooltip (sin texto ni modal)
+- se agregan las opciones `inlineFiltersMobile` e `inlineActionsMobile` al componente `ResponsiveTableActions`
+
+## 1.19.2
+
+Fecha: 2026-06-04
+
+### Ajustes Visuales
+
+- la botonera de acciones del perfil ahora se extiende a ancho completo en móviles y se alinea en horizontal en pantallas superiores
+- la botonera del modal de firmas también se adapta verticalmente para mejorar el acceso táctil en móviles
+- se eliminó el envoltorio Card de la pestaña Vínculos del perfil en favor del diseño plano con Dividers
+
+## 1.19.1
+
+Fecha: 2026-06-04
+
+### Ajustes Visuales
+
+- se eliminaron los envoltorios Card a nivel de página en las vistas del dashboard (excepto perfil)
+- los títulos ahora se renderizan directamente como encabezados h1 en el contenedor raíz
+- se removieron las importaciones de Card en desuso
+
+## 1.19.0
+
+Fecha: 2026-06-04
+
+### Funcionalidades
+
+- los usuarios ahora pueden modificar su nombre de usuario (user) directamente desde la sección de edición de su perfil
+- se agrega un nuevo input de tipo password para permitir la actualización de la contraseña (dejar en blanco para mantener la actual)
+- los errores del servidor al intentar actualizar campos (como nombres de usuario duplicados) ahora se capturan y muestran adecuadamente en la interfaz
+
 ## 1.18.1
 
 Fecha: 2026-06-01
