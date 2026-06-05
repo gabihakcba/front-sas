@@ -11,6 +11,7 @@ import { Message } from 'primereact/message';
 import { Tag } from 'primereact/tag';
 import { TabPanel, TabView, TabViewTabChangeEvent } from 'primereact/tabview';
 import { Toast } from 'primereact/toast';
+import { Checkbox } from 'primereact/checkbox';
 import { FilePreviewDialog } from '@/components/common/FilePreviewDialog';
 import { useAuth } from '@/context/AuthContext';
 import { ResponsiveTableActions } from '@/components/common/ResponsiveTableActions';
@@ -80,6 +81,8 @@ export default function EventoDetailsPage() {
     submitAfectaciones,
     submitComision,
     refetch,
+    updateInscripcionAsistencia,
+    updateInscripcionPagado,
   } = useEventoDetailHook(eventoId);
 
   const canEdit = hasPermissionAccess(user, 'UPDATE:EVENTO');
@@ -368,6 +371,28 @@ export default function EventoDetailsPage() {
                 body={(inscripcion: NonNullable<Evento['InscripcionEvento']>[number]) =>
                   inscripcion.Miembro.dni
                 }
+              />
+              <Column
+                header="Asistió"
+                body={(inscripcion: NonNullable<Evento['InscripcionEvento']>[number]) => (
+                  <Checkbox
+                    checked={inscripcion.asistio || false}
+                    onChange={(e) => void updateInscripcionAsistencia(inscripcion.id, e.checked ?? false)}
+                    disabled={!canManageInscripciones}
+                  />
+                )}
+                style={{ width: '6rem', textAlign: 'center' }}
+              />
+              <Column
+                header="Pagado"
+                body={(inscripcion: NonNullable<Evento['InscripcionEvento']>[number]) => (
+                  <Checkbox
+                    checked={inscripcion.pagado || false}
+                    onChange={(e) => void updateInscripcionPagado(inscripcion.id, e.checked ?? false)}
+                    disabled={!canManageInscripciones}
+                  />
+                )}
+                style={{ width: '6rem', textAlign: 'center' }}
               />
             </DataTable>
           </TabPanel>

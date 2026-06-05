@@ -23,6 +23,7 @@ import { getResponsiveDialogProps } from '@/lib/dialog';
 import { SabatinoFormDialog } from '@/components/sabatinos/SabatinoFormDialog';
 import { ActividadFormDialog } from '@/components/sabatinos/ActividadFormDialog';
 import { AssignActividadDialog } from '@/components/sabatinos/AssignActividadDialog';
+import { AsistenciaSabatinoDialog } from '@/components/sabatinos/AsistenciaSabatinoDialog';
 import { getSabatinoRequest } from '@/queries/sabatinos';
 import { Sabatino } from '@/types/sabatinos';
 import { ResponsiveTableActions } from '@/components/common/ResponsiveTableActions';
@@ -41,6 +42,7 @@ export default function SabatinoDetailsPage() {
   const [selectedRow, setSelectedRow] = useState<any>(null);
   const [detailActividad, setDetailActividad] = useState<any>(null);
   const [detailVisible, setDetailVisible] = useState(false);
+  const [asistenciaVisible, setAsistenciaVisible] = useState(false);
 
   // PDF Preview State
   const [previewVisible, setPreviewVisible] = useState(false);
@@ -76,6 +78,8 @@ export default function SabatinoDetailsPage() {
     setAssignActividadVisible,
     assignActividadesToSabatino,
     exportSabatinoPdf,
+    fetchAsistencia,
+    saveAsistencia,
   } = useSabatinosHook();
 
   const canCRUD = hasAdultMemberAccess(user);
@@ -260,15 +264,25 @@ export default function SabatinoDetailsPage() {
           />
           <h1 className="text-2xl font-bold m-0">{sabatino.titulo}</h1>
         </div>
-        <Button
-          label="Exportar PDF"
-          icon="pi pi-file-pdf"
-          iconPos="right"
-          severity="secondary"
-          outlined
-          size="small"
-          onClick={handleExportPdf}
-        />
+        <div className="flex items-center gap-2">
+          <Button
+            label="Asistencia"
+            icon="pi pi-check-square"
+            iconPos="right"
+            outlined
+            size="small"
+            onClick={() => setAsistenciaVisible(true)}
+          />
+          <Button
+            label="Exportar PDF"
+            icon="pi pi-file-pdf"
+            iconPos="right"
+            severity="secondary"
+            outlined
+            size="small"
+            onClick={handleExportPdf}
+          />
+        </div>
       </div>
 
       <div className="flex flex-col gap-4">
@@ -517,6 +531,15 @@ export default function SabatinoDetailsPage() {
           </div>
         )}
       </Dialog>
+
+      <AsistenciaSabatinoDialog
+        visible={asistenciaVisible}
+        onHide={() => setAsistenciaVisible(false)}
+        sabatinoId={sabatino.id}
+        sabatinoTitulo={sabatino.titulo}
+        fetchAsistencia={fetchAsistencia}
+        saveAsistencia={saveAsistencia}
+      />
     </div>
   );
 }

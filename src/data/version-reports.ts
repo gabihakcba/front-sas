@@ -13,6 +13,70 @@ export interface VersionReport {
 
 export const versionReports: VersionReport[] = [
   {
+    version: '1.19.34',
+    date: '2026-06-05',
+    title: 'Control de estado de pago en inscripciones de eventos',
+    summary:
+      'Se implementó la columna "Pagado" con un selector tipo checkbox en la pestaña de inscripciones del detalle de eventos, permitiendo actualizar en tiempo real el estado de pago de cada miembro.',
+    sections: [
+      {
+        title: 'Componentes y UX',
+        items: [
+          'Se añadió la columna "Pagado" con un componente Checkbox de PrimeReact en la DataTable de inscripciones de eventos.',
+          'Se agregó la lógica de guardado directo mediante llamadas a la API tras interactuar con el checkbox.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.33',
+    date: '2026-06-05',
+    title: 'Control de asistencia en inscripciones de eventos',
+    summary:
+      'Se implementó la columna "Asistió" con un selector tipo checkbox en la pestaña de inscripciones del detalle de eventos, permitiendo actualizar en tiempo real si un miembro asistió al evento.',
+    sections: [
+      {
+        title: 'Componentes y UX',
+        items: [
+          'Se añadió la columna "Asistió" con un componente Checkbox de PrimeReact en la DataTable de inscripciones de eventos.',
+          'Se agregó la lógica de guardado directo mediante llamadas a la API tras interactuar con el checkbox.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.32',
+    date: '2026-06-05',
+    title: 'Ajuste de columnas y layout en diálogo de asistencia de sabatinos',
+    summary:
+      'Se modificó el diálogo de asistencia para mantener el diseño de tabla scroll en lugar de apilado (stack) en resoluciones pequeñas, ocultando las columnas secundarias Rama y DNI para optimizar el espacio.',
+    sections: [
+      {
+        title: 'Responsividad y Layout',
+        items: [
+          'Se cambió responsiveLayout de stack a scroll en la tabla de asistencia.',
+          'Se agregaron clases responsive (hidden md:table-cell) para ocultar las columnas de DNI y Rama en pantallas móviles.',
+        ],
+      },
+    ],
+  },
+  {
+    version: '1.19.31',
+    date: '2026-06-05',
+    title: 'Registro de asistencia para sabatinos',
+    summary:
+      'Se implementó la funcionalidad de registro de asistencia de protagonistas en sabatinos, permitiendo a los adultos gestionar la asistencia de los protagonistas de sus respectivas ramas.',
+    sections: [
+      {
+        title: 'Componentes y UX',
+        items: [
+          'Se creó el componente AsistenciaSabatinoDialog para mostrar y gestionar la asistencia con soporte de filtro de búsqueda.',
+          'Se incorporó el botón "Asistencia" en la cabecera de la página de detalle de un sabatino.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.19.30',
     date: '2026-06-05',
     title: 'Nueva variable de breakpoint de 1475px para ciclos de programa',

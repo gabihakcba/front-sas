@@ -125,3 +125,20 @@ export interface CreateActividadPayload {
 }
 
 export type UpdateActividadPayload = Partial<CreateActividadPayload>;
+
+export interface AsistenciaSabatinoItem {
+  idMiembro: number;
+  nombre: string;
+  apellidos: string;
+  dni: string;
+  idRama: number | null;
+  nombreRama: string | null;
+  asistio: boolean;
+}
+
+export interface SaveAsistenciaSabatinoPayload {
+  asistencias: Array<{
+    idMiembro: number;
+    asistio: boolean;
+  }>;
+}

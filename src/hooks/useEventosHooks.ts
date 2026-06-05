@@ -15,6 +15,8 @@ import {
   updateEventoAfectacionesRequest,
   updateEventoInscripcionesRequest,
   updateEventoRequest,
+  updateEventoInscripcionAsistenciaRequest,
+  updateEventoInscripcionPagadoRequest,
 } from '@/queries/eventos';
 import {
   CreateEventoPayload,
@@ -651,6 +653,30 @@ export const useEventoDetailHook = (eventoId: number) => {
     }
   };
 
+  const updateInscripcionAsistencia = async (inscripcionId: number, asistio: boolean) => {
+    if (!evento) return;
+    setError('');
+    try {
+      await updateEventoInscripcionAsistenciaRequest(evento.id, inscripcionId, asistio);
+      setSuccessMessage('Asistencia de inscripción actualizada correctamente.');
+      await refetch();
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No se pudo actualizar la asistencia.'));
+    }
+  };
+
+  const updateInscripcionPagado = async (inscripcionId: number, pagado: boolean) => {
+    if (!evento) return;
+    setError('');
+    try {
+      await updateEventoInscripcionPagadoRequest(evento.id, inscripcionId, pagado);
+      setSuccessMessage('Estado de pago de inscripción actualizado correctamente.');
+      await refetch();
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No se pudo actualizar el estado de pago.'));
+    }
+  };
+
   return {
     evento,
     formValues,
@@ -688,5 +714,7 @@ export const useEventoDetailHook = (eventoId: number) => {
     submitInscripciones,
     submitAfectaciones,
     submitComision,
+    updateInscripcionAsistencia,
+    updateInscripcionPagado,
   };
 };

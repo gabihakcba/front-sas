@@ -55,6 +55,8 @@ export interface Evento {
   };
   InscripcionEvento?: Array<{
     id: number;
+    asistio: boolean;
+    pagado: boolean;
     Miembro: EventoMiembroOption;
   }>;
 }

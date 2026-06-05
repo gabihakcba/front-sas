@@ -18,6 +18,8 @@ import {
   updateActividadRequest,
   updateSabatinoActividadesRequest,
   updateSabatinoRequest,
+  getAsistenciaRequest,
+  saveAsistenciaRequest,
 } from '@/queries/sabatinos';
 import {
   Actividad,
@@ -28,6 +30,7 @@ import {
   TipoActividad,
   UpdateActividadPayload,
   UpdateSabatinoPayload,
+  SaveAsistenciaSabatinoPayload,
 } from '@/types/sabatinos';
 import { PaginatedResponseMeta } from '@/types/pagination';
 
@@ -372,6 +375,24 @@ export const useSabatinosHook = () => {
     }
   };
 
+  const fetchAsistencia = async (sabatinoId: number) => {
+    try {
+      return await getAsistenciaRequest(sabatinoId);
+    } catch (err) {
+      setError(getErrorMessage(err, 'Error al obtener asistencia.'));
+      throw err;
+    }
+  };
+
+  const saveAsistencia = async (sabatinoId: number, payload: SaveAsistenciaSabatinoPayload) => {
+    try {
+      return await saveAsistenciaRequest(sabatinoId, payload);
+    } catch (err) {
+      setError(getErrorMessage(err, 'Error al guardar asistencia.'));
+      throw err;
+    }
+  };
+
   return {
     sabatinos,
     selectedSabatino,
@@ -415,5 +436,7 @@ export const useSabatinosHook = () => {
     setAssignActividadVisible,
     assignActividadesToSabatino,
     exportSabatinoPdf,
+    fetchAsistencia,
+    saveAsistencia,
   };
 };

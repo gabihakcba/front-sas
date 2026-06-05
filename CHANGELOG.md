@@ -2,6 +2,38 @@
 
 Todas las versiones deben listarse de mas nueva a mas vieja.
 
+## 1.19.34
+
+Fecha: 2026-06-05
+
+### Nuevas Funcionalidades
+
+- se agrega una columna tipo checkbox "Pagado" en la lista de inscripciones del detalle de un evento, permitiendo a los usuarios autorizados marcar y desmarcar el estado de pago individual en tiempo real.
+
+## 1.19.33
+
+Fecha: 2026-06-05
+
+### Nuevas Funcionalidades
+
+- se agrega una columna tipo checkbox "Asistió" en la lista de inscripciones del detalle de un evento, permitiendo a los usuarios autorizados marcar y desmarcar la asistencia individual en tiempo real.
+
+## 1.19.32
+
+Fecha: 2026-06-05
+
+### Ajustes Visuales
+
+- se fuerza el diseño horizontal (scroll layout) en la tabla de asistencia en el diálogo de sabatinos, eliminando la transformación a diseño apilado en móviles, y se ocultan dinámicamente las columnas "DNI" y "Rama" en pantallas pequeñas para optimizar el espacio de lectura.
+
+## 1.19.31
+
+Fecha: 2026-06-05
+
+### Nuevas Funcionalidades
+
+- se agrega el registro de asistencia en sabatinos, permitiendo a los adultos gestionar la asistencia de los protagonistas de sus respectivas ramas en los sabatinos correspondientes, controlando los permisos y scopes tanto en el front como en el back.
+
 ## 1.19.30
 
 Fecha: 2026-06-05

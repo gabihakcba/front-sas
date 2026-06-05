@@ -10,6 +10,8 @@ import {
   TipoActividad,
   UpdateActividadPayload,
   UpdateSabatinoPayload,
+  AsistenciaSabatinoItem,
+  SaveAsistenciaSabatinoPayload,
 } from '@/types/sabatinos';
 
 export const getSabatinosRequest = async (filters: SabatinoFilters) => {
@@ -130,4 +132,20 @@ export const updateActividadRequest = async (
 
 export const deleteActividadRequest = async (id: number) => {
   await api.delete(`/actividades/${id}`);
+};
+
+export const getAsistenciaRequest = async (sabatinoId: number) => {
+  const response = await api.get<AsistenciaSabatinoItem[]>(`/sabatinos/${sabatinoId}/asistencia`);
+  return response.data;
+};
+
+export const saveAsistenciaRequest = async (
+  sabatinoId: number,
+  payload: SaveAsistenciaSabatinoPayload,
+) => {
+  const response = await api.post<{ success: boolean }>(
+    `/sabatinos/${sabatinoId}/asistencia`,
+    payload,
+  );
+  return response.data;
 };

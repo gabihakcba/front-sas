@@ -165,3 +165,27 @@ export const exportEventoPdfRequest = async (id: number) => {
   });
   return response.data;
 };
+
+export const updateEventoInscripcionAsistenciaRequest = async (
+  eventId: number,
+  inscripcionId: number,
+  asistio: boolean,
+): Promise<{ success: boolean }> => {
+  const response = await api.patch<{ success: boolean }>(
+    `/eventos/${eventId}/inscripciones/${inscripcionId}/asistencia`,
+    { asistio },
+  );
+  return response.data;
+};
+
+export const updateEventoInscripcionPagadoRequest = async (
+  eventId: number,
+  inscripcionId: number,
+  pagado: boolean,
+): Promise<{ success: boolean }> => {
+  const response = await api.patch<{ success: boolean }>(
+    `/eventos/${eventId}/inscripciones/${inscripcionId}/pagado`,
+    { pagado },
+  );
+  return response.data;
+};
